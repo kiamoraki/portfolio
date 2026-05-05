@@ -1,0 +1,21 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{html,md,markdown}]
+indent_style = space
+indent_size = 2
+
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
+
+# Preserve YAML front matter formatting
+[*.html]
+# Don't auto-format YAML front matter
+block_comment_start = <!--
+block_comment_end = --> 

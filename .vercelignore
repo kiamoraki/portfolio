@@ -1,0 +1,24 @@
+# Skip raw video source files — none are referenced by the site,
+# they're leftover originals from your local workflow.
+# Remove these patterns to ship the videos.
+public/**/*.mov
+public/**/*.MOV
+public/**/*.m4v
+public/**/*.mp4
+public/**/*.MP4
+
+# Jekyll legacy directories (in case they reappear)
+_site
+_layouts
+_includes
+_projects
+_posts
+_data
+_design
+.jekyll-cache
+.sass-cache
+
+# IDE / OS
+.DS_Store
+.vscode
+.cursorrules

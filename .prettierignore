@@ -1,0 +1,13 @@
+# Ignore HTML files to preserve YAML front matter formatting
+*.html
+
+# Ignore Jekyll files
+_layouts/
+_includes/
+_posts/
+_projects/
+_site/
+
+# Ignore other files that might interfere
+*.md
+*.markdown 

@@ -1,0 +1,33 @@
+# dependencies
+/node_modules
+
+# Next.js
+/.next/
+/out/
+next-env.d.ts
+
+# Misc
+.DS_Store
+*.pem
+
+# Debug
+npm-debug.log*
+.pnpm-debug.log*
+
+# Local env files
+.env*.local
+.env
+
+# Vercel
+.vercel
+
+# Old website archives — too big + contain nested .git/node_modules/build artifacts.
+# Decide later: move just the built _site/ of each into public/sites/, then unignore.
+/sites/
+
+# Source video files (mirrors .vercelignore — too big for GitHub, not used by site)
+*.mov
+*.MOV
+*.mp4
+*.MP4
+*.m4v

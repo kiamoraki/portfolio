@@ -1,0 +1,47 @@
+{
+  "files.associations": {
+    "*.html": "liquid"
+  },
+  "emmet.includeLanguages": {
+    "liquid": "html"
+  },
+  "html.format.enable": false,
+  "html.format.wrapLineLength": 80,
+  "html.format.unformatted": "pre,code,textarea",
+  "html.format.contentUnformatted": "pre,code,textarea",
+  "html.format.extraLiners": "head,body,/html",
+  "html.format.preserveNewLines": true,
+  "html.format.maxPreserveNewLines": 2,
+  "html.format.indentInnerHtml": false,
+  "html.format.wrapAttributes": "auto",
+  "html.format.wrapAttributesIndentSize": 2,
+  "html.format.templating": true,
+  "html.format.templating.enabled": true,
+  "html.format.templating.engine": "liquid",
+  "files.trimTrailingWhitespace": false,
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": false,
+  "[html]": {
+    "editor.formatOnSave": false,
+    "editor.formatOnPaste": false,
+    "editor.formatOnType": false,
+    "editor.defaultFormatter": null
+  },
+  "[liquid]": {
+    "editor.formatOnSave": false,
+    "editor.formatOnPaste": false,
+    "editor.formatOnType": false,
+    "editor.defaultFormatter": null
+  },
+  "[yaml]": {
+    "editor.formatOnSave": false,
+    "editor.formatOnPaste": false,
+    "editor.formatOnType": false,
+    "editor.defaultFormatter": null
+  },
+  "prettier.disableLanguages": ["html", "yaml", "liquid"],
+  "editor.formatOnSave": false,
+  "editor.formatOnPaste": false,
+  "editor.formatOnType": false,
+  "liquid.format.enable": false
+}
