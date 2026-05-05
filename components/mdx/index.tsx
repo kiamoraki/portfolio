@@ -1,6 +1,10 @@
 import type { CSSProperties, ReactNode } from "react";
+import Image from "next/image";
 import { TobritCanvas } from "@/components/sketches/TobritCanvas";
 import { LissajousCanvas } from "@/components/sketches/LissajousCanvas";
+import imageManifest from "@/lib/image-manifest.json";
+
+const manifest = imageManifest as Record<string, { width: number; height: number }>;
 
 type FigureProps = {
   src: string;
@@ -8,12 +12,28 @@ type FigureProps = {
   caption?: ReactNode;
   style?: CSSProperties;
   className?: string;
+  priority?: boolean;
 };
 
-export function Figure({ src, alt = "", caption, style, className }: FigureProps) {
+export function Figure({ src, alt = "", caption, style, className, priority }: FigureProps) {
+  const dims = manifest[src];
   return (
     <figure className={["image", className].filter(Boolean).join(" ")} style={style}>
-      <img src={src} alt={alt} />
+      {dims ? (
+        <Image
+          src={src}
+          alt={alt}
+          width={dims.width}
+          height={dims.height}
+          sizes="(max-width: 720px) 100vw, (max-width: 1200px) 80vw, 1200px"
+          priority={priority}
+          unoptimized={src.endsWith(".gif")}
+        />
+      ) : (
+        // Fallback for any image not in the manifest (animations, externally-named refs)
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={src} alt={alt} />
+      )}
       {caption ? <figcaption>{caption}</figcaption> : null}
     </figure>
   );

@@ -4,10 +4,11 @@
   "description": "Kirby's Portfolio",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "node scripts/build-image-manifest.mjs && next dev",
+    "build": "node scripts/build-image-manifest.mjs && next build && node scripts/build-redirects.mjs",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "optimize-images": "node scripts/optimize-images.mjs"
   },
   "dependencies": {
     "gray-matter": "^4.0.3",

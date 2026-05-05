@@ -31,3 +31,6 @@ npm-debug.log*
 *.mp4
 *.MP4
 *.m4v
+
+# Generated on every build by scripts/build-image-manifest.mjs
+/lib/image-manifest.json
