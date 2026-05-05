@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+        <head>
+                <!-- Global site tag (gtag.js) - Google Analytics -->
+                <script async src="https://www.googletagmanager.com/gtag/js?id=UA-172226953-1"></script>
+                <script>
+                    window.dataLayer = window.dataLayer || [];
+                    function gtag(){dataLayer.push(arguments);}
+                    gtag('js', new Date());
+                    gtag('config', 'UA-172226953-1');
+                </script>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+                <title>EOS</title>
+                <link rel="stylesheet" type="text/css" href="./styles.css">
+                <script src="./js/jquery.v3.4.1.min.js"></script>
+                <script src="./js/topics.js"></script>
+                <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+                <script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+                <script src="./js/fitvid.js"></script> 
+                <script src="./js/scripts.js"></script> 
+        </head>
+        <body>
+                <header id="Header_Main">
+                        <a id="Logo_Main" href="index.html"><img src="./img/logo.png"></a>
+                        <div id="Mobile_Menu_Toggle">
+                                <div class="hamburger"></div>
+                        </div>
+                        <ul id="Nav_Main">
+                                <li>
+                                        <a href="demo.html">Demo</a>
+                                </li>
+                                <li>
+                                        <a href="community.html">Community</a>
+                                        <ul>
+                                                <li>
+                                                        <p>Sample Community Pages</p>
+                                                </li>
+                                                <li>
+                                                        <a href="community-abuse.html">Abuse</a>
+                                                </li>
+                                                <li>
+                                                        <a href="community-healthcrisis.html">Health Crisis</a>
+                                                </li>
+                                                <li>
+                                                        <a href="community-human_trafficking.html">Human Trafficking</a>
+                                                </li>
+                                        </ul>
+                                </li>
+                                <li>
+                                        <a href="about.html">About</a>
+                                </li>
+                                <li>
+                                        <a href="faq.html">FAQ</a>
+                                </li>
+                                <li>
+                                        <a id="Nav_Main-Profile" href="form-signup.html">Login / Sign Up</a>
+                                        <ul>
+                                                <li>
+                                                        <p>Sample Profiles</p>
+                                                </li>
+                                                <li>
+                                                        <a href="profile.html">Amanda</a>
+                                                </li>
+                                                <li>
+                                                        <a href="profile-andrew.html">Andrew</a>
+                                                </li>
+                                                <li>
+                                                        <a href="profile-newdawn.html">New Dawn</a>
+                                                </li>
+                                        </ul>
+                                </li>
+                        </ul>
+                </header>
+                <div class="content">
+                        <!-- 
+Profile pages for Amanda, Andrew, New Dawn
+-->
+
+<div id="Profile" class="amanda">
+    <div id="Profile-Header">
+        <div class="wrapper">
+            <img id="Profile-Avatar" src="./img/headshots/amanda.jpeg">
+            <ul id="Profile-Btns">
+                <!-- <li>
+                                        <button id="Profile-Message" class="btn btn-small">Message</button>
+                                </li>
+                                <li>
+                                        <button id="Profile-FriendRequest" class="btn btn-small">Send Friend Request</button>
+                                </li> -->
+                <li>
+                    <button id="Profile-Edit-Btn" class="btn btn-small" type="button">Edit Profile</button>
+                </li>
+            </ul>
+            <ul id="Profile-Social">
+                <li>
+                    <a href="#" target="_blank" class="icon-social">facebook</a>
+                </li>
+                <li>
+                    <a href="#" target="_blank" class="icon-social">instagram</a>
+                </li>
+                <li>
+                    <a href="#" target="_blank" class="icon-social">linkedin</a>
+                </li>
+                <li>
+                    <a href="#" target="_blank" class="icon-social">twitter</a>
+                </li>
+                <li>
+                    <a href="#" target="_blank" class="icon-social">youtube</a>
+                </li>
+            </ul>
+        </div>
+        <!-- Profile-Header .wrapper -->
+    </div>
+    <!-- Profile-Header -->
+    <div id="Profile-Data" class="wrapper">
+        <div id="Profile-Data-Rating">
+            <div id="Profile-Rating">
+                <span class="icon-standard active">star</span>
+                <span class="icon-standard active">star</span>
+                <span class="icon-standard active">star</span>
+                <span class="icon-standard active">star</span>
+                <span class="icon-standard">star</span>
+            </div>
+            <p>@amanda</p>
+            <p>Joined October 2020</p>
+        </div>
+        <div id="Profile-Data-Txt">
+            <div id="Profile-Name">
+                <h1>Amanda Solipsaysum</h1>
+                <div id="Profile-Badges">
+                    <div class="tooltip">
+                        <span class="tooltiptxt">Verified</span>
+                        <span class="icon-standard verified">check</span>
+                    </div>
+                    <div class="tooltip">
+                        <span class="tooltiptxt">Pledged</span>
+                        <span class="icon">medal</span>
+                    </div>
+                    <div class="tooltip">
+                        <span class="tooltiptxt">Donor</span>
+                        <span class="icon-standard">cost</span>
+                    </div>
+                    <div class="tooltip">
+                        <span class="tooltiptxt">Beta Tester</span>
+                        <span class="icon-standard">user</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Profile-Name -->
+            <ul>
+                <li class="column">
+                    <label>Organization</label>
+                    <h2><a href="./profile-newdawn.html">A New Dawn</a></h2>
+                </li>
+            </ul>
+            <ul>
+                <li class="column">
+                    <label>Location</label>
+                    <h2><span class="icon-location icon-standard">location</span>Ann Arbor, Michigan</h2>
+                </li>
+                <li class="column">
+                    <label>Faith</label>
+                    <h2>Buddhism</h2>
+                </li>
+            </ul>
+            <ul>
+                <li class="row">
+                    <label>Ambassador</label>
+                    <img src="./img/topics-abuse.png">
+                    <h2>Lead Midwest Abuse Ambassador</h2>
+                </li>
+                <li class="row">
+                    <label>Awards</label>
+                    <img src="./img/risingphoenix.png">
+                    <h2>Rising Phoenix Award Winner 2019</h2>
+                </li>
+            </ul>
+            <ul id="Profile-Life_Transitions">
+                <li>
+                    <label>Life Transitions Experienced</label>
+                    <p><span>Abuse</span></p>
+                </li>
+                <li>
+                    <label>Seeking Help With</label>
+                    <p><span>Aging</span></p>
+                </li>
+            </ul>
+            <!-- Profile-Life_Transitions -->
+            <ul id="Profile-About">
+                <li>
+                    <label>About</label>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                </li>
+            </ul>
+            <!-- Profile-About -->
+        </div>
+        <!-- Profile-Data-Txt -->
+    </div>
+    <!-- Profile-Data -->
+    <div id="Profile-Participation">
+        <div class="tabs">
+            <button class="tablinks active" onclick="openTab(event,'Profile-Posts')"><span class="icon ss-standard">compose</span>Posts</button>
+            <button class="tablinks" onclick="openTab(event,'Profile-Activity')"><span class="icon">activity</span>Activity</button>
+            <button class="tablinks" onclick="openTab(event, 'Profile-Events')"><span class="icon-standard">calendar</span>Events</button>
+            <button class="tablinks" onclick="openTab(event,'Profile-Groups')"><span class="icon-standard">users</span>Groups</button>
+            <button class="tablinks" onclick="openTab(event, 'Profile-Inbox')"><span class="icon-standard">mail</span>Inbox</button>
+            <button class="tablinks" onclick="openTab(event,'Profile-Friends')"><span class="icon-standard">user</span>Friends</button>
+            <button class="tablinks" onclick="openTab(event,'Profile-Bookmarks')"><span class="icon-standard">bookmark</span>Bookmarks</button>
+            <button class="tablinks" onclick="openTab(event,'Profile-Reviews')"><span class="icon-standard">write</span>Reviews</button>
+        </div>
+        <div id="Profile-Posts" class="tabcontent active">
+            <ul id="Profile-Posts">
+                <li class="post">
+                    <header>
+                        <h2>Blog Post</h2>
+                        <ul>
+                            <li><a href="./community.html">Category</a></li>
+                            <li><a href="./community.html">Category</a></li>
+                        </ul>
+                        <date>January 6, 2021</date>
+                    </header>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                </li>
+                <li class="post">
+                    <header>
+                        <h2>Blog Post</h2>
+                        <ul>
+                            <li><a href="./community.html">Longer Category Name</a></li>
+                        </ul>
+                        <date>Published October 18, 2020</date>
+                    </header>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                </li>
+            </ul>
+        </div>
+        <!-- end #Posts.tabcontent -->
+
+        <div id="Profile-Activity" class="tabcontent">
+        </div>
+        <div id="Profile-Events" class="tabcontent">
+        </div>
+        <div id="Profile-Groups" class="tabcontent">
+        </div>
+        <div id="Profile-Inbox" class="tabcontent">
+        </div>
+        <div id="Profile-Friends" class="tabcontent">
+        </div>
+        <div id="Profile-Bookmarks" class="tabcontent">
+        </div>
+        <div id="Profile-Reviews" class="tabcontent">
+        </div>
+    </div>
+    <!-- #Profile-Participation -->
+</div>
+<!-- #Profile -->
+
+<!-- Edit Profile Modal -->
+<div id="EditProfileModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <span class="modal-close">&times;</span>
+        <div id="Profile_Settings">
+            <sidebar>
+                <nav>
+                    <a href="#">Profile Details</a>
+                    <a href="#">Account Details</a>
+                    <a href="#">Login & Security</a>
+                    <a href="#">Membership & Payment</a>
+                    <a href="#" class="active">Privacy</a>
+                    <a href="#">Notifications</a>
+                </nav>
+                <button class="btn">Deactivate Account</button>
+            </sidebar>
+            <form class="form">
+                <fieldset>
+                    <h4>Who can see your profile info</h4>
+                    <p>You can choose who sees what on your profile, like showing your phone number to only you Trust Tier 4 connections. Just go to your profile and click on the "Edit" button!</p>
+                    <button class="btn">Go to your profile</button>
+                </fieldset>
+                <fieldset>
+                    <h4>Who can see your content</h4>
+                    <p>You can choose who sees and interacts with your stories, threads and collections every time you create new content. To change the privacy setting of your past content, go to your profile, find the item you want to change, click on
+                        the privacy icon and select an audience</p>
+                    <button class="btn">See your content</button>
+                </fieldset>
+                <fieldset>
+                    <h4>Who can message you</h4>
+                    <ul>
+                        <li>
+                            <label>
+                                <input type="radio">
+                                <span>All members</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                <input type="radio">
+                                <span>All connections</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                <input type="radio">
+                                <span>Trust tier 1 connections</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                <input type="radio">
+                                <span>Trust tier 2 connections</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                <input type="radio">
+                                <span>Trust tier 3 connections</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                <input type="radio">
+                                <span>Trust tier 4 connections</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                <input type="radio">
+                                <span>No One</span>
+                            </label>
+                        </li>
+                    </ul>
+                    <button class="btn">Save</button>
+                </fieldset>
+                <fieldset>
+                    <h4>Manage muted users</h4>
+                    <p>Once you mute someone, you can't see any of their content, and won't get notified of any of their activities, including their stories, threads, comments, replies, and reactions. See a list of users you have muted.</p>
+                    <ul>
+                        <li>
+                            <a href=""></a>
+                            <img src="#">
+                            <h5>Alex McArthur</h5>
+                            <button class="btn">Muted</button>
+                        </li>
+                        <li>
+                            <a href=""></a>
+                            <img src="#">
+                            <h5>Alex McArthur</h5>
+                            <button class="btn">Muted</button>
+                        </li>
+                    </ul>
+                    <button class="btn">Save</button>
+                </fieldset>
+                <fieldset>
+                    <h4>Manage blocked users</h4>
+                    <p>Blocked users cannot see your content or interact with you in any way. See a list of users you've blocked.</p>
+                    <ul>
+                        <li>
+                            <a href=""></a>
+                            <img src="#">
+                            <h5>Alex McArthur</h5>
+                            <button class="btn">Blocked</button>
+                        </li>
+                    </ul>
+                    <button class="btn">Save</button>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+</div>
+                </div>
+                <footer id="Footer">
+        <section>
+                <p>The Intentional Living Collective</p>
+                <p>3840 Packard St, Suite 160</p>
+                <p>Ann Arbor, MI  48108</p>
+                <p><a href="mailto:contact@the-ilc.org">contact@the-ilc.org</a></p>
+        </section>
+        <section>
+                <a class="btn" href="https://docs.google.com/forms/d/e/1FAIpQLSeL9755yf_6fX1JIEkN9B8wi2n51z_z64-_c71CI91sd2mvmQ/viewform" target="_blank">Contact Us</a>
+        </section>
+</footer>
+
+        </body>
+</html>

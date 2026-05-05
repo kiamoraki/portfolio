@@ -5,11 +5,8 @@ export const metadata = { title: "Old Websites — Kirby" };
 const sites = [
   {
     name: "EOS",
-    description: "A demo site and design & data project.",
-    links: [
-      { label: "Demo Site", href: "/sites/eos/eos-demo-site/" },
-      { label: "Design & Data", href: "/sites/eos/Design & Data/" },
-    ],
+    description: "A Jekyll demo site for a community-resources project.",
+    links: [{ label: "Demo Site", href: "/sites/eos/eos-demo-site/" }],
   },
   {
     name: "Mars Radio",
@@ -18,13 +15,8 @@ const sites = [
   },
   {
     name: "Xtian.dev",
-    description: "A PHP-based personal website with custom styling.",
+    description: "A Next.js personal website with custom styling.",
     links: [{ label: "View Site", href: "/sites/xtian.dev/" }],
-  },
-  {
-    name: "Jessie D Mees",
-    description: "A portfolio website with works showcase and about page.",
-    links: [{ label: "View Site", href: "/sites/jessiedmees/" }],
   },
 ];
 

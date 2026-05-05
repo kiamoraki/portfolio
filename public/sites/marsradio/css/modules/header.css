@@ -1,0 +1,60 @@
+/* Error: Undefined mixin.
+ *     ,
+ * 58  | /     @include tablet {
+ * 59  | |         nav {
+ * 60  | |             height: 100%;
+ * 61  | |         }
+ * 62  | |         h1 {
+ * 63  | |             left: 20px;
+ * 64  | |         }
+ * 65  | |         ul {
+ * 66  | |             width: 100%;
+ * 67  | |             height: 100%;
+ * 68  | |             display: block;
+ * 69  | |             display: flex;
+ * 70  | |             justify-content: flex-end;
+ * 71  | |             li {
+ * 72  | |                 display: flex;
+ * 73  | |                 align-items: center;
+ * 74  | |                 height: 100%;
+ * 75  | |             }
+ * 76  | |         }
+ * 77  | |         a {
+ * 78  | |             height: 100%;
+ * 79  | |             display: flex;
+ * 80  | |             align-items: center;
+ * 81  | |             padding: 0 20px;
+ * 82  | |             border-right: 2px solid transparent;
+ * 83  | |             border-left: 2px solid transparent;
+ * 84  | |             &.active {
+ * 85  | |                 border-right: 2px solid $black;
+ * 86  | |                 border-left: 2px solid $black;
+ * 87  | |             }
+ * 88  | |             &:not(:first-child),
+ * 89  | |             &:not(:last-child) {
+ * 90  | |                 padding: 0 10px;
+ * 91  | |             }
+ * 92  | |             &:first-child {
+ * 93  | |                 padding-left: 20px;
+ * 94  | |             }
+ * 95  | |             &:last-child {
+ * 96  | |                 padding-right: 20px;
+ * 97  | |             }
+ * 98  | |             &:hover {
+ * 99  | |                 color: $highlight;
+ * 100 | |             }
+ * 101 | |         }
+ * 102 | \     }
+ *     '
+ *   _scss/modules/header.scss 58:5  root stylesheet */
+
+body::before {
+  font-family: "Source Code Pro", "SF Mono", Monaco, Inconsolata, "Fira Mono",
+      "Droid Sans Mono", monospace, monospace;
+  white-space: pre;
+  display: block;
+  padding: 1em;
+  margin-bottom: 1em;
+  border-bottom: 2px solid black;
+  content: "Error: Undefined mixin.\a     \2577 \a 58  \2502  \250c      @include tablet {\a 59  \2502  \2502          nav {\a 60  \2502  \2502              height: 100%;\a 61  \2502  \2502          }\a 62  \2502  \2502          h1 {\a 63  \2502  \2502              left: 20px;\a 64  \2502  \2502          }\a 65  \2502  \2502          ul {\a 66  \2502  \2502              width: 100%;\a 67  \2502  \2502              height: 100%;\a 68  \2502  \2502              display: block;\a 69  \2502  \2502              display: flex;\a 70  \2502  \2502              justify-content: flex-end;\a 71  \2502  \2502              li {\a 72  \2502  \2502                  display: flex;\a 73  \2502  \2502                  align-items: center;\a 74  \2502  \2502                  height: 100%;\a 75  \2502  \2502              }\a 76  \2502  \2502          }\a 77  \2502  \2502          a {\a 78  \2502  \2502              height: 100%;\a 79  \2502  \2502              display: flex;\a 80  \2502  \2502              align-items: center;\a 81  \2502  \2502              padding: 0 20px;\a 82  \2502  \2502              border-right: 2px solid transparent;\a 83  \2502  \2502              border-left: 2px solid transparent;\a 84  \2502  \2502              &.active {\a 85  \2502  \2502                  border-right: 2px solid $black;\a 86  \2502  \2502                  border-left: 2px solid $black;\a 87  \2502  \2502              }\a 88  \2502  \2502              &:not(:first-child),\a 89  \2502  \2502              &:not(:last-child) {\a 90  \2502  \2502                  padding: 0 10px;\a 91  \2502  \2502              }\a 92  \2502  \2502              &:first-child {\a 93  \2502  \2502                  padding-left: 20px;\a 94  \2502  \2502              }\a 95  \2502  \2502              &:last-child {\a 96  \2502  \2502                  padding-right: 20px;\a 97  \2502  \2502              }\a 98  \2502  \2502              &:hover {\a 99  \2502  \2502                  color: $highlight;\a 100 \2502  \2502              }\a 101 \2502  \2502          }\a 102 \2502  \2514      }\a     \2575 \a   _scss/modules/header.scss 58:5  root stylesheet";
+}

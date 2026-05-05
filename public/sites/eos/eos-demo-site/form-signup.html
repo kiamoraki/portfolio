@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+        <head>
+                <!-- Global site tag (gtag.js) - Google Analytics -->
+                <script async src="https://www.googletagmanager.com/gtag/js?id=UA-172226953-1"></script>
+                <script>
+                    window.dataLayer = window.dataLayer || [];
+                    function gtag(){dataLayer.push(arguments);}
+                    gtag('js', new Date());
+                    gtag('config', 'UA-172226953-1');
+                </script>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+                <title>EOS</title>
+                <link rel="stylesheet" type="text/css" href="./styles.css">
+                <script src="./js/jquery.v3.4.1.min.js"></script>
+                <script src="./js/topics.js"></script>
+                <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+                <script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+                <script src="./js/fitvid.js"></script> 
+                <script src="./js/scripts.js"></script> 
+        </head>
+        <body>
+                <header id="Header_Main">
+                        <a id="Logo_Main" href="index.html"><img src="./img/logo.png"></a>
+                        <div id="Mobile_Menu_Toggle">
+                                <div class="hamburger"></div>
+                        </div>
+                        <ul id="Nav_Main">
+                                <li>
+                                        <a href="demo.html">Demo</a>
+                                </li>
+                                <li>
+                                        <a href="community.html">Community</a>
+                                        <ul>
+                                                <li>
+                                                        <p>Sample Community Pages</p>
+                                                </li>
+                                                <li>
+                                                        <a href="community-abuse.html">Abuse</a>
+                                                </li>
+                                                <li>
+                                                        <a href="community-healthcrisis.html">Health Crisis</a>
+                                                </li>
+                                                <li>
+                                                        <a href="community-human_trafficking.html">Human Trafficking</a>
+                                                </li>
+                                        </ul>
+                                </li>
+                                <li>
+                                        <a href="about.html">About</a>
+                                </li>
+                                <li>
+                                        <a href="faq.html">FAQ</a>
+                                </li>
+                                <li>
+                                        <a id="Nav_Main-Profile" href="form-signup.html">Login / Sign Up</a>
+                                        <ul>
+                                                <li>
+                                                        <p>Sample Profiles</p>
+                                                </li>
+                                                <li>
+                                                        <a href="profile.html">Amanda</a>
+                                                </li>
+                                                <li>
+                                                        <a href="profile-andrew.html">Andrew</a>
+                                                </li>
+                                                <li>
+                                                        <a href="profile-newdawn.html">New Dawn</a>
+                                                </li>
+                                        </ul>
+                                </li>
+                        </ul>
+                </header>
+                <div class="content">
+                        <div id="Signup">
+    <form action="" class="form">
+        <fieldset id="Signup-Type" class="toggle-switch">
+            <input class="switch-button-radio tablinks active" type="radio" name="signup-type" id="Signup-Individual-Btn" onclick="openTab(event, 'Signup-Individual')">
+            <label class="switch-button-label" for="Signup-Individual-Btn">Individual</label>
+            <input class="switch-button-radio tablinks" type="radio" name="signup-type" id="Signup-Organization-Btn" onclick="openTab(event, 'Signup-Organization')">
+            <label class="switch-button-label" for="Signup-Organization-Btn">Organization</label>
+        </fieldset>
+
+        <div id="Signup-Individual" class="tabcontent form-signup active">
+            <fieldset class="fieldset-regular">
+                <label class="animated" for="firstname">First Name</label>
+                <input type="text" name="First Name" id="firstname" class="form-control">
+            </fieldset>
+            <fieldset class="fieldset-regular">
+                <label class="animated" for="lastname">Last Name</label>
+                <input type="text" name="Last Name" id="lastname" class="form-control">
+            </fieldset>
+            <fieldset class="fieldset-regular">
+                <label class="animated" for="email">Email</label>
+                <input type="text" name="email" id="email" class="form-control">
+            </fieldset>
+
+            <fieldset class="fieldset-regular">
+                <label class="animated" for="username">Username</label>
+                <input type="text" name="username" id="username" class="form-control">
+            </fieldset>
+
+            <fieldset class="fieldset-regular">
+                <label class="animated" for="user-pwd">Password</label>
+                <input type="password" name="Password" id="user-pwd" class="form-control">
+            </fieldset>
+            <fieldset id="Signup-Membership_Types">
+                <legend>
+                    <span>Membership Types</span>
+                    <button id="Signup-Membership_Types-Btn" class="btn-plain">Learn about Membership Types</button>
+                </legend>
+                <ul>
+                    <li id="Signup-Membership_Types-Basic">
+                        <header>
+                            <input type="radio" name="membership" id="membership-basic" checked>
+                            <label>Basic</br>Free</label>
+                        </header>
+                        <ul>
+                            <li>
+                                <p>Create safe, secure individual profiles</p>
+                            </li>
+                            <li>
+                                <p>In-system messaging, read & post in forum discussions, view events</p>
+                            </li>
+                            <li>
+                                <p>Create/share/comment on personal blogs & story posts</p>
+                            </li>
+                            <li>
+                                <p>Basic community resource searches and support</p>
+                            </li>
+                        </ul>
+                    </li>
+                    <li id="Signup-Membership_Types-Preferred">
+                        <header>
+                            <input type="radio" name="membership" id="membership-preferred">
+                            <label>Preferred</br>$50/year</label>
+                        </header>
+                        <ul>
+                            <li>
+                                <p>250MB storage for blog/story posts and up to 5 event posts/mo</p>
+                            </li>
+                            <li>
+                                <p>Eligibility for validated member and Ambassador</p>
+                            </li>
+                            <li>
+                                <p>Email technical support and preferred support from Ambassadors</p>
+                            </li>
+                            <li>
+                                <p>Preferred placement in search results</p>
+                            </li>
+                        </ul>
+                    </li>
+                    <li id="Signup-Membership_Types-Premiere">
+                        <header>
+                            <input type="radio" name="membership" id="membership-premiere">
+                            <label>Premiere</br>$100/year</label>
+                        </header>
+                        <ul>
+                            <li>
+                                <p>500MB storage for blog/story posts and unlimited event posts</p>
+                            </li>
+                            <li>
+                                <p>Eligibility for verified member and Lead Ambassador</p>
+                            </li>
+                            <li>
+                                <p>Phone technical support and premier support from Ambassadors</p>
+                            </li>
+                            <li>
+                                <p>Premier placement in search results</p>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </fieldset>
+        </div>
+        <div id="Signup-Organization" class="tabcontent form-signup">
+            <fieldset class="fieldset-regular">
+                <label class="animated" for="signup-org-business_name">Business Name</label>
+                <input type="text" name="Business Name" id="signup-org-business_name" class="form-control">
+            </fieldset>
+            <fieldset class="fieldset-regular">
+                <label class="animated" for="signup-org-website">Website</label>
+                <input type="text" name="Website" id="signup-org-website" class="form-control">
+            </fieldset>
+            <fieldset class="fieldset-regular">
+                <label class="animated" for="signup-org-contact_first_name">Contact First Name</label>
+                <input type="text" name="Contact First Name" id="signup-org-contact_first_name" class="form-control">
+            </fieldset>
+            <fieldset class="fieldset-regular">
+                <label class="animated" for="signup-org-contact_last_name">Contact Last Name</label>
+                <input type="text" name="Contact Last Name" id="signup-org-contact_last_name" class="form-control">
+            </fieldset>
+            <fieldset class="fieldset-regular">
+                <label class="animated" for="signup-org-contact_email">Contact Email</label>
+                <input type="text" name="Contact Email Name" id="signup-org-contact_email_name" class="form-control">
+            </fieldset>
+            <fieldset class="fieldset-regular">
+                <label class="animated" for="signup-org-username">Username</label>
+                <input type="text" name="Username" id="signup-org-username" class="form-control">
+            </fieldset>
+            <fieldset class="fieldset-regular">
+                <label class="animated" for="signup-org-pwd">Password</label>
+                <input type="password" name="Password" id="signup-org-pwd" class="form-control">
+            </fieldset>
+            <fieldset id="Signup-Membership_Types">
+                <legend>
+                    <span>Membership Types</span>
+                    <button id="Signup-Membership_Types-Btn" class="btn-plain">Learn about Membership Types</button>
+                </legend>
+                <ul>
+                    <li id="Signup-Membership_Types-Basic">
+                        <header>
+                            <input type="radio" name="membership" id="membership-basic" checked>
+                            <label>Basic</br>Free</label>
+                        </header>
+                        <ul>
+                            <li>
+                                <p>Create safe, secure organizational profiles</p>
+                            </li>
+                            <li>
+                                <p>Up to 5 active messaging threads, read & post in forum discussions, view events</p>
+                            </li>
+                            <li>
+                                <p>Post 1 new event per month</p>
+                            </li>
+                            <li>
+                                <p>Create/share/comment on personal blogs & story posts</p>
+                            </li>
+                            <li>
+                                <p>Basic community resource searches and support</p>
+                            </li>
+                        </ul>
+                    </li>
+                    <li id="Signup-Membership_Types-Preferred">
+                        <header>
+                            <input type="radio" name="membership" id="membership-preferred">
+                            <label>Preferred</br>$50/year</label>
+                        </header>
+                        <ul>
+                            <li>
+                                <p>Up to 20 active messaging threads</p>
+                            </li>
+                            <li>
+                                <p>Post up to 5 new events per month and promote own community events</p>
+                            </li>
+                            <li>
+                                <p>250MB of storage for posts</p>
+                            </li>
+                            <li>
+                                <p>Create new forum topics</p>
+                            </li>
+                            <li>
+                                <p>Preferred placement in member search results</p>
+                            </li>
+                        </ul>
+                    </li>
+                    <li id="Signup-Membership_Types-Premiere">
+                        <header>
+                            <input type="radio" name="membership" id="membership-premiere">
+                            <label>Premiere</br>$100/year</label>
+                        </header>
+                        <ul>
+                            <li>
+                                <p>Unlimited messaging threads and event posts </p>
+                            </li>
+                            <li>
+                                <p>500MB of storage for posts</p>
+                            </li>
+                            <li>
+                                <p>Phone technical support and premier support from Ambassadors</p>
+                            </li>
+                            <li>
+                                <p>Premier placement in member search results</p>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </fieldset>
+        </div>
+        <!-- end Organization Signup -->
+
+        <fieldset id="Signup-Membership_Agreement" class="checkbox">
+            <input type="checkbox" name="Membership Agreement" id="Signup-Membership_Agreement-Checkbox" disabled>
+            <label for="Signup-Membership_Agreement-Checkbox">I have read and accepted the <button id="Signup-Membership_Agreement-Btn" class="btn-plain modal-btn">Membership Agreement</button></label>
+        </fieldset>
+        <fieldset id="Signup-Website_Terms" class="checkbox">
+            <input type="checkbox" name="Website Terms" id="Signup-Website_Terms-Checkbox" disabled>
+            <label for="Signup-Website_Terms-Checkbox">I have read and accepted the <button id="Signup-Website_Terms-Btn" class="btn-plain modal-btn">Website Terms</button></label>
+        </fieldset>
+        <fieldset class="btn-set">
+            <a href="/profile.html" class="btn btn-primary">Sign Up</a>
+            <a href="/index.html" class="btn btn-plain">Cancel</a>
+        </fieldset>
+    </form>
+</div>
+<!-- #Signup -->
+
+<!-- | - | - | - | - | - | - | - | - |
+| - | - | - | - | - | - | - | - | - | -
+- | M O D A L S - | - | - | - | - | - |
+| - | - | - | - | - | - | - | - | - | -
+- | - | - | - | - | - | - | - | - | -->
+<div id="Signup-Membership_Types-Modal" class="modal">
+    <div id="Membership_Types" class="modal-content">
+        <span id="Signup-Membership_Types-Modal-Close" class="modal-close">&times;</span> <h1>Membership Types for Individuals</h1>
+<ul>
+        <li>
+                <h4>Basic</h4>
+                <p><span class="number">Free</span></p>
+                <p>Everything you need to get the community of support you deserve</p>
+                <button class="Membership_Types-Btn-Free active">Selected</button>
+        </li>
+        <li>
+                <h4>Preferred</h4>
+                <p><span class="number">$50</span> / year</p>
+                <p>For those wanting to [insert text]</p>
+                <button class="Membership_Types-Btn-Preferred">Select</button>
+        </li>
+        <li>
+                <h4>Premiere</h4>
+                <p><span class="number">$100</span> / year</p>
+                <p>For those wanting to [insert text]</p>
+                <button class="Membership_Types-Btn-Free">Select</button>
+        </li>
+</ul>
+<table>
+        <h2>Community Features</h2>
+        <tr>
+                <td>Create member profile page</td>
+                <td><span class="icon-standard">check</span></td>
+                <td><span class="icon-standard">check</span></td>
+                <td><span class="icon-standard">check</span></td>
+        </tr>
+        <tr>
+                <td>Content security with 2-factor authentication
+                </td>
+                <td><span class="icon-standard">check</span></td>
+                <td><span class="icon-standard">check</span></td>
+                <td><span class="icon-standard">check</span></td>
+        </tr>
+        <tr>
+                <td>Selective profile data sharing</td>
+                <td><span class="icon-standard">check</span></td>
+                <td><span class="icon-standard">check</span></td>
+                <td><span class="icon-standard">check</span></td>
+        </tr>
+        <tr>
+                <td>In-system messaging</td>
+                <td>3 conversations / mo</td>
+                <td>20 conversations / mo</td>
+                <td>Unlimited</td>
+        </tr>
+        <tr>
+                <td>Access to members-only firsthand stories</td>
+                <td><span class="icon-standard">check</span></td>
+                <td><span class="icon-standard">check</span></td>
+                <td><span class="icon-standard">check</span></td>
+        </tr>
+        <tr>
+                <td>Publishing firsthand stories</td>
+                <td>Limited</td>
+                <td>x TB of storage</td>
+                <td>y TB of storage</td>
+        </tr>
+        <tr>
+                <td>Access to members-only forum posts</td>
+                <td><span class="icon-standard">check</span></td>
+                <td><span class="icon-standard">check</span></td>
+                <td><span class="icon-standard">check</span></td>
+        </tr>
+        <tr>
+                <td>Create threads in forum</td>
+                <td><span class="icon-standard">close</span></td>
+                <td><span class="icon-standard">check</span></td>
+                <td><span class="icon-standard">check</span></td>
+        </tr>
+        <tr>
+                <td>Commenting on forum threads</td>
+                <td><span class="icon-standard">check</span></td>
+                <td><span class="icon-standard">check</span></td>
+                <td><span class="icon-standard">check</span></td>
+        </tr>
+        <tr>
+                <td>View community event listings</td>
+                <td><span class="icon-standard">check</span></td>
+                <td><span class="icon-standard">check</span></td>
+                <td><span class="icon-standard">check</span></td>
+        </tr>
+        <tr>
+                <td>Event creation and listings</td>
+                <td>1 / mo</td>
+                <td>5 / mo</td>
+                <td>Unlimited</td>
+        </tr>
+        <tr>
+                <td>Collection items</td>
+                <td>0</td>
+                <td>Up to 20</td>
+                <td>Unlimited</td>
+        </tr>
+</table>
+<table>
+        <h2>Resources portal features</h2>
+        <tr>
+                <td>Curation of search results</td>
+                <td>Good</td>
+                <td>Better</td>
+                <td>Best</td>
+        </tr>
+        <tr>
+                <td>Generate reports from search results</td>
+                <td>Not included</td>
+                <td>View-only</td>
+                <td>Print & export</td>
+        </tr>
+</table>
+<table>
+        <h2>Member support</h2>
+        <tr>
+                <td>Technical support</td>
+                <td>FAQ & form</td>
+                <td>+ Email</td>
+                <td>+ Phone</td>
+        </tr>
+        <tr>
+                <td>Access to ambassadors by email</td>
+                <td>None</td>
+                <td>Priority 2</td>
+                <td>Priority 1</td>
+        </tr>
+        <tr>
+                <td>Eligibility to become an ambassador</td>
+                <td><span class="icon-standard">close</span></td>
+                <td><span class="icon-standard">check</span></td>
+                <td><span class="icon-standard">check</span></td>
+        </tr>
+</table>
+<ul>
+        <li>
+                <button class="Membership_Types-Btn-Free active">Current Selection: Basic</button>
+        </li>
+        <li>
+                <button class="Membership_Types-Btn-Preferred">Select Preferred</button>
+        </li>
+        <li>
+                <button class="Membership_Types-Btn-Free">Select Premiere</button>
+        </li>
+</ul>
+
+    </div>
+</div>
+<div id="Signup-Membership_Agreement-Modal" class="modal small legal">
+    <div class="modal-content">
+        <span id="Signup-Membership_Agreement-Modal-Close" class="modal-close">&times;</span> <h1>THE INTENTIONAL LIVING COLLECTIVE
+MEMBERSHIP AGREEMENT</h1>
+<p>By clicking on the “I Accept” button near the end of Membership application page for The Intentional Living Collective (TILC), you (“Member”) agree to bound by the terms of this Membership Agreement, as revised from time to time.  You also agree to comply with the Terms of Use of Eos Community Connections Portal (the “Portal”), the TILC Code of Conduct described below and any other policies adopted by The Intentional Living Collective from time to time.</p>
+<p>The Intentional Living Collective welcomes you as a Member!  We look forward to having you as part of the growing family of TILC members who are together striving to change for the better the tone of public discourse in our country, as well as accessing support resources for a variety of member needs.  This Membership Agreement includes the terms of your membership in TILC.  When you click the “I Accept” button, you acknowledge that you have read (or have been given adequate opportunity to read) the terms of this Agreement and you agree to be bound by them in all respects.</p>
+<ul class="numbered">
+    <li>
+        <p><span>1.)</span><strong>Becoming a Member.</strong>  The Memberships pages (links below) list the various types and levels of memberships available, the features associated with each, and the cost of (if any) of the Membership.  To enroll as a Member, you must select the Type and Level of membership you wish to hold, complete the online enrollment form, and pay any applicable annual membership fee.  You represent to TILC that all information you have provided or will provide in your membership registration, as updated from time to time, is accurate and applies to you personally (for Individual Members) or to the organization you represent (for Organizational Members).</p>
+        <p>At this time, <a href="#">TILC Individual Memberships</a> are limited to residents of the United States and Canada who are at least 18 years of age.  If you are younger than age 18 or you are not a resident of the United States or Canada, please do not register as a member.</p>
+        <p><a href="#">TILC Organizational Memberships</a> are also limited to companies that are legally registered in the United States or Canada.  To register for an Organizational membership, a legally-authorized representative of the Organization must submit the Membership Application and accept the Membership Agreement, Portal Terms of Use, and Privacy Policy on behalf of the Organization.  Once registered, the legally-authorized representative may allow different representatives of the organization to manage the Organization’s information and presence on the Portal but the representative remains responsible for anything posted on the Organization’s behalf and accept that TILC will enforce the terms of the Code of Conduct regardless of who in the Organization acted on its behalf.</p>
+        <p>Your TILC membership will automatically renew for successive one-year terms on the anniversary date of your initial membership registration.  Any applicable renewal fee will be charged or debited in the same manner as you paid your initial membership fee.  If your payment information has changed since the time of your last membership fee payment or any subsequent update that you made to your payment information, TILC Community Connections will contact you via email to request updated payment information.  If you do not provide that updated payment information by the time your TILC Community Connections membership is due to renew, your membership may be terminated at any time after the scheduled renewal date.</p>
+    </li>
+    <li>
+        <p><span>2.)</span><strong>Membership Cancellations.</strong> Members may cancel at any time by emailing us at contact@the-ilc.org. If canceling within 14 days of registration the Member will receive a full refund of the Membership fee they paid, and their Portal access level will immediately be returned to “non-Member” status.  If canceling more than 14 days after registration, the Membership will be moved to “cancellation pending” status until the end of the original registration period and Member’s Portal access level will be returned to “non-Member” status immediately thereafter.  The Intentional Living Collective may suspend or terminate a Membership as defined in the Code of Conduct (section 4) below or other good cause. In either case, the Membership will be cancelled immediately and no portion of the Member’s fee will be refunded.  Except as provided in this Section, Membership fees are earned when paid and are not refundable.</p>
+    </li>
+    <li>
+        <p><span>3.)</span><strong>Privacy.</strong> TILC and Intentional Legacies, LLC have adopted a strict policy that they will not sell TILC’s membership lists or any content provided by members in their profile pages, nor will they knowingly allow third parties to have access to any Member information.  They are committed never to change that policy, and, in the event that ownership of TILC’s Community Connections Portal changes all members will be given the right to delete their personal information before ownership transfer of the Portal.  By accepting this agreement Member accepts full responsibility for managing the access levels for all content they put into their profile page.</p>
+    </li>
+    <li>
+        <p><span>4.)</span><strong>TILC Community Code of Conduct.</strong>  By becoming a member of TILC, you agree to abide by all laws applicable to your membership and your use of the Portal, and also by the TILC Community Code of Conduct, which is defined below:</p>
+        <ul class="lettered">
+            <li>
+                <p><span>a.)</span><strong>Community values.</strong>  To help maintain a safe and welcoming environment, all members must agree to hold themselves and each other accountable for interacting with each other in ways that reflect the community's shared values listed below.</p>
+                <ul class="numbered">
+                    <li>
+                        <p><span>1.)</span> Community: We value all member voices and strive for productive and healthy collaborations between all.</p>
+                    </li>
+                    <li>
+                        <p><span>2.)</span> Safe: We behave toward all members in ways that help them feel safe, in all situations.
+                        </p>
+                    </li>
+                    <li>
+                        <p><span>3.)</span> Integrity: We let our actions reflect our values and strive to meet all commitments. If a commitment can’t be met we will correct our actions in a timely and effective manner.</p>
+                    </li>
+                    <li>
+                        <p><span>4.)</span> Respectful: We treat all members with respect at all times and use language that reflects appreciation of their wisdom and perspective.
+                        </p>
+                    </li>
+                    <li>
+                        <p><span>5.)</span> Fair: We are inclusive, fair, and equitable in all our transactions and interactions with all members.</p>
+                    </li> 
+                    <li>
+                        <p><span>6.)</span> Supportive and inspiring: We use words and actions with all members that encourage and uplift them on their individual and collective journeys, encouraging them to be their best, authentic selves.</p>
+                    </li>
+                    <li>
+                        <p><span>7.)</span> Constructive: We address disagreements constructively, giving others the benefit of the doubt and attacking problems in collaborative ways rather than attacking the people.</p>
+                    </li>
+                    <li>
+                        <p><span>8.)</span> Organic: We interact with all members in a way that allows things to unfold in the most natural way possible.</p>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <p><span>b.)</span><strong>Accountability.</strong>  All members agree to follow the steps outlined below - in order - when they feel the need to hold another member accountable, until resolution is reached:</p>
+                <ul class="numbered">
+                    <li>
+                        <p><span>1.)</span><i>Member to member direct messaging.</i> (Explanation: Any member that feels another's words or actions are out of alignment should send a politely-worded, in-system message directly to the responsible member, letting them know how their words/actions were perceived and suggesting a clear way to modify them appropriately.  Avoid public call-outs and involving others when possible, please.)</p>
+                    </li>
+                    <li>
+                        <p><span>2.)</span><i>Flag the offending interaction for review & action by a TILC member curator</i> (Explanation: If the above step is unsuccessful or doesn't get a response within 3 days, the offended member can use the Flag icon to indicate there's a potential issue with the post/response/message and that action will trigger a review by a member of the TILC member curator team.)</p>
+                    </li>
+                    <li>
+                        <p><span>3.)</span><i>Send an in-system message to the "TILC Member Curator Team"</i> (Explanation: If the above step is unsuccessful or doesn't get a response within 3 days, the offended member can send an in-system message to "TILC Member Curator Team" and request a review.  They should provide details about the issue including where to find it, what's already been done to address it, and what resolution they'd like to see for it.)</p>
+                    </li>
+                    <li>
+                        <p><span>4.)</span><i>When an issue is flagged or escalated, the Curator Team members’ actions may include some or all of the following: </i></p>
+                        <ul class="lettered">
+                            <li>
+                                <p><span>a.)</span>Discussing the offending content with the offended member and deciding together that no further action is needed,</p>
+                            </li>
+                            <li>
+                                <p><span>b.)</span>Directly contacting the offending member and asking them to consider changing the offending post/response/message,</p>
+                            </li>
+                            <li>
+                                <p><span>c.)</span>Brokering a three-way discussion to negotiate and implement changes acceptable to both members,</p>
+                            </li>
+                            <li>
+                                <p><span>d.)</span>If steps a, b, and c aren't effective and if the Curator Team Member determines the content is out of alignment with the Community's values he or she may have the content taken down out of respect for everyone involved.</p>
+                            </li>
+                            <li>
+                                <p><span>e.)</span>If the offending Member has previously posted offensive material, the Curator Team Member will advise them they're at risk of having their posting privileges suspended - which will happen for at least 30 days after a third affirmed offense.</p>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <p><span>5.)</span><i>Send an in-system message to "TILC Member Appeals Team"</i>(Explanation: If the above step is unsuccessful or isn't resolved by the TILC Member Curator Team within 7 days, the offended Member can send an in-system message to "TILC Member Appeals Team" requesting that they (re)consider the original request.  They should provide details about the issue including where to find it, what's already been done to address it, and what resolution they'd like to see for it.  The Appeals team will review the situation and take appropriate actions within 7 days, and decisions made by the TILC Member Appeals Team about code of conduct violations are considered final.</p>
+                    </li>
+                    <li>
+                        <p><span>6.)</span>If a Member's content is determined to be out of alignment with the Community's shared values for a third time by the Curator Team or if the offending Member refuses to act in alignment with a decision made by the TILC Member Appeals Team then their membership may be revoked and their membership fee forfeited according to the terms of the Membership Agreement.</p>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <p><span>5.)</span><strong>Dispute Resolution.</strong>  Occasionally (and hopefully very rarely) differences of opinion between TILC members and management cannot be resolved through the Accountability process described above.  If that happens, the Member agrees to submit that dispute to binding arbitration through the Judicial Arbitration and Mediation Service (JAMS) office in the Detroit, Michigan area, pursuant to the JAMS general rules of arbitration.  There will be a single arbitrator.  The arbitration hearing will be held within 45 days after either party submits the dispute to arbitration.  The arbitration hearing will last no more than 1 day.  Each party to the arbitration will have an equal opportunity to present witnesses and testimony during the arbitration hearing.  The arbitrator will deliver a written arbitration award within 30 days after conclusion of the arbitration hearing.  The arbitration award will be final and binding on the parties and may be enforced in any court having proper jurisdiction.  Unless the arbitrator awards costs and attorney fees to one or more parties, the parties to any arbitration will pay the costs of arbitration in equal shares and each party will bear its own attorney fees incurred during the course of the arbitration. </p>
+    </li>
+    <li>
+        <p><span>6.)</span><strong>TILC Community Currency System.</strong>  TILC Community Connections is developing a Community Currency System (CCS) that will be available for use by members at a future time.  The CCS will provide for the exchange by members of goods or services, of varying types.  As part of the CCS TILC may develop an in-platform “Community Currency” that will facilitate those exchanges.  The development of that currency may involve the disclosure by members of financial or other information that will be needed to facilitate such exchanges.  The Member will be responsible for reporting and paying any income or other taxes that become due as a result of participating in TILC Community Collaborations transactions.  TILC Community Connections will use commercially reasonable efforts consistent with its on-going web portal security standards, to safeguard members’ financial and other information, but cannot guarantee the security of that information, due to the risk of third parties gaining access to that information via system hacks or other means of unauthorized intrusion.    The Member will hold TILC and its business partners harmless from any liability that results from unauthorized access to Member information of any sort.  The Member is responsible for managing all information and content that the Member posts or otherwise provides to TILC Community Connections and the Portal.</p>
+    </li>
+    <li>
+        <p><span>7.)</span><strong>Title.</strong>  The Member retains ownership of all membership information and other content provided to TILC, including content posted on the Portal. The Member represents and warrants to TILC Community Connections that the Member owns or has the right to use and post all content that the Member uploads to the Portal and that such content is not false, misleading, defamatory, nor does (or will) such content infringe third party property rights.   The Member may choose among a variety of privacy settings for all content posted to the Portal.  The Member hereby grants to TILC a non-exclusive, world-wide, royalty-free, perpetual, irrevocable license to use Member-provided content in any manner chosen by TILC, including without limitation, advertising and promotional materials regarding TILC and the Portal, testimonials posted within the Portal and postings related to TILC and/or the Portal on third party websites.  Any use of Member information or content will not identify the member by name, but may include the Member’s image, initials and general location.</p>
+        <p>TILC retains sole ownership or, as applicable, all of its rights as the licensee, of all information and content included in Portal that originates with TILC.  All such content is protected by copyright and may not be used or modified by the Member.  TILC hereby grants to the Member a non-exclusive, royalty-free limited license to use the Portal in the manner permitted by this Agreement and the Terms of Use for the Portal, as revised from time to time.  That license will terminate when this Agreement terminates.  The Member may not use the Portal or any content in the Portal for commercial purposes, nor may the Member copy or otherwise permit third parties to have access to the Portal, for any purpose.</p>
+    </li>
+    <li>
+        <p><span>8.)</span><strong>Removal of Content.</strong>  TILC reserves the absolute right to remove any content from the Portal at any time, regardless of who posted that content, for any reason that TILC in good faith determines to be reasonable.  Reasons for removing content from the Portal include, without limitation:</p>
+        <ul class="bulleted">
+            <li><p>Illegal content;</p></li>
+            <li><p>Obscene content;</p></li>
+            <li><p>Content that violates the TILC Code of Conduct;</p></li>
+            <li><p>Content that is inconsistent with the TILC core values, as posted on the Portal;</p></li>
+            <li><p>Content that infringes third party rights;</p></li>
+            <li><p>Content that includes advertising or that serves other commercial purposes.</p></li>
+        </ul>
+    </li>
+    <li>
+        <p><span>9.)</span><strong>Duration;</strong> Termination.  This Membership Agreement has an indefinite term.  The Member may terminate this Agreement at any time as described in Section 2 above.  TILC may terminate this Agreement at any time, following a default by the Member in performing or adhering to the terms of this Agreement, or otherwise without cause.  Membership fees and any other fees paid by the Member prior to the termination of this Agreement for any reason will not be refunded.</p>
+    </li>
+    <li>
+        <p><span>10.)</span><strong>Disclaimers.</strong>  All content on the Portal that is available to the Member, regardless of whether that content originates with TILC, the Member or another TILC member or any third party (such as a non-member user of the Portal) is available for viewing or other use by the Member on an As-Is basis.  TILC does not check the accuracy of information provided by any member or third party and is not responsible for any inaccuracy or illegality of such information.  TILC makes no representations, warranties or other commitments to the Member regarding the accuracy, truthfulness, security or value of any such content.  TILC is not responsible for the content of third party websites that become linked to or accessible through the Portal.  The Member uses all content on the Portal and otherwise available through TILC at the Member’s sole risk.</p>
+    </li>
+    <li>
+        <p><span>12.)</span><strong>Limitation of Liability.</strong>  In all events, neither TILC nor any of its business partners, nor the Member shall be liable to each other for any indirect, incidental, consequential, punitive or exemplary damages regardless of the theory of liability under which such damages arise and regardless of whether the possibility of such damages is known to any of the parties at the time this Agreement becomes effective.  In all events, the maximum liability of TILC, any of its business partners and the Member to each other for any liability that may arise in connection with the performance or breach by any such person or entity of its obligations under this Agreement or under applicable law or the access to or use of the Portal by the Member or others will exceed the last annual membership fee paid by the Member.  The terms of this paragraph are a material inducement to TILC to enter into this Agreement with the Member.  Absent the applicability of those terms, TILC would cause the terms of this Membership Agreement to be materially different and, most likely, less generous to the Member.</p>
+    </li>
+    <li>
+        <p><span>13.)</span><strong>Amendments.</strong>  TILC and the Member may amend this Agreement at any time, by mutual agreement confirmed in writing.  In addition, TILC may amend this Agreement, in its sole discretion, effective upon written notice to the Member.  TILC will not increase any fees payable by the Member, including without limitation, annual membership renewal fees, except upon at least 30 days prior written notice to the Member.  Any such written notice may be provided by email or by broadcast or other messaging sent through the Portal.</p> 
+    </li>
+    <li>
+        <p><span>14.)</span><strong>Membership Not Transferrable.</strong>  The Member may not transfer, assign or otherwise convey the Member’s membership interest in TILC or allow third persons to access Member’s TILC account.  The Member is responsible for all content posted through the Member’s TILC account and for all other uses made by the Member or any third person whom the Member allows to use the Member’s TILC account.</p>
+    </li>
+    <li>
+        <p><span>15.)</span><strong>General.</strong>  This Membership Agreement is governed by Michigan law, without giving effect to its conflicts of laws principles.  This Membership Agreement is binding upon TILC and the Member as well as their respective heirs, legal representatives and successors.  All notices regarding this Agreement shall be given in writing (email or messaging through the Portal will suffice), directed to the recipient at its last known address.  If any provision in this Agreement is found by a court of law or an arbitrator to be invalid or unenforceable, that provision shall be revised to the smallest extent possible to make it enforceable.  Any such invalidity or unenforceability shall have no effect on the other provisions of this Agreement.  The decision by a party not to enforce a provision of this Agreement in a particular circumstance shall not constitute the permanent waiver of that party’s right to enforce that provision.  Any party has the right to enforce the terms of this Agreement at any time.  Any litigation regarding this Agreement that falls outside the scope of the arbitration clause set forth in Section 5 must be brought in the state or federal courts serving Washtenaw County, Michigan.  The parties agree to the exclusive jurisdiction and venue of such courts over any such matter.</p>
+    </li>
+</ul>
+        <div class="btns-set">
+            <button id="Signup-Membership_Agreement-Modal-Agree" href="#" class="btn btn-primary">Agree</button>
+            <button id="Signup-Membership_Agreement-Modal-Cancel" href="#" class="btn btn-plain">Cancel</button>
+        </div>
+    </div>
+</div>
+<div id="Signup-Website_Terms-Modal" class="modal small legal">
+    <div class="modal-content">
+        <span id="Signup-Website_Terms-Modal-Close" class="modal-close">&times;</span> <h1>Eos Community Connections Portal</br>
+TILC, Inc. Website & Eos Portal Terms of Use</h1>
+
+<p>PLEASE READ THE FOLLOWING TERMS CAREFULLY. THEY GOVERN YOUR ACCESS TO AND USE OF THE Eos COMMUNITY CONNECTIONS PORTAL (the “Portal”). By accessing or using the Portal, you agree to be bound by the following terms concerning your use of the Portal (“Terms of Use”).  TILC Inc. (The Intentional Living Collective) may make changes to the content of the Portal, including these Terms of Use, at any time without notice to you. The revised Terms of Use will be effective when they are posted on the Portal. You are responsible for regularly reviewing these Terms of Use. Your continued use of the Portal following any changes will constitute your acceptance of such changes. If you do not agree to these Terms of Use, as revised from time to time, then you may not use the Portal.</p>
+<h5>Use of this Portal</h5>
+<p>You may use the contents of the Portal only for the furtherance of your relationship with TILC and its Members.  Registered Members must use the Portal in compliance with the terms of their TILC Membership Agreement, and non-Members are limited to the functionality made available to the general public.  Members and non-Members may not copy, use, modify, distribute, transfer, download, upload, resell, or republish any of the contents of the Portal without the prior written authorization of TILC.  You must use the Portal in compliance with all applicable laws and regulations.  Users of the Portal may not upload to the Portal or to any account any harmful or malicious code or other content, nor may they use the Portal for any illegal purpose.  Users may not access data on the Portal or in any account (1) by automated means, or (2) that they do not have permission to access.</p>
+<h5>Copyrights and Other Intellectual Property</h5>
+<p>The platform (website and Portal) and other software infrastructure, as well as all content placed on the TILC website and Community Connections Portal by TILC or its business affiliates, are owned by and licensed to TILC by Intentional Legacies, LLC.  Except for user content placed on the Portal by TILC members and except as expressly noted on the Portal or in your TILC Membership Agreement, all materials and information contained on the Portal, including but not limited to, all images, pictures, logos, illustrations, designs, photographs, video clips, text, icons, graphics, case studies, white papers, press releases, designs, overall appearance of the Portal, and written and other materials that appear on the Portal (collectively, referred to as “TILC content”) are copyrights, trademarks, trade dress or other intellectual property owned, controlled, or licensed by TILC or its affiliates or are the property of their respective owners that have been licensed to TILC and are protected by U.S. and international copyright laws and conventions.  In all cases, however, TILC members will own all data and other content that they input into their accounts or that they post on the public portions of the Portal.</p>
+<h5>Limitation of Liability</h5>
+<p>In no event will TILC be liable for any damages, including, without limitation, direct, indirect, incidental, special, consequential or punitive damages, or damages for loss of data, incurred by you or any third party, whether under contract, tort or any other theory of liability, arising in connection with any party's use of the Portal or in connection with any failure of performance, error, omission, interruption, defect, delay in operation or transmission, computer virus, system failure, loss of data, or loss of use related to the Portal or any website operated by any third party or any contents of the Portal or any other website, even if TILC is aware of the possibility of such damages.</p>
+<p>TILC provides the content and functionality of the Portal and all member accounts on an As-Is basis.  TILC will make reasonable efforts to ensure the security of all Portal content whether owned by TILC or by Members, but it does not warrant that the Portal, including without limitation, any member account will be secure or error-free or that they will function without delays or imperfections.  TILC makes no warranty regarding the effectiveness of services offered by TILC members to each other, including without limitation any advice or guidance provided by members of the Life Transition Ambassador program.  TILC DISCLAIMS ALL WARRANTIES THAT MAY OTHERWISE BE APPLICABLE TO THE PORTAL OR TO ANY MEMBER ACCOUNT, INCLUDING THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT.</p>
+<p>In all events, the liability of TILC for damages of any kind is limited to the amount paid by a Member to TILC for their current Membership.  That limitation of damages is a material inducement to TILC to make the Portal available to members and other users on the terms provided.  Absent such a limitation TILC would require materially different, more restrictive and less generous Terms of Use for the Portal.</p>
+<h5>Indemnity</h5>
+<p>Each user of the Portal agrees to defend, indemnify and hold harmless TILC, its officers, directors, employees and agents from and against any and all claims, liabilities, damages, losses or expenses, including reasonable attorneys' fees and costs, arising out of or in any way connected with its access to or use of the Portal or the breach by it of these Terms of Use.</p>
+<h5>Passwords and Privacy</h5>
+<p>You are responsible for maintaining the confidentiality of any password(s) you are given or that you create to access the Portal, including any account you maintain on the Portal, and you are fully responsible for all activities that occur under your password(s). You agree to notify TILC immediately of any unauthorized use of your password(s).  Further, Members have the ability to determine who can access each piece of their profile content by setting Privacy levels/tiers appropriately and the Member assumes full responsibility for the management of those settings.</p>
+<h5>Links to Third Party Sites, Content, Products and Services</h5>
+<p>TILC may establish links between the Portal and one or more web sites operated by third parties. TILC has no control over any such other sites, the contents therein or the products/services offered. The existence of any such links does not constitute an endorsement, representation or warranty by TILC of such sites, the contents of such sites, the products or services of such sites or the operators of such sites. TILC disclaims responsibility for the privacy policies and customer information practices of third-party Internet sites linked to the Portal. If you choose to purchase or exchange any products or services from a third party, your relationship is directly with the third party. You agree that TILC is not responsible for: (a) the quality of third-party products or services; or (b) fulfilling any of the terms of your agreement with the third-party seller, including delivery of products or services and warranty obligations related to purchased products or services. You agree that TILC is not responsible for any loss or damage of any sort you may incur from dealing with any third-party.</p>
+<h5>Termination of Use</h5>
+<p>If you are not a registered TILC member, you agree that TILC may, in its sole discretion, at any time terminate your access to the Portal and any account(s) you may have in connection with the Portal. Access to the Portal may be monitored by TILC.  If you are a TILC member, TILC may terminate your access to the member areas of the Portal and/or your TILC member if you are in default under your TILC Membership Agreement.</p>
+<h5>Applicable Law</h5>
+<p>All matters relating to your access to, and use of, the Portal shall be governed by U.S. federal law or the laws of the State of Michigan, without giving effect to its conflicts of laws principles. Any legal action or proceeding relating to your access to, or use of, the Portal shall only be instituted in a state or federal court in Washtenaw County, Michigan. You and TILC agree to submit to the jurisdiction of, and agree that venue is proper in, these courts in any such legal action or proceeding.</p>
+<h5>Privacy Policy</h5>
+<p>TILC is committed to protecting consumer privacy online. By accepting this Terms of Use Agreement, you are also agreeing to the TILC Privacy Policy which can be accessed from the home screen on the Portal here.</p>
+<h5>Disclaimer</h5>
+<p>TILC uses data security systems and protocols that are designed to protect personal identification data and the non-public contents of member accounts from disclosure to or access by unauthorized third parties.  While TILC will takes reasonable efforts to secure the Portal and its contents, no data security system is perfect and TILC cannot guaranty that the data in its possession or that members post in their accounts or in the public areas of the Portal cannot be accessed by a determined intruder with good information technology skills.  As a result, TILC disclaims liability to any user of the Portal, including without limitation, TILC members, for any direct or indirect damages that may result from the unauthorized access to or use by anyone of any content located on the Portal or in any member account, to the fullest extent permitted by law.</p>
+<h5>Use of Cookies</h5>
+<p>TILC uses cookies to help us provide better customer service and to enhance the user experience and deliver personalized content. Many improvements and updates to the Portal are based on the data collected through cookies, such as total number of visitors and pages viewed. A “cookie” is a small text file stored locally in the computer used to access your account, and contains information relating to your past use of the Portal. You have the ability to accept or decline cookies. However, if you choose to decline cookies, you may not be able to fully experience the interactive features of the Portal or services you visit.</p>
+<h5>Bulletin Boards, Forums, Chat Rooms and Blogs</h5>
+<p>Portions of the Portal allow you to post information which other visitors to the Portal will be able to access (such as on a "forum", or replies to a blog or during an interactive "chat" with other visitors). In the event that you choose to post information in this context, it becomes generally available to the public, and we have no ability to control or limit its use by visitors to our Portal. By posting content on the Portal you are providing TILC and its affiliates the right to use the information in connection with the operation of TILC’s business. Therefore, we encourage you not to post any information on the public areas of the Portal that you consider private or sensitive.</p>
+<p>You represent and warrant that you have the right to post any information, graphics or other data that you transmit in any manner to any chat room, blogs, forum or similar domain (collectively “User Domains”) that is operated by or linked to the Portal.  Further, for all postings you agree to hold yourself accountable to the TILC Code of Conduct as defined in the Membership Agreement and agree to submit to the curation process defined there.  TILC makes no warranty regarding the accuracy of any information or data transmitted to the Portal by any person, including without limitation, representatives of TILC.  You may use or rely on any such information at your risk.</p>
+<p>You may use the Portal only on as As-Is basis.  TILC disclaims all warranties regarding the Portal.  You are responsible for all results that occur following your use of the Portal.</p>
+<h5>Privacy of Minors</h5>
+<p>TILC’s web Portal, software and services do not target, and are not structured to attract, persons under the age of 18. TILC does not collect any registration information from users who indicate they are under the age of 18. If TILC discovers personal data from a child under age 18, in any of its records, TILC will eliminate that data from the Portal and its records.</p>
+<h5>Security of Information</h5>
+<p>To protect the privacy of personal information provided by you, TILC employs industry-standard controls including physical access controls, Internet firewalls, intrusion detection, and network monitoring. Additionally, only authorized administrators and staff have access to systems containing personal identification information. We urge you to take every precaution to protect your personal data when you are on the Internet. Change your passwords often, use a combination of letters and numbers, and make sure you use a secure browser.</p>
+<h5>Dispute Resolution</h5>
+<p>Your TILC Membership Agreement contains a provision that details the process for dispute resolution.  All disputes involving TILC members will be resolved through that process.  Disputes between TILC and non-TILC members will be resolved by TILC management, whose decisions will be final and binding on the parties.</p>
+<h5>Policy Questions or Concerns</h5>
+<p>If there are questions or concerns about the policy above, please provide them via email at <a href="mailto:contact@the-ilc.org">contact@the-ilc.org.</a></p>
+        <div class="btns-set">
+            <button id="Signup-Website_Terms-Modal-Agree" href="#" class="btn btn-primary">Agree</button>
+            <button id="Signup-Website_Terms-Modal-Cancel" href="#" class="btn btn-plain">Cancel</button>
+        </div>
+    </div>
+</div>
+                </div>
+                <footer id="Footer">
+        <section>
+                <p>The Intentional Living Collective</p>
+                <p>3840 Packard St, Suite 160</p>
+                <p>Ann Arbor, MI  48108</p>
+                <p><a href="mailto:contact@the-ilc.org">contact@the-ilc.org</a></p>
+        </section>
+        <section>
+                <a class="btn" href="https://docs.google.com/forms/d/e/1FAIpQLSeL9755yf_6fX1JIEkN9B8wi2n51z_z64-_c71CI91sd2mvmQ/viewform" target="_blank">Contact Us</a>
+        </section>
+</footer>
+
+        </body>
+</html>

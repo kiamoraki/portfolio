@@ -1,0 +1,17 @@
+/* Error: Undefined variable.
+ *    ,
+ * 26 |             margin:calc(#{$header_h_desktop} + 40px) auto;
+ *    |                           ^^^^^^^^^^^^^^^^^
+ *    '
+ *   _scss/modules/modal.scss 26:27  root stylesheet */
+
+body::before {
+  font-family: "Source Code Pro", "SF Mono", Monaco, Inconsolata, "Fira Mono",
+      "Droid Sans Mono", monospace, monospace;
+  white-space: pre;
+  display: block;
+  padding: 1em;
+  margin-bottom: 1em;
+  border-bottom: 2px solid black;
+  content: "Error: Undefined variable.\a    \2577 \a 26 \2502              margin:calc(#{$header_h_desktop} + 40px) auto;\a    \2502                            ^^^^^^^^^^^^^^^^^\a    \2575 \a   _scss/modules/modal.scss 26:27  root stylesheet";
+}
