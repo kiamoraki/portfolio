@@ -100,7 +100,7 @@ main.index { padding: 0; }
 figure.image {
   display: block;
   width: 100%;
-  margin: 2.5rem 0;
+  margin: 3rem 0;
   position: relative;
   max-height: 90vh;
 }
@@ -127,7 +127,7 @@ figure.image figcaption {
   flex-wrap: nowrap;
   align-items: stretch;
   gap: calc(var(--spacing-page) / 2);
-  margin: calc(var(--spacing-page) / 2) 0;
+  margin: 3rem 0;
 }
 .row.center { justify-content: center; }
 .row > figure.image {
@@ -153,8 +153,20 @@ figure.image figcaption {
   .row { flex-direction: column; gap: var(--spacing-page-mobile); }
 }
 
-.text { max-width: 600px; padding: 1rem 0 2.5rem; }
+.text {
+  max-width: 720px;
+  padding: 2.5rem;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 1.25rem;
+  line-height: 1.8;
+  margin: 3rem 0;
+}
+.text p, .text cite, .text em, .text strong, .text a { color: #fff; }
 .text p { margin: 0 0 1em; }
+.text p:last-child { margin-bottom: 0; }
+
+.window-gap { height: 100vh; width: 100%; }
 
 .video, .video-vertical {
   width: 100%;
@@ -261,7 +273,6 @@ figure.image figcaption {
   padding: 5px;
   border: 8px solid transparent;
   background: #fff;
-  background-clip: padding-box;
   box-sizing: border-box;
   transition: background 0.2s ease;
 }

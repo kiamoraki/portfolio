@@ -2,6 +2,9 @@ import type { CSSProperties, ReactNode } from "react";
 import Image from "next/image";
 import { TobritCanvas } from "@/components/sketches/TobritCanvas";
 import { LissajousCanvas } from "@/components/sketches/LissajousCanvas";
+import { RadialsCanvas } from "@/components/sketches/RadialsCanvas";
+import { EternalReturnUnobservedCanvas } from "@/components/sketches/EternalReturnUnobservedCanvas";
+import { EternalReturnObservedCanvas } from "@/components/sketches/EternalReturnObservedCanvas";
 import imageManifest from "@/lib/image-manifest.json";
 
 const manifest = imageManifest as Record<string, { width: number; height: number }>;
@@ -116,4 +119,7 @@ export const mdxComponents = {
   SoundCloud,
   TobritCanvas,
   LissajousCanvas,
+  RadialsCanvas,
+  EternalReturnUnobservedCanvas,
+  EternalReturnObservedCanvas,
 };
