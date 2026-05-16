@@ -14,6 +14,8 @@ export type ProjectFrontmatter = {
   description?: string;
   legacyPath?: string;
   hideTitle?: boolean;
+  hidden?: boolean;
+  thumbSketch?: string;
 };
 
 export type Project = ProjectFrontmatter & {
@@ -21,6 +23,19 @@ export type Project = ProjectFrontmatter & {
 };
 
 const CONTENT_DIR = path.join(process.cwd(), "content", "projects");
+
+const CUSTOM_ORDER = [
+  "tobrit",
+  "emergence",
+  "eternal-return",
+  "wave",
+  "artificial-consciousness",
+  "fake-rekordz",
+  "moon-raves",
+  "roses",
+  "dojo",
+  "mandalas",
+];
 
 function parseTags(input: unknown): string[] {
   if (Array.isArray(input)) return input.map(String);
@@ -56,11 +71,18 @@ export function getAllProjects(): Project[] {
       description: data.description ? String(data.description) : undefined,
       legacyPath: data.legacyPath ? String(data.legacyPath) : undefined,
       hideTitle: Boolean(data.hideTitle),
+      hidden: Boolean(data.hidden),
+      thumbSketch: data.thumbSketch ? String(data.thumbSketch) : undefined,
       content,
     };
   });
 
   projects.sort((a, b) => {
+    const aIdx = CUSTOM_ORDER.indexOf(a.slug);
+    const bIdx = CUSTOM_ORDER.indexOf(b.slug);
+    if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+    if (aIdx !== -1) return -1;
+    if (bIdx !== -1) return 1;
     const ay = parseInt(a.year.match(/\d{4}/g)?.slice(-1)[0] ?? "0", 10);
     const by = parseInt(b.year.match(/\d{4}/g)?.slice(-1)[0] ?? "0", 10);
     return by - ay;

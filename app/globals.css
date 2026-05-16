@@ -215,13 +215,80 @@ figure.image figcaption {
   }
 }
 .nav-main a.active { background-color: var(--color-dark); color: var(--color-light); }
-.nav-projects .project-title {
+
+.nav-menu-toggle {
+  width: var(--spacing-nav-h);
+  height: var(--spacing-nav-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 3px;
+  color: var(--color-dark);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+}
+.nav-menu-toggle.active { background-color: var(--color-dark); color: var(--color-light); }
+.nav-main.dark .nav-menu-toggle { color: var(--color-light); }
+.nav-main.dark .nav-menu-toggle.active { background-color: var(--color-light); color: var(--color-dark); }
+@media (max-width: 720px) {
+  .nav-menu-toggle {
+    width: var(--spacing-nav-h-mobile);
+    height: var(--spacing-nav-h-mobile);
+  }
+}
+
+.nav-project-list {
+  position: fixed;
+  left: var(--spacing-nav-h);
+  top: 0;
+  z-index: 5001;
+  margin: 0;
+  padding: 1.25rem 1.5rem;
+  list-style: none;
+  background: rgba(0, 0, 0, 0.85);
+  color: var(--color-light);
+  max-height: 100vh;
+  overflow-y: auto;
   font-family: var(--font-bold);
   text-transform: uppercase;
-  padding: 0 40px;
-  margin: 0;
+  font-size: 14px;
+  letter-spacing: 0.04em;
 }
-@media (max-width: 720px) { .nav-projects .project-title { display: none; } }
+.nav-project-list li { margin: 0.45em 0; }
+.nav-project-list a { color: var(--color-light); }
+.nav-project-list a:hover { color: var(--color-purple, #c01fff); }
+@media (max-width: 720px) {
+  .nav-project-list {
+    left: 0;
+    top: var(--spacing-nav-h-mobile);
+    right: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+  }
+}
+.nav-projects .project-title {
+  position: fixed;
+  left: var(--spacing-nav-h);
+  top: 0;
+  height: var(--spacing-nav-h);
+  display: flex;
+  align-items: center;
+  font-family: var(--font-bold);
+  text-transform: uppercase;
+  padding: 0 1rem;
+  margin: 0;
+  z-index: 5000;
+}
+@media (max-width: 720px) {
+  .nav-projects .project-title {
+    left: 0;
+    top: var(--spacing-nav-h-mobile);
+    right: auto;
+    height: auto;
+    padding: 0.5rem var(--spacing-page-mobile);
+  }
+}
 
 /* dark variant */
 .dark.nav-main a, .dark.nav-projects a, .dark.nav-projects .project-title { color: var(--color-light); }

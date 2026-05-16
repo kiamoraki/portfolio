@@ -168,6 +168,7 @@ export function EternalReturnUnobservedCanvas() {
             if (this.drawCircle) {
               if (this.bigRadius > this.bigRadiusMax) {
                 this.bigRadius = this.bigRadiusMin;
+                this.colorBigRadius = p.color(191, 148, 255, 50);
                 this.drawCircle = false;
               } else {
                 this.bigRadius += 0.5 * (this.boxSize / 600);
@@ -188,7 +189,7 @@ export function EternalReturnUnobservedCanvas() {
             const framesLeft =
               (this.pctComplete - this.pct) / this.pctAdder;
             const fadeOut = Math.max(0, Math.min(1, framesLeft / 30));
-            const alpha = Math.floor(90 * fadeIn * fadeOut);
+            const alpha = Math.floor(115 * fadeIn * fadeOut);
             const c = p.color(181, 136, 255, alpha);
             p.stroke(c);
             p.fill(c);
@@ -373,11 +374,12 @@ export function EternalReturnUnobservedCanvas() {
       if (!lastRow) return;
       const rect = lastRow.getBoundingClientRect();
       const vh = window.innerHeight;
-      const isFullyVisible = rect.top >= 0 && rect.bottom <= vh;
-      const isBelowViewport = rect.top > vh;
-      if (isFullyVisible && !triggeredRef.current) {
+      const rowCenter = (rect.top + rect.bottom) / 2;
+      const viewportCenter = vh / 2;
+      const isCenteredOrAbove = rowCenter <= viewportCenter;
+      if (isCenteredOrAbove && !triggeredRef.current) {
         triggeredRef.current = true;
-      } else if (isBelowViewport && triggeredRef.current) {
+      } else if (!isCenteredOrAbove && triggeredRef.current) {
         triggeredRef.current = false;
       }
     };

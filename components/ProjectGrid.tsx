@@ -1,9 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { ComponentType } from "react";
 import type { Project } from "@/lib/projects";
 import imageManifest from "@/lib/image-manifest.json";
+import { MoonRavesThumbnail } from "@/components/sketches/MoonRavesThumbnail";
 
 const manifest = imageManifest as Record<string, { width: number; height: number }>;
+
+const SKETCH_REGISTRY: Record<string, ComponentType> = {
+  MoonRavesThumbnail,
+};
 
 function slugify(s: string) {
   return s
@@ -16,12 +22,15 @@ export function ProjectGrid({ projects }: { projects: Project[] }) {
   return (
     <ul id="project-list">
       {projects.map((p) => {
+        const Sketch = p.thumbSketch ? SKETCH_REGISTRY[p.thumbSketch] : null;
         const src = p.thumb ? `/img/icons/${p.thumb}` : null;
         const dims = src ? manifest[src] : null;
         return (
           <li key={p.slug} className={`grid-item-${slugify(p.title)}`}>
             <Link href={`/projects/${p.slug}`}>
-              {src && dims ? (
+              {Sketch ? (
+                <Sketch />
+              ) : src && dims ? (
                 <Image
                   src={src}
                   alt={p.title}
