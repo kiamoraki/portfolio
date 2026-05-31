@@ -116,14 +116,45 @@ export function LissajousCanvas() {
           }
         }
 
-        p.setup = () => {
-          p.createCanvas(600, 600);
-          p.frameRate(24);
+        const dims = (): number => {
+          const parent = (p.canvas && p.canvas.parentElement) as
+            | HTMLElement
+            | null;
+          const containerSize =
+            parent && parent.clientWidth > 0 ? parent.clientWidth : 600;
+          const viewportSize =
+            typeof window !== "undefined" ? window.innerWidth : 600;
+          // Cap at viewport width so a wide container can never make
+          // the canvas overflow past the visible screen.
+          return Math.min(containerSize, viewportSize, 600);
+        };
+
+        const buildCurves = () => {
+          curves.length = 0;
           const origin = p.createVector(p.width / 2, p.height / 2);
-          const amp = p.width / 2 - 20;
+          // Amp from the live viewport so the curve is sized to what the
+          // user actually sees (–20 = visual margin from the edge).
+          const viewportMin =
+            typeof window !== "undefined"
+              ? Math.min(window.innerWidth, window.innerHeight)
+              : Math.min(p.width, p.height);
+          const amp = viewportMin / 2 - 20;
           const gcd = gcdOf(freqA, freqB);
           curves.push(new LissajousCurve(origin, amp, freqA, freqB, gcd));
           curves.push(new LissajousCurve(origin, amp, freqB, freqA, gcd));
+        };
+
+        p.setup = () => {
+          const size = dims();
+          p.createCanvas(size, size);
+          p.frameRate(24);
+          buildCurves();
+        };
+
+        p.windowResized = () => {
+          const size = dims();
+          p.resizeCanvas(size, size);
+          buildCurves();
         };
 
         p.draw = () => {
@@ -149,7 +180,14 @@ export function LissajousCanvas() {
     <div
       ref={containerRef}
       id="Lissajous_Canvas"
-      style={{ display: "flex", justifyContent: "center", margin: "2rem 0" }}
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        width: "100%",
+        maxWidth: "100vw",
+        overflow: "hidden",
+        margin: "2rem 0",
+      }}
     />
   );
 }

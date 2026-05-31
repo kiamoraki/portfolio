@@ -15,15 +15,20 @@ npm run build
 
 echo ""
 echo "▶ Deploying out/ to $SSH_TARGET:$REMOTE_PATH"
-echo "  (--delete will remove server-side files not present in out/ — make sure"
-echo "   the remote path is dedicated to this site)"
+echo "  (--delete removes server-side files not present in out/, but server"
+echo "   images are protected via 'P img/' filter — they're never wiped)"
 echo ""
 
 rsync -avz --delete \
+  --exclude='img/***' \
   --exclude='.DS_Store' \
   --exclude='__next.*.txt' \
   out/ \
   "$SSH_TARGET:$REMOTE_PATH/"
+
+echo ""
+echo "▶ Cleaning up local out/ to avoid duplicating images on disk..."
+rm -rf out
 
 echo ""
 echo "✓ Deployed."

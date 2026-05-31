@@ -1,0 +1,76 @@
+{
+  "aliases": {},
+  "display": {},
+  "hidden": ["website"],
+  "order": [
+    "animations",
+    "activation",
+    "painting",
+    "design"
+  ],
+  "_projects": {
+    "artificial-consciousness": [
+      "activation",
+      "design"
+    ],
+    "design": [
+      "design"
+    ],
+    "dojo": [
+      "design"
+    ],
+    "emergence": [
+      "animations"
+    ],
+    "eternal-return": [
+      "animations"
+    ],
+    "fake-rekordz": [
+      "design"
+    ],
+    "intergalactic-helm": [
+      "painting"
+    ],
+    "lissajous": [
+      "animations"
+    ],
+    "lissajous-canvas": [
+      "animations"
+    ],
+    "paintings": [
+      "painting"
+    ],
+    "mars": [
+      "activation"
+    ],
+    "moon-raves": [
+      "activation"
+    ],
+    "multiverse": [
+      "animations"
+    ],
+    "precarity-a-domestic-tale": [
+      "activation"
+    ],
+    "radioactivitea": [
+      "activation"
+    ],
+    "roses": [
+      "animations",
+      "activation"
+    ],
+    "shape-of-time": [
+      "animations"
+    ],
+    "tobrit": [
+      "activation",
+      "painting"
+    ],
+    "wave": [
+      "animations"
+    ],
+    "zenith-poker": [
+      "website"    ]
+  },
+  "_untagged": []
+}

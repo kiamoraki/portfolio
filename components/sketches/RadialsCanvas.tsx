@@ -2,8 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-const NUM_RADIALS = 24;
-const NUM_PARTICLES = 88;
+const MOBILE_BREAKPOINT = 720;
 
 const COLORS: [number, number, number][] = [
   [255, 31, 224],
@@ -18,14 +17,24 @@ const COLORS: [number, number, number][] = [
   [255, 217, 69],
   [255, 186, 69],
 ];
-const MAX_RADIAL_SIZE = 300;
 
-export function RadialsCanvas() {
+type Props = {
+  // When true, render inside the document flow (relative position, fills
+  // parent) instead of the default fixed/full-viewport background mode.
+  inFlow?: boolean;
+};
+
+export function RadialsCanvas({ inFlow = false }: Props = {}) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const inFlowRef = useRef(inFlow);
+  useEffect(() => {
+    inFlowRef.current = inFlow;
+  }, [inFlow]);
 
   useEffect(() => {
     let p5Instance: import("p5") | null = null;
     let cancelled = false;
+    let io: IntersectionObserver | null = null;
 
     (async () => {
       const p5Mod = await import("p5");
@@ -34,6 +43,14 @@ export function RadialsCanvas() {
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       p5Instance = new P5((p: any) => {
+        const isMobile = window.innerWidth < MOBILE_BREAKPOINT;
+        const NUM_RADIALS = isMobile ? 16 : 24;
+        const NUM_PARTICLES = isMobile ? 50 : 100;
+        const START_RADIUS = isMobile ? 20 : 30;
+        const MAX_RADIUS_MIN = isMobile ? 60 : 100;
+        const MAX_RADIUS_RANGE = isMobile ? 100 : 200;
+        const MAX_RADIAL_SIZE = isMobile ? 150 : 300;
+
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         class Radial {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -42,7 +59,7 @@ export function RadialsCanvas() {
           velocity: any;
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           color: any;
-          radius = 30;
+          radius = START_RADIUS;
           maxRadius: number;
 
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -51,7 +68,8 @@ export function RadialsCanvas() {
             this.velocity = vel.copy();
             const [cr, cg, cb] = COLORS[0];
             this.color = p.color(cr, cg, cb);
-            this.maxRadius = 100 + Math.pow(p.random(), 2) * 200;
+            this.maxRadius =
+              MAX_RADIUS_MIN + Math.pow(p.random(), 2) * MAX_RADIUS_RANGE;
           }
 
           update() {
@@ -137,7 +155,7 @@ export function RadialsCanvas() {
         const particles: Particle[] = [];
 
         const colorForRadius = (radius: number) => {
-          if (radius <= 30) {
+          if (radius <= START_RADIUS) {
             const [r, g, b] = COLORS[0];
             return p.color(r, g, b);
           }
@@ -145,7 +163,8 @@ export function RadialsCanvas() {
             const [r, g, b] = COLORS[COLORS.length - 1];
             return p.color(r, g, b);
           }
-          const t = (radius - 30) / (MAX_RADIAL_SIZE - 30);
+          const t =
+            (radius - START_RADIUS) / (MAX_RADIAL_SIZE - START_RADIUS);
           const segPos = t * (COLORS.length - 1);
           const segIdx = Math.floor(segPos);
           const segT = segPos - segIdx;
@@ -164,15 +183,28 @@ export function RadialsCanvas() {
           return new Radial(pos, vel);
         };
 
+        const MIN_ROTATION_SPEED = isMobile ? 5 : 2.5;
         const randomParticle = () => {
           const pos = p.createVector(p.random(p.width), p.random(p.height));
-          const vx = p.random(2.5, 10) * (p.random() < 0.5 ? -1 : 1);
+          const vx =
+            p.random(MIN_ROTATION_SPEED, 10) * (p.random() < 0.5 ? -1 : 1);
           const vel = p.createVector(vx, p.random(-10, 10));
           return new Particle(pos, vel);
         };
 
+        const getDims = (): [number, number] => {
+          if (inFlowRef.current && containerRef.current) {
+            return [
+              containerRef.current.clientWidth,
+              containerRef.current.clientHeight,
+            ];
+          }
+          return [p.windowWidth, p.windowHeight];
+        };
+
         p.setup = () => {
-          const c = p.createCanvas(p.windowWidth, p.windowHeight);
+          const [cw, ch] = getDims();
+          const c = p.createCanvas(cw, ch);
           c.style("display", "block");
           p.frameRate(24);
           for (let i = 0; i < NUM_RADIALS; i++) radials.push(randomRadial());
@@ -181,7 +213,8 @@ export function RadialsCanvas() {
         };
 
         p.windowResized = () => {
-          p.resizeCanvas(p.windowWidth, p.windowHeight);
+          const [cw, ch] = getDims();
+          p.resizeCanvas(cw, ch);
         };
 
         p.draw = () => {
@@ -251,10 +284,40 @@ export function RadialsCanvas() {
         };
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       }, containerRef.current) as any;
+
+      // Pause draw whenever the canvas is off-screen and resume the
+      // moment it scrolls / slides back in. This means the meta
+      // animations carousel only "begins" the emergence animation when
+      // the user actually swipes into its slide instead of running it
+      // invisibly from page load. On dedicated pages where the canvas
+      // is always in the viewport, IO reports it as visible immediately
+      // and animation plays normally.
+      if (!cancelled && containerRef.current) {
+        // Start paused — IO will flip us on if the canvas is already
+        // in view, otherwise we wait for the user to swipe to us.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (p5Instance as any)?.noLoop?.();
+        io = new IntersectionObserver(
+          (entries) => {
+            for (const e of entries) {
+              if (e.isIntersecting) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (p5Instance as any)?.loop?.();
+              } else {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (p5Instance as any)?.noLoop?.();
+              }
+            }
+          },
+          { threshold: 0.05 },
+        );
+        io.observe(containerRef.current);
+      }
     })();
 
     return () => {
       cancelled = true;
+      io?.disconnect();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (p5Instance as any)?.remove?.();
     };
@@ -264,12 +327,20 @@ export function RadialsCanvas() {
     <div
       ref={containerRef}
       id="Radials_Canvas"
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: -1,
-        pointerEvents: "none",
-      }}
+      style={
+        inFlow
+          ? {
+              position: "absolute",
+              inset: 0,
+              pointerEvents: "none",
+            }
+          : {
+              position: "fixed",
+              inset: 0,
+              zIndex: -1,
+              pointerEvents: "none",
+            }
+      }
     />
   );
 }

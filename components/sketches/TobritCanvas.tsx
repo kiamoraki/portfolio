@@ -30,14 +30,19 @@ export function TobritCanvas() {
           }
         };
 
+        const scaleRange = (): [number, number] =>
+          window.innerWidth < 720 ? [0.12, 0.4] : [0.3, 0.9];
+
         p.setup = () => {
           const c = p.createCanvas(p.windowWidth, p.windowHeight);
           c.style("display", "block");
+          c.style("background", "transparent");
           p.frameRate(30);
+          const [smin, smax] = scaleRange();
           for (let i = 0; i < FACE_COUNT; i++) {
             xpos[i] = p.random(-200, p.windowWidth);
             ypos[i] = p.random(p.windowHeight + 200);
-            faceScale[i] = p.random(0.3, 0.9);
+            faceScale[i] = p.random(smin, smax);
             speed[i] = p.random(0.5, 0.9);
           }
         };
@@ -47,7 +52,7 @@ export function TobritCanvas() {
         };
 
         p.draw = () => {
-          p.background(255, 255, 255);
+          p.clear();
           for (let i = 0; i < FACE_COUNT; i++) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const face = faces[i] as any;
@@ -56,7 +61,8 @@ export function TobritCanvas() {
             if (ypos[i] < 0 - face.height * faceScale[i]) {
               ypos[i] = p.windowHeight;
               xpos[i] = p.random(-200, p.windowWidth);
-              faceScale[i] = p.random(0.3, 0.9);
+              const [smin, smax] = scaleRange();
+              faceScale[i] = p.random(smin, smax);
               speed[i] = p.random(0.5, 0.9);
             }
             p.image(
@@ -86,7 +92,7 @@ export function TobritCanvas() {
       style={{
         position: "fixed",
         inset: 0,
-        zIndex: -1,
+        zIndex: 100,
         pointerEvents: "none",
       }}
     />

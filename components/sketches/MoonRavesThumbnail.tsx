@@ -33,7 +33,7 @@ export function MoonRavesThumbnail() {
           if (fLit < 0.001) return;
 
           p.noStroke();
-          p.fill(0);
+          p.fill(255);
 
           if (fLit > 0.999) {
             p.circle(cx, cy, r * 2);

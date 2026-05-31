@@ -2,10 +2,32 @@
 
 import { useEffect, useRef } from "react";
 
-const NUM_CELLS = 50;
+const NUM_CELLS = 20;
 
-export function EternalReturnObservedCanvas() {
+type Props = {
+  // When true, render inside the document flow (position: absolute, fills
+  // parent) instead of the default full-viewport background mode. The
+  // p5 canvas sizes itself to the container's clientWidth/Height.
+  inFlow?: boolean;
+  // 1 = single centered convergence square (default). 4 = a 2×2 grid of
+  // convergence squares, each centered in its quadrant. Other counts are
+  // treated as 1.
+  squares?: 1 | 4;
+};
+
+export function EternalReturnObservedCanvas({
+  inFlow = false,
+  squares = 1,
+}: Props = {}) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const inFlowRef = useRef(inFlow);
+  useEffect(() => {
+    inFlowRef.current = inFlow;
+  }, [inFlow]);
+  const squaresRef = useRef(squares);
+  useEffect(() => {
+    squaresRef.current = squares;
+  }, [squares]);
 
   useEffect(() => {
     let p5Instance: import("p5") | null = null;
@@ -36,6 +58,12 @@ export function EternalReturnObservedCanvas() {
           interpolateOn = true;
           colorStep = true;
           drawCircle = false;
+          // Frames since this cell's pct was last reset to 0. Drives the
+          // fade-in at the start of each pulse — mirrors the unobserved
+          // canvas's same lifeFrames-based fade. Cells seed this with a
+          // random value >= 30 so the hero looks like the animation has
+          // already been running on page load (no initial fade-in).
+          lifeFrames = 30;
           bigRadius: number;
           bigRadiusMin: number;
           bigRadiusMax: number;
@@ -61,14 +89,25 @@ export function EternalReturnObservedCanvas() {
             this.boxSize = boxSize;
             this.amp = amp;
             this.numPts = Math.floor(p.random(4, 12));
-            this.pct = p.random(0.1, 1);
-            this.pctAdder = 0.05;
+            // Slight per-cell jitter (±20%) on pctAdder so cells don't
+            // all pulse in perfect sync, but the overall lifespan range
+            // stays tight around ~30s.
+            this.pctAdder = p.random(0.0018, 0.0024);
+            // Seed each cell anywhere from a fresh reset (pct = 0) up
+            // through past-the-pulse near the end of its cycle (pct ≈ 1.8).
+            // lifeFrames stays correlated so each cell's apparent age
+            // matches its progress — the hero opens with cells visibly
+            // spread across the entire lifespan.
+            this.pct = p.random(0, 1.8);
+            this.lifeFrames = Math.floor(this.pct / this.pctAdder);
             this.increment = boxSize / this.numPts;
             this.bigRadiusMin = boxSize * (420 / 600);
             this.bigRadiusMax = boxSize * (1000 / 600);
             this.bigRadius = this.bigRadiusMin;
+            // Locked to the single sidebar accent lavender (#b588ff) used
+            // throughout the rest of the site chrome.
             this.color = p.color(181, 136, 255);
-            this.colorBigRadius = p.color(191, 148, 255, 50);
+            this.colorBigRadius = p.color(181, 136, 255, 50);
 
             for (let i = 0; i < this.numPts; i++) {
               this.sourcePts.push({
@@ -122,45 +161,24 @@ export function EternalReturnObservedCanvas() {
             }
             this.pct += this.pctAdder;
 
-            if (this.colorStep) {
-              this.angle += this.angleStep;
-              this.colorSine = Math.sin(this.angle + this.angleStep);
-              const r = p.map(this.colorSine, -1, 1, 247, 92);
-              const g = p.map(this.colorSine, -1, 1, 148, 193);
-              this.color = p.color(r, g, 255);
-              this.colorStep = false;
-            }
+            // Color stays locked at the sidebar lavender — colorStep used
+            // to sine-wave through magenta/cyan, but the hero now reads as
+            // a single brand color.
 
-            if (this.drawCircle) {
-              if (this.bigRadius > this.bigRadiusMax) {
-                this.bigRadius = this.bigRadiusMin;
-                this.drawCircle = false;
-              } else {
-                this.bigRadius += 0.5 * (this.boxSize / 600);
-                const lo = this.bigRadiusMin;
-                const hi = this.boxSize * (700 / 600);
-                const r = p.map(this.bigRadius, lo, hi, 191, 217);
-                const g = p.map(this.bigRadius, lo, hi, 148, 152);
-                const b = p.map(this.bigRadius, lo, hi, 255, 158);
-                const aMax = this.boxSize * (500 / 600);
-                const a = p.map(this.bigRadius, lo, aMax, 50, 100);
-                this.colorBigRadius = p.color(r, g, b, a);
-              }
-            }
           }
 
           draw() {
-            p.stroke(this.color);
-            p.fill(this.color);
+            // Fade in only — ramp the dots up over the first 30 frames of
+            // each pulse and hold them at full alpha until the next reset.
+            this.lifeFrames++;
+            const fadeIn = Math.min(1, this.lifeFrames / 30);
+            const alpha = Math.floor(220 * fadeIn);
+            const c = p.color(181, 136, 255, alpha);
+            p.stroke(c);
+            p.fill(c);
             p.strokeWeight(0.5);
             for (let i = 0; i < this.sourcePts.length; i++) {
               p.circle(this.interpolatePts[i].x, this.interpolatePts[i].y, 2);
-            }
-            if (this.drawCircle) {
-              p.noFill();
-              p.stroke(this.colorBigRadius);
-              p.strokeWeight(0.5);
-              p.circle(this.origin.x, this.origin.y, this.bigRadius * 2);
             }
           }
 
@@ -172,7 +190,7 @@ export function EternalReturnObservedCanvas() {
                 this.translateX + this.boxSize
               ) {
                 this.pct = 0;
-                this.drawCircle = true;
+                this.lifeFrames = 0;
                 break;
               }
             }
@@ -181,9 +199,27 @@ export function EternalReturnObservedCanvas() {
 
         const cells: FirstOrigin[] = [];
 
-        const makeBigCell = (): FirstOrigin => {
-          const origin = { x: p.width / 2, y: p.height / 2 };
-          const big = Math.min(p.width, p.height) * 0.6;
+        // Quadrant centers for the chosen `squares` layout. 1 → just the
+        // canvas center; 4 → a 2×2 grid of quadrant centers.
+        const quadrantCenters = (): Pt[] => {
+          const n = squaresRef.current === 4 ? 4 : 1;
+          if (n === 1) return [{ x: p.width / 2, y: p.height / 2 }];
+          return [
+            { x: p.width * 0.25, y: p.height * 0.25 },
+            { x: p.width * 0.75, y: p.height * 0.25 },
+            { x: p.width * 0.25, y: p.height * 0.75 },
+            { x: p.width * 0.75, y: p.height * 0.75 },
+          ];
+        };
+
+        const makeBigCell = (origin: Pt, squaresN: number): FirstOrigin => {
+          // Each square is sized to the larger axis of its slot so it
+          // fills both directions, with the smaller axis cropping the
+          // overflow. squaresN=4 → each slot is half the canvas in both
+          // axes; squaresN=1 → the whole canvas.
+          const slotW = p.width / (squaresN === 4 ? 2 : 1);
+          const slotH = p.height / (squaresN === 4 ? 2 : 1);
+          const big = Math.max(slotW, slotH);
           const tx = origin.x - big / 2;
           const ty = origin.y - big / 2;
           const ampMin = big * (80 / 600);
@@ -192,17 +228,40 @@ export function EternalReturnObservedCanvas() {
           return new FirstOrigin(origin, amp, tx, ty, big);
         };
 
+        const populateCells = () => {
+          cells.length = 0;
+          const centers = quadrantCenters();
+          const squaresN = centers.length;
+          const perSquare = Math.floor(NUM_CELLS / squaresN);
+          for (const center of centers) {
+            for (let i = 0; i < perSquare; i++) {
+              cells.push(makeBigCell(center, squaresN));
+            }
+          }
+        };
+
+        const getDims = (): [number, number] => {
+          if (inFlowRef.current && containerRef.current) {
+            return [
+              containerRef.current.clientWidth,
+              containerRef.current.clientHeight,
+            ];
+          }
+          return [p.windowWidth, p.windowHeight];
+        };
+
         p.setup = () => {
-          const c = p.createCanvas(p.windowWidth, p.windowHeight);
+          const [cw, ch] = getDims();
+          const c = p.createCanvas(cw, ch);
           c.style("display", "block");
           p.frameRate(29);
-          for (let i = 0; i < NUM_CELLS; i++) cells.push(makeBigCell());
+          populateCells();
         };
 
         p.windowResized = () => {
-          p.resizeCanvas(p.windowWidth, p.windowHeight);
-          cells.length = 0;
-          for (let i = 0; i < NUM_CELLS; i++) cells.push(makeBigCell());
+          const [cw, ch] = getDims();
+          p.resizeCanvas(cw, ch);
+          populateCells();
         };
 
         p.draw = () => {
@@ -231,14 +290,23 @@ export function EternalReturnObservedCanvas() {
     <div
       ref={containerRef}
       id="EternalReturn_Observed_Canvas"
-      style={{
-        alignSelf: "stretch",
-        marginLeft: "calc(-1 * var(--spacing-page))",
-        marginRight: "calc(-1 * var(--spacing-page))",
-        height: "100vh",
-        background: "#000",
-        overflow: "hidden",
-      }}
+      style={
+        inFlow
+          ? {
+              position: "absolute",
+              inset: 0,
+              background: "#000",
+              overflow: "hidden",
+            }
+          : {
+              alignSelf: "stretch",
+              marginLeft: "calc(-1 * var(--spacing-page))",
+              marginRight: "calc(-1 * var(--spacing-page))",
+              height: "100vh",
+              background: "#000",
+              overflow: "hidden",
+            }
+      }
     />
   );
 }

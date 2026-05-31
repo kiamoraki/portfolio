@@ -11,7 +11,10 @@
   --color-ocean: #66b6f8;
 
   --spacing-nav-h: 60px;
-  --spacing-nav-h-mobile: 70px;
+  --spacing-nav-h-mobile: 44px;
+  --spacing-sidebar-mobile: 44px;
+  --spacing-sidebar-icon-w-mobile: 72px;
+  --color-sidebar-accent: #b588ff;
   --spacing-page: 60px;
   --spacing-page-mobile: 20px;
 
@@ -43,6 +46,43 @@
 @font-face {
   font-family: "SSSocial";
   src: url("/fonts/SS-Social/ss-social-regular.ttf") format("truetype");
+  font-weight: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Azonix";
+  src: url("/fonts/Azonix.otf") format("opentype");
+  font-weight: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Taurus";
+  src: url("/fonts/Taurus-Mono-Outline-Bold.otf") format("opentype");
+  font-weight: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "NauSea";
+  src: url("/fonts/Nau%20Sea.otf") format("opentype");
+  font-weight: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Square";
+  src: url("/fonts/Square.ttf") format("truetype");
+  font-weight: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "MonumentValley";
+  src: url("/fonts/MonumentValley.otf") format("opentype"),
+       url("/fonts/MonumentValley.ttf") format("truetype");
+  font-weight: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Neuropol";
+  src: url("/fonts/neuropol.otf") format("opentype");
   font-weight: normal;
   font-display: swap;
 }
@@ -90,11 +130,19 @@ main {
   width: 100%;
   min-height: 100vh;
   padding: var(--spacing-page);
+  padding-left: 44px;
 }
 @media (max-width: 720px) {
-  main { padding: 70px var(--spacing-page-mobile) var(--spacing-page-mobile); }
+  /* No more top padding for a horizontal nav bar — the icon buttons
+     now float as a vertical stack inset from the top-left corner, so
+     content can start flush with the top of the viewport. */
+  main {
+    padding: 0 0 var(--spacing-page-mobile);
+    gap: 1px;
+  }
 }
-main.index { padding: 0; }
+main.index { padding: 0; gap: 0; }
+main.fullbleed { padding: 0; }
 
 /* ─── Project content rows / figures ────────────────────────── */
 figure.image {
@@ -148,23 +196,156 @@ figure.image figcaption {
   object-fit: contain;
 }
 .row.equal-heights > figure.image img { object-fit: cover; height: 100%; }
+.row > figure.image:has(img[src*="glamtech-logo"]) {
+  flex: 0 1 200px;
+  max-width: 200px;
+}
 
 @media (max-width: 720px) {
-  .row { flex-direction: column; gap: var(--spacing-page-mobile); }
+  main { gap: 1px; }
+  figure.image { margin: 0; }
+  figure.image figcaption { display: none; }
+  .row { flex-direction: column; gap: 1px; margin: 0; }
+  .row > figure.image { flex: 0 0 auto; overflow: visible; }
+  /* Rows that contain a video stay horizontal on mobile so the video
+     doesn't get sandwiched between giant white-paper paintings.
+     !important guards against later media-query overrides on `.row`. */
+  .row:has(.video),
+  .row:has(.video-vertical) {
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 1px !important;
+  }
+  .row:has(.video) > figure.image,
+  .row:has(.video-vertical) > figure.image {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+  }
+  .row:has(.video) > figure.image img,
+  .row:has(.video-vertical) > figure.image img {
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+  .row:has(.video) > .video,
+  .row:has(.video-vertical) > .video,
+  .row:has(.video-vertical) > .video-vertical {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+  }
+  .row:has(.video) > .video iframe,
+  .row:has(.video-vertical) > .video-vertical iframe {
+    max-width: 100% !important;
+  }
+  /* Artificial Consciousness: full-width .mp4 videos at the top of the
+     mobile stack, ahead of the regular project-mobile-stack images.
+     !important on display because the base `.ac-mobile-videos
+     { display: none }` hide rule lives further down the file and
+     would otherwise win the cascade tie. */
+  .ac-mobile-videos {
+    display: flex !important;
+    flex-direction: column;
+    gap: 1px;
+    width: 100%;
+    background: #000;
+  }
+  .ac-mobile-video {
+    width: 100%;
+    height: auto;
+    display: block;
+    background: #000;
+  }
+
+  /* Artificial Consciousness: pair the two tile-* images side-by-side
+     on mobile instead of stacking them. The stack flips to a 2-col grid;
+     everything spans both columns except the tile pair. */
+  .project-mobile-stack:has(img[src*="tile-pornj-playa"]) {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+  }
+  .project-mobile-stack:has(img[src*="tile-pornj-playa"]) > .project-mobile-slide {
+    grid-column: 1 / -1;
+  }
+  .project-mobile-stack > .project-mobile-slide:has(img[src*="tile-pornj-playa"]) {
+    grid-column: 1 / 2;
+  }
+  .project-mobile-stack > .project-mobile-slide:has(img[src*="tile-blue-playa"]) {
+    grid-column: 2 / 3;
+  }
+  /* Glamtech logo: shrink to 25%, collapse its own row to 0 height, and
+     center the image on the boundary between the previous and next
+     install photos so half overlays each. Force a recompile bust. */
+  .project-mobile-slide:has(> img[src*="glamtech-logo"]),
+  .project-mobile-slide:has(img[src*="glamtech-logo"]) {
+    height: 0 !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: relative !important;
+    z-index: 2 !important;
+    pointer-events: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .project-mobile-slide:has(img[src*="glamtech-logo"]) > img,
+  .project-mobile-slide:has(img[src*="glamtech-logo"]) img {
+    width: 25% !important;
+    max-width: 25% !important;
+    height: auto !important;
+    display: block !important;
+  }
+  /* Paintings "Everything & Nothing" 4-up: 2×2 grid on mobile. */
+  .row:has(img[src*="everythingandnothing_02"]) {
+    flex-direction: row !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    grid-template-rows: 1fr 1fr !important;
+    gap: 1px !important;
+  }
+  .row:has(img[src*="everythingandnothing_02"]) > figure.image {
+    flex: 0 0 auto !important;
+    min-width: 0 !important;
+  }
+  .row:has(img[src*="everythingandnothing_02"]) > figure.image img {
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    object-fit: contain !important;
+  }
+  /* Helm gif pair: keep the two galactica gifs side-by-side on mobile. */
+  .row:has(img[src*="galactica-dark"]) {
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 1px !important;
+  }
+  .row:has(img[src*="galactica-dark"]) > figure.image {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+  }
+  .row:has(img[src*="galactica-dark"]) > figure.image img {
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+  }
 }
 
 .text {
   max-width: 720px;
   padding: 2.5rem;
-  background: rgba(0, 0, 0, 0.6);
-  color: #fff;
+  color: var(--color-dark);
   font-size: 1.25rem;
   line-height: 1.8;
   margin: 3rem 0;
 }
-.text p, .text cite, .text em, .text strong, .text a { color: #fff; }
+.text p, .text cite, .text em, .text strong, .text a { color: inherit; }
+main.dark .text { color: var(--color-light); }
 .text p { margin: 0 0 1em; }
 .text p:last-child { margin-bottom: 0; }
+@media (max-width: 720px) {
+  .text { padding-left: 0; padding-right: 0; }
+}
 
 .window-gap { height: 100vh; width: 100%; }
 
@@ -172,7 +353,6 @@ figure.image figcaption {
   width: 100%;
   display: flex;
   justify-content: center;
-  margin-bottom: var(--spacing-page);
 }
 .video iframe, .video-vertical iframe {
   width: 100%;
@@ -187,16 +367,54 @@ figure.image figcaption {
 .credits ul li { margin-bottom: 0.4em; }
 @media (max-width: 720px) { .credits { grid-template-columns: 1fr; } }
 
+/* ─── Wave grids ────────────────────────────────────────────── */
+.wave-grids {
+  display: grid;
+  gap: 16px;
+  width: 100%;
+  margin: 2rem 0;
+  grid-template-columns: 1fr 1fr;
+}
+.wave-grids > :nth-child(5) {
+  grid-column: 1 / -1;
+  width: calc(50% - 8px);
+  justify-self: center;
+}
+.wave-canvas-cell {
+  width: 100%;
+  aspect-ratio: 1;
+  background: #000;
+  display: block;
+}
+.wave-canvas-cell canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+@media (max-width: 720px) {
+  .wave-grids { grid-template-columns: 1fr; }
+  .wave-grids > :nth-child(5) { grid-column: auto; width: 100%; }
+}
+
 /* ─── Nav ───────────────────────────────────────────────────── */
+/* mobile-header-frame is no longer used now that the icon buttons are
+   stacked vertically on the left — each button carries its own border
+   square, and there's nothing to enclose at the top anymore. */
+.mobile-header-frame { display: none; }
+
 .nav-main, .nav-projects {
   position: fixed;
   z-index: 5000;
   display: flex;
 }
-.nav-main { left: 0; top: 0; flex-direction: column; }
+.nav-main { left: 0; top: 0; flex-direction: column; padding-top: 4px; }
 .nav-projects { right: 0; top: 0; align-items: center; }
 @media (max-width: 720px) {
-  .nav-main { flex-direction: row; }
+  /* Mobile sidebar buttons stack vertically on the left (was a
+     horizontal topbar). Each button is rendered as its own bordered
+     square. The corresponding dimension + border rules live in the
+     larger @media block further down. */
+  .nav-main { flex-direction: column; }
 }
 .nav-main a, .nav-projects a {
   width: var(--spacing-nav-h);
@@ -214,7 +432,7 @@ figure.image figcaption {
     height: var(--spacing-nav-h-mobile);
   }
 }
-.nav-main a.active { background-color: var(--color-dark); color: var(--color-light); }
+.nav-main a.active { background-color: #b588ff; color: var(--color-dark); }
 
 .nav-menu-toggle {
   width: var(--spacing-nav-h);
@@ -229,9 +447,9 @@ figure.image figcaption {
   cursor: pointer;
   padding: 0;
 }
-.nav-menu-toggle.active { background-color: var(--color-dark); color: var(--color-light); }
+.nav-menu-toggle.active { background-color: #b588ff; color: var(--color-dark); }
 .nav-main.dark .nav-menu-toggle { color: var(--color-light); }
-.nav-main.dark .nav-menu-toggle.active { background-color: var(--color-light); color: var(--color-dark); }
+.nav-main.dark .nav-menu-toggle.active { background-color: #b588ff; color: var(--color-dark); }
 @media (max-width: 720px) {
   .nav-menu-toggle {
     width: var(--spacing-nav-h-mobile);
@@ -276,23 +494,298 @@ figure.image figcaption {
   align-items: center;
   font-family: var(--font-bold);
   text-transform: uppercase;
+  font-size: 17px;
+  letter-spacing: 0.04em;
   padding: 0 1rem;
   margin: 0;
   z-index: 5000;
 }
 @media (max-width: 720px) {
-  .nav-projects .project-title {
-    left: 0;
-    top: var(--spacing-nav-h-mobile);
-    right: auto;
-    height: auto;
-    padding: 0.5rem var(--spacing-page-mobile);
+  .nav-projects .project-title { display: none; }
+}
+
+/* Chrome-less recording mode — hides every fixed nav element and the
+   Next.js dev indicator so MediaRecorder captures a clean canvas only.
+   (Re-added to bust Turbopack CSS cache.) */
+.solo-mode .nav-main,
+.solo-mode .nav-projects,
+.solo-mode .nav-info,
+.solo-mode [data-nextjs-toast],
+.solo-mode [data-nextjs-toast-wrapper],
+.solo-mode [data-nextjs-dev-tools-button],
+.solo-mode nextjs-portal { display: none !important; }
+.solo-mode main { padding: 0 !important; }
+
+/* Carousel slide indicators rendered inside the project title */
+.slide-indicators {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 12px;
+  vertical-align: middle;
+}
+.slide-indicator {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border: 1px solid currentColor;
+  background: transparent;
+  box-sizing: border-box;
+}
+.slide-indicator.active { background: currentColor; }
+.slide-nav-caret {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: inherit;
+  line-height: 0;
+}
+
+.project-info-toggle {
+  background: transparent;
+  border: 0;
+  padding: 4px 8px;
+  margin: 0 4px 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: inherit;
+  line-height: 1;
+  vertical-align: middle;
+  opacity: 0.6;
+  border-radius: 3px;
+  transition: opacity 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+.project-info-toggle:hover { opacity: 1; }
+.project-info-toggle.active { opacity: 1; }
+.project-info-toggle.active .info-ring {
+  fill: #b588ff;
+  stroke: #b588ff;
+}
+
+.project-nav-arrows {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: 16px;
+  vertical-align: middle;
+}
+.project-nav-label {
+  font-family: var(--font-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 12px;
+  line-height: 1;
+}
+.nav-projects a.project-nav-arrow {
+  width: auto;
+  height: auto;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+  line-height: 0;
+}
+
+.nav-info {
+  position: fixed;
+  top: var(--spacing-nav-h);
+  left: 0;
+  width: var(--spacing-nav-h);
+  height: var(--spacing-nav-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5000;
+  color: var(--color-dark);
+}
+.nav-info-label {
+  font-family: "Neuropol", var(--font-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 11px;
+  line-height: 1;
+}
+.nav-info.dark { color: var(--color-light); }
+.nav-info.active,
+.nav-info.dark.active {
+  background: url("/img/soslippery-BIG-1-d3.gif") center / cover;
+  color: var(--color-light);
+}
+@media (max-width: 720px) {
+  /* The mobile icon buttons live as a vertical stack of small bordered
+     squares in the top-left. INSET + ICON-SIZE keep the layout
+     consistent across both the grid and CV/info buttons. */
+  :root {
+    --mobile-sidebar-icon-inset: 1rem; /* matches .meta-carousel-nav inset */
+    /* Match the .project-mobile-bottom-nav prev/next button height
+       (56px). Same value keeps the top-left squares visually weighted
+       with the bottom arrow buttons. */
+    --mobile-sidebar-icon-size: 56px;
   }
+  .nav-main {
+    left: var(--mobile-sidebar-icon-inset);
+    top: var(--mobile-sidebar-icon-inset);
+    /* Stack the icon buttons vertically — each one is now a square
+       inset slightly from the top-left corner of the viewport. */
+    flex-direction: column;
+    padding-top: 0;
+  }
+  .nav-main a, .nav-projects a {
+    width: var(--mobile-sidebar-icon-size);
+    height: var(--mobile-sidebar-icon-size);
+    color: var(--color-dark);
+  }
+  /* Grid icon — square, bordered on all four sides so it reads as a
+     standalone box. */
+  .nav-main a {
+    box-sizing: border-box;
+    border: 2px solid var(--color-dark);
+    margin-bottom: 0;
+  }
+  .dark.nav-main a {
+    color: var(--color-light);
+    border-color: var(--color-light);
+  }
+  /* CV / info icon — stacks directly below the grid icon, same square
+     shape + matching border. Top edge offset = inset + grid icon
+     height so the two squares butt up cleanly. */
+  .nav-info {
+    box-sizing: border-box;
+    top: calc(
+      var(--mobile-sidebar-icon-inset) + var(--mobile-sidebar-icon-size)
+    );
+    left: var(--mobile-sidebar-icon-inset);
+    right: auto;
+    width: var(--mobile-sidebar-icon-size);
+    height: var(--mobile-sidebar-icon-size);
+    border: 2px solid var(--color-dark);
+    /* Reuse the same top edge as the grid icon's bottom edge — a
+       single shared 2px line via border-top removed below. */
+    border-top: 0;
+    color: var(--color-dark);
+  }
+  .nav-info.dark {
+    color: var(--color-light);
+    border-color: var(--color-light);
+  }
+  /* Active state.
+     - CV (on /about) keeps the rainbow-gif backdrop (it's hidden on /about
+       in practice but the rule stays for future use).
+     - Grid (on /) uses an animated linear gradient through the radials
+       palette, matching the colors in components/sketches/RadialsCanvas.tsx. */
+  .nav-info.active {
+    display: flex !important;
+    background: url("/img/soslippery-BIG-1-d3.gif") center / cover !important;
+    color: var(--color-sidebar-accent) !important;
+  }
+  .nav-main a.active {
+    display: flex !important;
+    /* No `!important` on background so the keyframe animation can drive
+       it — `!important` would beat animation values in the cascade.
+       border-bottom matches the topbar frame's own 2px border (which
+       would otherwise be hidden behind the active button's opaque bg). */
+    background-color: #ff1fe0;
+    animation: nav-grid-cycle 12s linear infinite;
+    color: var(--color-dark) !important;
+    border-right: 2px solid var(--color-dark) !important;
+    border-bottom: 2px solid var(--color-dark) !important;
+  }
+  .dark.nav-main a.active {
+    border-right-color: var(--color-light) !important;
+    border-bottom-color: var(--color-light) !important;
+  }
+  /* Whole-icon color cycle through the radials palette. Each stop holds
+     a single solid color; the browser linear-interpolates between stops
+     so the icon reads as one uniform color smoothly morphing through
+     the array. Renamed from nav-grid-rainbow to bust Turbopack's cached
+     @keyframes definition. */
+  @keyframes nav-grid-cycle {
+    0%       { background: #ff1fe0; }
+    9.0909%  { background: #e01fff; }
+    18.1818% { background: #a23eff; }
+    27.2727% { background: #45d9ff; }
+    36.3636% { background: #45ffa2; }
+    45.4545% { background: #83ff64; }
+    54.5454% { background: #c1ffa2; }
+    63.6363% { background: #e0ffa2; }
+    72.7272% { background: #ffff45; }
+    81.8181% { background: #ffd945; }
+    90.9090% { background: #ffba45; }
+    100%     { background: #ff1fe0; }
+  }
+  /* Header text font — Neuropol for the prose-y labels, but NOT for
+     .nav-main a (which renders the "grid" icon glyph via SSStandard). */
+  .nav-info,
+  .nav-site-title,
+  .project-mobile-header-nav-link {
+    font-family: "Neuropol", var(--font-bold);
+  }
+  /* CV page: transparent topbar, no outlines on the icons, hide the CV
+     cell, force grid + socials to dark so they read on the about page's
+     light gradient. */
+  body:has(main.about) .mobile-header-frame {
+    background: transparent;
+    border-bottom: 0;
+    color: var(--color-dark);
+  }
+  body:has(main.about) .nav-info { display: none !important; }
+  body:has(main.about) .nav-main a,
+  body:has(main.about) .nav-main a.active {
+    color: var(--color-dark) !important;
+    background: transparent !important;
+    border: 0 !important;
+  }
+}
+@media (min-width: 721px) and (max-width: 900px) {
+  .nav-main { left: 12px; }
+  .nav-info { left: 12px; }
+}
+
+.nav-site-title {
+  display: inline-flex;
+  align-items: center;
+  height: var(--spacing-nav-h);
+  padding: 0 1rem;
+  font-family: var(--font-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 14px;
+  color: var(--color-dark);
+  white-space: nowrap;
+}
+@media (max-width: 720px) {
+  .nav-site-title { height: var(--spacing-nav-h-mobile); }
+}
+
+/* On desktop, nav-main is a column on the left edge; floating the site
+   title out to its right keeps "Kiamora Kirby" reading next to the grid
+   icon rather than stacking below it. */
+@media (min-width: 721px) {
+  .nav-main { flex-direction: row; }
 }
 
 /* dark variant */
 .dark.nav-main a, .dark.nav-projects a, .dark.nav-projects .project-title { color: var(--color-light); }
-.dark.nav-main a.active { background-color: var(--color-light); color: var(--color-dark); }
+.dark.nav-main .nav-site-title { color: var(--color-light); }
+.dark.nav-main a.active { background-color: #b588ff; color: var(--color-dark); }
+
+/* Hover: icon turns lavender on grid + flower buttons */
+.nav-main a:hover,
+.dark.nav-main a:hover,
+.nav-info:hover,
+.nav-info.dark:hover { color: #b588ff; }
+/* When already on the active page, keep dark icon on lavender bg even on hover */
+.nav-main a.active:hover,
+.dark.nav-main a.active:hover,
+.nav-info.active:hover,
+.nav-info.dark.active:hover { color: var(--color-dark); }
 
 /* ─── Project grid ──────────────────────────────────────────── */
 #project-list {
@@ -307,23 +800,27 @@ figure.image figcaption {
 }
 @media (max-width: 720px) {
   #project-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
     width: 100%;
     margin-left: 0;
-    padding-top: var(--spacing-page);
-    padding-bottom: var(--spacing-page-mobile);
+    padding: 0;
+    box-sizing: border-box;
   }
 }
 #project-list li {
-  border: 1px solid var(--color-dark);
   width: calc(25% - 60px);
-  height: calc(100vw / 5);
+  aspect-ratio: 1;
   margin: 30px;
+  box-sizing: border-box;
 }
 @media (max-width: 720px) {
   #project-list li {
-    width: calc(50% - 40px);
-    height: calc(100vw / 3);
-    margin: 20px;
+    width: auto;
+    height: auto;
+    aspect-ratio: 1;
+    margin: 0;
   }
 }
 #project-list a {
@@ -339,20 +836,18 @@ figure.image figcaption {
   font-size: 14px;
   padding: 5px;
   border: 8px solid transparent;
-  background: #fff;
+  background: var(--card-bg, #fff);
   box-sizing: border-box;
   transition: background 0.2s ease;
 }
 #project-list a:hover {
   background:
-    linear-gradient(#fff, #fff) no-repeat padding-box,
+    linear-gradient(var(--card-bg, #fff), var(--card-bg, #fff)) no-repeat padding-box,
     url("/img/soslippery-BIG-1-d3.gif") round border-box;
 }
 @media (max-width: 720px) {
   #project-list a {
-    background:
-      linear-gradient(#fff, #fff) no-repeat padding-box,
-      url("/img/soslippery-BIG-1-d3.gif") round border-box;
+    background: var(--card-bg, #fff);
   }
 }
 #project-list img {
@@ -370,6 +865,13 @@ figure.image figcaption {
 }
 #project-list .grid-item-intergalactic-helm img { max-height: 120px; }
 @keyframes spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+#project-list .grid-item-tobrit img {
+  animation: tobrit-fade 9.6s ease-in-out infinite;
+}
+@keyframes tobrit-fade {
+  0%, 100% { opacity: 0.35; }
+  8%, 92%  { opacity: 1; }
+}
 
 /* ─── Index "View Old Sites" link ───────────────────────────── */
 .sites-link {
@@ -392,6 +894,650 @@ figure.image figcaption {
 }
 .index-sites-link { display: flex; justify-content: center; margin: 2rem 0; }
 
+/* Button-style "Paintings" / "Moving Meditations" CTA centered over the
+   hero image. Transparent background, white text, with a blunt offset
+   drop-shadow for a chunky button feel. */
+.index-hero-cta {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  color: var(--color-light);
+  font-family: "Neuropol", var(--font-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 18px;
+  padding: 0.75rem 2rem;
+  text-decoration: none;
+  z-index: 2;
+  border: 2px solid var(--color-light);
+  box-shadow: 6px 6px 0 var(--color-light);
+  transition: color 0.2s ease, background 0.2s ease,
+    box-shadow 0.15s ease, transform 0.15s ease;
+}
+.index-hero-cta:active {
+  box-shadow: 2px 2px 0 var(--color-light);
+  transform: translate(-50%, -50%) translate(4px, 4px);
+}
+.index-emergence-cta {
+  padding: 1.5rem 2rem;
+}
+.index-hero-cta:hover {
+  background: var(--color-sidebar-accent);
+  color: var(--color-dark);
+}
+
+/* "Moving Meditations" section beneath the paintings hero — same height
+   as the paintings image (90vh), filled with the emergence radials canvas
+   with a banner laid over the top center. */
+/* Homepage intro block — text-only replacement for the previous hero
+   image / canvas sections. */
+.index-intro {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  box-sizing: border-box;
+}
+/* Homepage intro paragraph — inherits the body typography (DroidSans
+   14px / line-height 22px / dark color) so it matches the CV section's
+   li items. Only layout properties are set here. */
+.index-intro p {
+  max-width: 720px;
+  text-align: left;
+  margin: 0;
+  font-size: inherit;
+  line-height: inherit;
+  letter-spacing: normal;
+}
+.index-intro p a {
+  color: inherit;
+  border-bottom: 1px solid var(--color-dark);
+  padding-bottom: 1px;
+  transition: color 0.2s ease, border-bottom-color 0.2s ease;
+}
+.index-intro p a:hover {
+  color: var(--color-orchid);
+  border-bottom-color: var(--color-orchid);
+}
+@media (max-width: 720px) {
+  /* The icon buttons stack down the left edge — 1rem inset + 56px wide
+     + 1rem breathing room = 88px. Push the intro text to the right of
+     them with extra padding-left so the paragraph never flows under
+     the icons. Hard-coded (not via the icon CSS vars) so the cascade
+     can't drop it. */
+  .index-intro {
+    padding: 2rem 1.25rem 2rem 88px;
+  }
+}
+
+/* ─── Project page: mobile masonry vs. desktop carousel ─ */
+.project-mobile-stack { display: none; }
+.ac-mobile-videos { display: none; }
+.project-mobile-bottom-nav { display: none; }
+.er-mobile { display: none; }
+.wave-mobile-stack { display: none; }
+/* Default (desktop) — wave canvas shell is square. Mobile flips it to
+   1:2 inside the @media (max-width: 720px) block below. */
+.wave-canvas-shell { aspect-ratio: 1 / 1; }
+.roses-mobile-canvas { display: none; }
+.lissajous-mobile-stack { display: none; }
+.index-site-title-mobile { display: none; }
+.project-mobile-header-nav { display: none; }
+
+/* View Transitions for project navigation */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.45s;
+  animation-timing-function: cubic-bezier(0.45, 0, 0.2, 1);
+}
+/* Keep the fixed chrome elements stationary during the transition — each
+   gets its own named view, so the root slide animation doesn't include
+   them. Default cross-fade between identical old/new makes them appear
+   stationary. */
+@media (max-width: 720px) {
+  .nav-main { view-transition-name: vt-nav-main; }
+  .nav-info { view-transition-name: vt-nav-info; }
+  .nav-projects { view-transition-name: vt-nav-projects; }
+  .project-mobile-bottom-nav { view-transition-name: vt-nav-bottom; }
+  .mobile-header-frame { view-transition-name: vt-header-frame; }
+  .project-mobile-header-nav { view-transition-name: vt-header-nav; }
+}
+html.vt-prev::view-transition-old(root) {
+  animation-name: vt-slide-out-right;
+}
+html.vt-prev::view-transition-new(root) {
+  animation-name: vt-slide-in-from-left;
+}
+html.vt-next::view-transition-old(root) {
+  animation-name: vt-slide-out-left;
+}
+html.vt-next::view-transition-new(root) {
+  animation-name: vt-slide-in-from-right;
+}
+@keyframes vt-slide-out-right {
+  from { transform: translateX(0); }
+  to { transform: translateX(100%); }
+}
+@keyframes vt-slide-in-from-left {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+@keyframes vt-slide-out-left {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+}
+@keyframes vt-slide-in-from-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+@media (max-width: 720px) {
+  .project-mobile-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    width: 100%;
+    padding: 0;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 1;
+  }
+  .project-desktop-carousel { display: none; }
+  .project-mobile-slide--single { width: 100%; }
+  .project-mobile-slide--stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    width: 100%;
+  }
+  .project-mobile-slide--pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    width: 100%;
+  }
+  .project-mobile-slide--pair > * { min-width: 0; }
+  .project-mobile-slide--pair > img {
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    height: auto;
+  }
+  .project-mobile-slide--pair-natural { align-items: start; }
+  .project-mobile-slide--pair-natural > img {
+    aspect-ratio: auto;
+    object-fit: contain;
+    height: auto;
+  }
+  .project-mobile-slide--grid-2x2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    width: 100%;
+  }
+  .project-mobile-slide--grid-2x2 > * { min-width: 0; }
+  .project-mobile-slide--grid-2x2 > img {
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    width: 100%;
+    height: auto;
+  }
+  /* Cover hero already lives in a full-bleed stack. */
+  .project-mobile-slide--cover {
+    width: 100%;
+    height: 65vh;
+    overflow: hidden;
+  }
+  .project-mobile-slide--cover > img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+  .project-mobile-slide--text { padding: 1.5rem var(--spacing-page-mobile); }
+  main.image-below-title .project-mobile-stack {
+    padding-top: 0;
+    padding-left: 0;
+    padding-right: 0;
+    gap: 1px;
+  }
+  #EternalReturn_Unobserved_Canvas { display: none !important; }
+  .slide-indicators { display: none !important; }
+  .project-nav-arrows { display: none !important; }
+  .er-mobile {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding-top: 0;
+  }
+  .er-mobile-canvas {
+    width: 100%;
+    background: #000;
+  }
+  .er-mobile-image {
+    width: 100%;
+    padding: 0 !important;
+    margin-top: 1px !important;
+    box-sizing: border-box;
+  }
+  .er-mobile-image:last-child { padding-bottom: 0; }
+  .er-mobile-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px !important;
+    padding: 0 !important;
+    margin-top: 1px !important;
+    box-sizing: border-box;
+  }
+  .er-mobile-grid > * { min-width: 0; }
+  .er-mobile-grid > img {
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    height: auto;
+  }
+  /* On meta pages, the eternal-return entry should only show its
+     canvas — strip the install photo + diagram grids that accompany
+     it on the project's own page. */
+  .meta-project[data-slug="eternal-return"] .er-mobile-image,
+  .meta-project[data-slug="eternal-return"] .er-mobile-grid {
+    display: none;
+  }
+  /* And blow the canvas up to fill the viewport instead of the fixed
+     4-col × 7-row height the project page uses. The canvas itself
+     reads its container dimensions to redo its grid, so just enlarging
+     this wrapper is enough — !important is the only reliable way to
+     beat the inline height the EternalReturnCarousel computes for
+     mobile. */
+  .meta-project[data-slug="eternal-return"] .er-mobile-canvas--unobserved {
+    height: 100vh !important;
+  }
+  /* Wave slides keep the original pure-black look. The page bg is
+     #130c12 so we override every layer of the slide that could show
+     warm-dark through: the slide itself (via :has() so we don't have
+     to thread bg colour through MetaCarousel), the section, and the
+     canvas-square wrapper around the centered canvas. */
+  .meta-carousel-slide:has([data-slug^="wave-"]) {
+    background: #000;
+  }
+  .meta-project[data-slug^="wave-"] {
+    background: #000;
+  }
+  /* On mobile the wave grids switch from 3×3 to a 2-wide × 4-tall
+     stack and the canvas resolution matches the viewport exactly.
+     The wrapper fills the full slide so cells stay pixel-perfect
+     square and gaps are evenly distributed by the sketch itself. */
+  .meta-project[data-slug^="wave-"] .meta-carousel-canvas-square {
+    background: #000;
+    width: 100vw;
+    height: 100vh;
+    aspect-ratio: auto;
+  }
+  /* Per-canvas slide bg overrides — every other animation slide gets
+     its slide / section / canvas-square wrapper painted to match the
+     canvas's internal bg, so the area around or behind the canvas
+     blends with the drawing instead of flashing the page's #130c12.
+     Each block triple-scopes via :has(slide) + section + optional
+     canvas-square to cover every layer that could peek through. */
+
+  /* eternal-return — canvas paints #000 */
+  .meta-carousel-slide:has([data-slug="eternal-return"]),
+  .meta-project[data-slug="eternal-return"] {
+    background: #000;
+  }
+
+  /* multiverse — canvas wrapper bg #00001c */
+  .meta-carousel-slide:has([data-slug="multiverse"]),
+  .meta-project[data-slug="multiverse"] {
+    background: #00001c;
+  }
+
+  /* roses-grid + roses-portraits — canvases paint #000d19. They sit
+     inside .meta-carousel-canvas-square (aspect 1) which on portrait
+     leaves vertical gaps — color the wrapper too. */
+  .meta-carousel-slide:has([data-slug^="roses-"]),
+  .meta-project[data-slug^="roses-"] {
+    background: #000d19;
+  }
+  .meta-project[data-slug^="roses-"] .meta-carousel-canvas-square {
+    background: #000d19;
+  }
+  /* roses-grid specifically — the grid sketch adapts its cell sizes
+     to whatever aspect it's rendered in, so override the inner
+     .rose-grid-fullbleed wrapper (which is aspect-ratio: 1 on mobile
+     by default) to fill the full viewport instead of being a square. */
+  .meta-project[data-slug="roses-grid"] .rose-grid-fullbleed {
+    width: 100vw;
+    height: 100vh;
+    aspect-ratio: auto;
+  }
+
+  /* jellyfish-grid — pure black canvas */
+  .meta-carousel-slide:has([data-slug="jellyfish-grid"]),
+  .meta-project[data-slug="jellyfish-grid"] {
+    background: #000;
+  }
+
+  /* lissajous-canvas (the 2019 hidden project, separate from the 2017
+     lissajous slides) — its sketch paints p.background(0,0,0) but the
+     wrapper is a `margin: 2rem 0` flex container, so the slide's
+     warm-dark bg shows around the small black canvas. */
+  .meta-carousel-slide:has([data-slug="lissajous-canvas"]),
+  .meta-project[data-slug="lissajous-canvas"] {
+    background: #000;
+  }
+
+  /* shape-of-time — canvas now paints p.background(0) (black). The
+     project's own page sets bg: "#000" in its frontmatter, but on the
+     meta animations carousel the page bg is #130c12, so override the
+     slide here too for a seamless black behind the canvas. */
+  .meta-carousel-slide:has([data-slug="shape-of-time"]),
+  .meta-project[data-slug="shape-of-time"] {
+    background: #000;
+  }
+
+  /* emergence (RadialsCanvas) — fills with p.background(255) white */
+  .meta-carousel-slide:has([data-slug="emergence"]),
+  .meta-project[data-slug="emergence"] {
+    background: #fff;
+  }
+
+  /* On the animations meta page, the roses entry should only show its
+     two canvases — strip the photo stack that runs above them on the
+     project's own page. */
+  .meta-project[data-slug="roses"] .project-mobile-stack {
+    display: none;
+  }
+  /* main has `align-items: center`, which collapses each meta-project
+     section to its intrinsic width when no explicit width is set —
+     leaving inner `width: 100%` elements (canvases, image stacks)
+     unable to reach 100vw. Force full-width on every meta section. */
+  .meta-project {
+    width: 100%;
+    align-self: stretch;
+  }
+  /* TagCarousel — full-bleed horizontal pager. Each slide is one project,
+     sized to the viewport area below the topbar. Square / short canvases
+     are centered vertically; tall content scrolls within its slide. */
+  .meta-carousel {
+    position: relative;
+    width: 100vw;
+    /* Full viewport height — the old `calc(100vh - sidebar)` carved out
+       space for a horizontal top nav that no longer exists. */
+    height: 100vh;
+    overflow: hidden;
+    touch-action: pan-y pinch-zoom;
+    align-self: stretch;
+    /* Inherit the page bg so any sub-pixel gap between sliding slides
+       (or a slide whose canvas hasn't painted its first frame yet)
+       falls back to the page color instead of system white. */
+    background: inherit;
+  }
+  .meta-carousel-track {
+    display: flex;
+    height: 100%;
+    background: inherit;
+  }
+  .meta-carousel-slide {
+    flex-shrink: 0;
+    width: 100vw;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    /* Same fallback — slide paints page bg if its child content is
+       briefly transparent or smaller than 100vw. */
+    background: inherit;
+  }
+  .meta-carousel-project {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  /* Slot for a single square canvas inside a carousel slide. Sized to
+     the smaller of viewport-width vs the slide's height so it always
+     fits and is centered by the parent slide's flex layout. */
+  .meta-carousel-canvas-square {
+    /* Full viewport in the smaller dimension — old subtraction for the
+       horizontal nav bar is no longer needed. */
+    width: min(100vw, 100vh);
+    aspect-ratio: 1;
+    background: #130c12;
+    overflow: hidden;
+    position: relative;
+  }
+  .meta-carousel-nav {
+    position: absolute;
+    bottom: 1rem;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1rem;
+    z-index: 10;
+    pointer-events: none;
+    font-family: "Neuropol", var(--font-bold);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 14px;
+  }
+  .meta-carousel-btn {
+    pointer-events: auto;
+    background: rgba(0, 0, 0, 0.55);
+    color: var(--color-light);
+    font-family: inherit;
+    text-transform: inherit;
+    letter-spacing: inherit;
+    font-size: inherit;
+    padding: 0.55rem 1rem;
+    border: 1px solid var(--color-light);
+    cursor: pointer;
+  }
+  .meta-carousel-btn:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+  .meta-carousel-counter {
+    pointer-events: none;
+    color: var(--color-light);
+    text-shadow: 0 0 6px rgba(0, 0, 0, 0.6);
+  }
+  .wave-mobile-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    width: 100%;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  .wave-mobile-cell {
+    width: 100%;
+    /* Matches the new mobile 2×4 cell layout inside the wave canvases
+       — the canvas itself is now 1:2 (portrait), so the cell wrapper
+       on the project page mirrors that aspect to avoid letterboxing. */
+    aspect-ratio: 1 / 2;
+    background: #000;
+  }
+  /* Wave canvas shell — fills its parent (which on the meta carousel
+     is the full viewport, on the project page is a wave-mobile-cell
+     of fixed aspect). Aspect-ratio is dropped so the canvas can
+     match the parent's shape exactly. */
+  .wave-canvas-shell { aspect-ratio: auto; height: 100%; }
+  .index-hero {
+    width: 100% !important;
+    height: auto !important;
+  }
+  .index-hero-cta { font-size: 16px; }
+  .index-hero img {
+    width: 100% !important;
+    height: auto !important;
+    max-width: 100% !important;
+    object-fit: contain !important;
+  }
+  .wave-mobile-canvas {
+    width: 100%;
+  }
+  .roses-mobile-canvas {
+    display: block;
+    width: 100%;
+  }
+  /* Second roses canvas (single morphing rose curve) — square box like
+     the lissajous mobile cells. */
+  .roses-mobile-portraits {
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: #000d19;
+    margin-top: 1px;
+  }
+  .lissajous-mobile-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    padding: 0;
+    box-sizing: border-box;
+    background: #130c13;
+  }
+  .lissajous-mobile-cell {
+    width: 100%;
+    aspect-ratio: 1;
+    background: #130c12;
+    overflow: hidden;
+  }
+  .nav-site-title {
+    position: fixed;
+    top: 0;
+    left: calc(var(--spacing-sidebar-icon-w-mobile) * 2);
+    width: auto;
+    height: var(--spacing-sidebar-mobile);
+    padding: 0 0.9rem;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    z-index: 5000;
+    color: var(--color-dark);
+    font-family: "Neuropol", var(--font-bold);
+    font-size: 16px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .dark.nav-main .nav-site-title {
+    color: var(--color-light);
+  }
+  .nav-site-title-inner {
+    display: inline-block;
+  }
+  .index-site-title-mobile { display: none; }
+  .project-mobile-bottom-nav {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    padding: 0;
+    height: 56px;
+    width: 100%;
+    box-sizing: border-box;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 5000;
+    background: transparent;
+    border-top: 0;
+  }
+  .project-mobile-bottom-nav-link,
+  .project-mobile-bottom-nav-link:link,
+  .project-mobile-bottom-nav-link:visited,
+  .project-mobile-bottom-nav-link:hover,
+  .project-mobile-bottom-nav-link:active,
+  .project-mobile-bottom-nav-link:focus,
+  .project-mobile-bottom-nav-link:focus-visible {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: inherit;
+    background: transparent;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+    min-width: 0;
+  }
+  .project-mobile-bottom-nav-label { display: none; }
+  .project-mobile-bottom-nav-arrow { flex-shrink: 0; font-size: 18px; }
+  button.project-mobile-bottom-nav-link {
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    font: inherit;
+  }
+  /* Horizontal topbar: prev / next share the leftover space to the right
+     of grid + cv. Color follows the project theme — dark glyphs on light
+     pages, light glyphs on dark pages. */
+  .project-mobile-header-nav {
+    position: fixed;
+    top: 0;
+    left: calc(var(--spacing-sidebar-icon-w-mobile) * 2);
+    right: 0;
+    height: var(--spacing-sidebar-mobile);
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    z-index: 5000;
+    color: var(--color-dark);
+  }
+  .project-mobile-header-nav.dark {
+    color: var(--color-light);
+  }
+  .project-mobile-header-nav-link,
+  .project-mobile-header-nav-link:link,
+  .project-mobile-header-nav-link:visited,
+  .project-mobile-header-nav-link:hover,
+  .project-mobile-header-nav-link:active,
+  .project-mobile-header-nav-link:focus,
+  .project-mobile-header-nav-link:focus-visible {
+    flex: 1 1 0;
+    min-width: 0;
+    height: var(--spacing-sidebar-mobile);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.75rem;
+    border: 0;
+    border-right: 2px solid currentColor;
+    color: inherit;
+    background: transparent;
+    text-decoration: none;
+    cursor: pointer;
+    font-family: "Neuropol", var(--font-bold);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 16px;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+  }
+  .project-mobile-header-nav-link:last-child,
+  .project-mobile-header-nav-link:last-child:link,
+  .project-mobile-header-nav-link:last-child:visited,
+  .project-mobile-header-nav-link:last-child:hover,
+  .project-mobile-header-nav-link:last-child:active,
+  .project-mobile-header-nav-link:last-child:focus,
+  .project-mobile-header-nav-link:last-child:focus-visible {
+    border-right: 0;
+  }
+  .project-mobile-header-nav-arrow { flex-shrink: 0; }
+}
+
 /* ─── About page (animated gradient + x-tile + centered hero) ── */
 #about-bg-gradient {
   position: fixed;
@@ -406,7 +1552,7 @@ figure.image figcaption {
   inset: 0;
   background-image: url("/img/x-white.gif");
   background-repeat: repeat;
-  opacity: 0.6;
+  opacity: 0.07;
   z-index: 0;
   pointer-events: none;
 }
@@ -434,11 +1580,12 @@ figure.image figcaption {
   margin: 0 0 20px;
 }
 #about-info ul.socials { display: flex; justify-content: center; gap: 10px; }
+#about-info ul.socials a.icon-standard { font-size: 15px; }
 #about-info ul.socials li { border: 10px solid transparent; transition: border-color 0.2s; }
 #about-info ul.socials li:hover { border-color: white; }
 #about-info ul.socials a {
-  color: rgba(255, 255, 255, 0.9);
-  background: black;
+  color: var(--color-dark);
+  background: transparent;
   padding: 80px;
   display: flex;
   align-items: center;
@@ -449,21 +1596,145 @@ figure.image figcaption {
   #about-info ul.socials li { margin: 0 2px; }
 }
 
+/* About page: two-column layout — fixed info column, page-level scroll */
+main.about {
+  display: block;
+  max-width: 1030px;
+  margin: 0 auto;
+}
+main.about #about-info {
+  position: fixed;
+  top: calc(var(--spacing-nav-h) + 1.25rem);
+  left: calc(max(0px, (100vw - 1030px) / 2) + var(--spacing-page));
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  align-items: flex-start;
+  justify-content: flex-start;
+  text-align: left;
+  padding: 0;
+}
+main.about #about-info h1 { margin-bottom: 12px; }
+main.about #about-info > p { margin: 0 0 1.25rem; max-width: 220px; }
+main.about #about-info > .multi-stack {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  gap: .5rem 0.4rem;
+  align-items: baseline;
+  justify-content: start;
+  margin: .25rem 0 0.75rem;
+  line-height: 1.1;
+}
+main.about #about-info > .multi-stack .multi-dash { text-align: center; }
+main.about #about-info ul.socials {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  width: 100%;
+  padding-left: 40px;
+}
+main.about #about-info ul.socials li { border-width: 4px; }
+main.about #about-info ul.socials a {
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  min-width: 0;
+}
+main.about #about-cv {
+  margin: 0 0 0 calc(220px + 2.5rem);
+  max-width: 650px;
+  padding: .5rem 0 3rem;
+}
+main.about #about-cv .about-tabs { margin: 0; }
+@media (max-width: 900px) {
+  main.about {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding-top: 0;
+    padding-left: calc(var(--spacing-nav-h-mobile) + 0.5rem);
+    align-items: flex-start;
+  }
+  main.about #about-info {
+    position: static;
+    width: auto;
+    align-items: stretch;
+    text-align: left;
+    padding: 0.75rem 1rem 1rem 1rem;
+    min-height: 0;
+    justify-content: flex-start;
+    left: auto;
+    top: auto;
+  }
+  main.about #about-info h1 { text-align: left; width: 100%; }
+  main.about #about-info > p { max-width: none; }
+  /* Socials become a fixed vertical rail under the flower icon */
+  main.about #about-info ul.socials {
+    position: fixed;
+    top: calc(var(--spacing-nav-h-mobile) * 2 + 92px);
+    left: 12px;
+    width: var(--spacing-nav-h-mobile);
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 4px;
+    padding: 0;
+    margin: 0;
+    z-index: 100;
+    max-width: none;
+  }
+  main.about #about-info ul.socials li { border-width: 0; margin: 0; }
+  main.about #about-info ul.socials a {
+    width: var(--spacing-nav-h-mobile);
+    height: var(--spacing-nav-h-mobile);
+    padding: 0;
+    min-width: 0;
+  }
+}
+@media (max-width: 720px) {
+  /* On the CV page, line the social icons up horizontally in the topbar
+     to the right of the grid cell (CV cell is hidden on CV page), 44×44
+     each with a vertical divider between them. Black icons on the
+     transparent bar so they read against the about-page gradient. */
+  main.about #about-info ul.socials {
+    top: var(--spacing-sidebar-mobile);
+    left: 0;
+    width: var(--spacing-sidebar-icon-w-mobile);
+    height: auto;
+    flex-direction: column;
+    gap: 1rem;
+    padding-top: 1rem;
+    z-index: 5000;
+  }
+  main.about #about-info ul.socials a {
+    width: var(--spacing-sidebar-icon-w-mobile);
+    height: var(--spacing-sidebar-mobile);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-dark);
+    border: 0;
+    background: transparent;
+  }
+  main.about #about-cv { padding: 0 1rem 3rem; margin: 0; }
+}
+
 #about-cv {
   position: relative;
   z-index: 2;
-  background: rgba(248, 247, 255, 0.92);
   max-width: 900px;
   margin: 0 auto;
   padding: 3rem 2rem;
-  border-radius: 8px;
 }
 #about-cv h3 {
   font-family: var(--font-bold);
-  text-transform: uppercase;
-  font-size: 14px;
-  letter-spacing: 0.04em;
-  margin: 1.5rem 0 0.6rem;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+  color: var(--color-dark);
+  margin: 2.5rem 0 0.3rem;
 }
 #about-cv ul { padding-left: 0; }
 #about-cv li { padding: 4px 0; }
@@ -508,3 +1779,117 @@ figure.image figcaption {
   text-transform: uppercase;
 }
 .site-card a:hover { color: var(--color-orchid); }
+
+/* ─── Project filter chips ─────────────────────────────────── */
+.project-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  padding: 0 var(--spacing-page);
+  margin: 1.5rem auto 0.5rem;
+  width: calc(100% - var(--spacing-page));
+  box-sizing: border-box;
+}
+@media (max-width: 720px) {
+  .project-filter {
+    width: 100%;
+    margin-left: 0;
+    padding: 0 var(--spacing-page-mobile);
+  }
+}
+.tag-chip {
+  appearance: none;
+  border: 1px solid var(--color-dark);
+  background: transparent;
+  color: var(--color-dark);
+  padding: 4px 12px;
+  font-family: var(--font-body);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  font-size: 11px;
+  line-height: 1.4;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.tag-chip:hover {
+  color: var(--color-orchid);
+  border-color: var(--color-orchid);
+}
+.tag-chip.active {
+  background: var(--color-orchid);
+  border-color: var(--color-orchid);
+  color: #fff;
+}
+
+/* ─── About page tabs + timeline ───────────────────────────── */
+.about-tabs {
+  display: flex;
+  gap: 1.5rem;
+  margin: 1.5rem 0 1.25rem;
+  padding-bottom: 1.65rem;
+}
+.about-tab {
+  appearance: none;
+  background: transparent;
+  border: none;
+  display: inline-block;
+  font-family: var(--font-body);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 12px;
+  padding: 1rem 0 0.6rem;
+  text-align: left;
+  cursor: pointer;
+  color: rgba(2, 0, 20, 0.55);
+}
+/* Reserve the bold width so switching tabs doesn't shift content */
+.about-tab::after {
+  content: attr(data-label);
+  display: block;
+  font-family: var(--font-bold);
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+}
+.about-tab:hover { font-family: var(--font-bold); }
+.about-tab.active {
+  font-family: var(--font-bold);
+  color: var(--color-dark);
+}
+.about-tab-panel { padding-top: .25rem; }
+#about-cv .about-tab-panel > *:first-child { margin-top: 0; }
+
+.cv-timeline {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+#about-cv .cv-timeline > li {
+  padding: 0 0 2.5rem;
+}
+#about-cv .cv-timeline > li:last-child { padding-bottom: 0.25rem; }
+#about-cv .cv-timeline > li > ul > li { padding: 3px 0; }
+.cv-timeline h4 {
+  font-family: var(--font-bold);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  margin: 0 0 0.3rem;
+  line-height: 1.4;
+  color: var(--color-dark);
+}
+.cv-timeline > li > ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+.cv-timeline > li > ul > li {
+  padding: 3px 0;
+}
+.cv-timeline a { text-decoration: underline; }
+@media (max-width: 540px) {
+  .cv-timeline > li { padding-bottom: 1.4rem; }
+  .cv-timeline h4 { font-size: 15px; }
+}

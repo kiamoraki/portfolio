@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { Nav } from "@/components/Nav";
 import { ProjectNav } from "@/components/ProjectNav";
+import { ProjectMobileBottomNav } from "@/components/ProjectMobileBottomNav";
+import { CarouselStateProvider } from "@/components/CarouselState";
 import { mdxComponents } from "@/components/mdx";
 import {
   getAllProjects,
@@ -41,15 +43,29 @@ export default async function ProjectPage({
   const bg = project.bg ?? (theme === "dark" ? "#020014" : undefined);
 
   return (
-    <>
+    <CarouselStateProvider>
       {bg ? (
         <style>{`html,body{background:${bg};}`}</style>
       ) : null}
       <Nav theme={theme} />
       <ProjectNav title={project.title} prev={prev} next={next} theme={theme} />
-      <main className={theme === "dark" ? "dark" : ""} style={bg ? { background: bg } : undefined}>
+      <ProjectMobileBottomNav
+        prev={prev}
+        next={next}
+        isMeta={Boolean(project.meta)}
+      />
+      <main
+        className={[
+          theme === "dark" ? "dark" : "",
+          project.imageBelowTitle ? "image-below-title" : "",
+          project.fullbleed ? "fullbleed" : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+        style={bg ? { background: bg } : undefined}
+      >
         <MDXRemote source={project.content} components={mdxComponents} />
       </main>
-    </>
+    </CarouselStateProvider>
   );
 }
