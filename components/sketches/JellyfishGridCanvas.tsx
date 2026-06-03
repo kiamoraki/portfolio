@@ -130,10 +130,17 @@ const sketch = (p: any) => {
             angleAdder: INCREMENT,
             phase,
             radius: RADIUS,
-            k1: [255, 0, 255], // magenta
+            k1: [255, 0, 255], // magenta-pink — original
             k2: [0, 0, 255], // blue
-            kPct: cPct,
-            pctAdder: INCREMENT * 2,
+            // Pin all rings to `kPct: 0` (magenta-pink) at frame 0 so the
+            // first frame reads uniformly magenta — was the per-ring
+            // `cPct` (0→1 across rings), which left some rings already
+            // blue on first paint.
+            kPct: 0,
+            // `pctAdder` is still shared, but multiplied by a per-ring
+            // phase so the rings diverge as the lerp runs — without it
+            // they'd ping-pong between magenta and blue in lockstep.
+            pctAdder: INCREMENT * 2 * (1 + cPct),
           });
         }
       }

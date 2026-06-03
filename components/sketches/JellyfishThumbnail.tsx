@@ -11,7 +11,10 @@ const THUMB_SIZE = 90;
 // without the multi-cell setup.
 const INCREMENT = 0.0091;
 const NUM_PARTICLES = 5;
-const RADIUS = 1.6;
+// Beefier dots — was 1.6px. At THUMB_SIZE 90×90, 1.6 reads as faint
+// pixel dust on the grid card; 3 fills in nicely without smearing
+// adjacent rings together.
+const RADIUS = 3;
 
 function gcd(a: number, b: number): number {
   let x = Math.abs(a) || 1;
@@ -73,8 +76,12 @@ const sketch = (p: any) => {
         angle,
         angleAdder: INCREMENT,
         phase,
-        kPct: cPct,
-        pctAdder: INCREMENT * 2,
+        // All rings start at `kPct: 0` (magenta-pink end of the lerp)
+        // so the first frame reads uniformly magenta on the grid card.
+        // Per-ring `pctAdder` variation keeps them from ping-ponging
+        // in lockstep as the animation runs.
+        kPct: 0,
+        pctAdder: INCREMENT * 2 * (1 + cPct),
       });
     }
   };
@@ -104,6 +111,10 @@ const sketch = (p: any) => {
       lissa.amp -= lissa.ampAdder;
       if (lissa.amp <= 0) lissa.amp = lissa.ampMax;
 
+      // Lerp magenta-pink (255, 0, 255) → blue (0, 0, 255) — the
+      // original palette. Briefly tried the warmer (255, 105, 180)
+      // hot-pink endpoint but the original magenta-pink reads
+      // better against the black bg.
       const t = Math.max(0, Math.min(1, lissa.kPct));
       const r = 255 + (0 - 255) * t;
       const g = 0;

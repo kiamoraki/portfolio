@@ -8,6 +8,14 @@ export default function Home() {
 
   return (
     <>
+      {/* Mirror the project-page inline `<style>` that writes
+          `--chrome-scrim` directly onto body — without this, the CV
+          chip on the homepage paints transparent (the project-page
+          chrome chips all carry the off-white scrim because that
+          page sets the variable in its inline style). Light-mode
+          scrim derives from `--color-light` via `color-mix` so the
+          off-white tone of the rest of the palette tracks through. */}
+      <style>{`body{--chrome-scrim:color-mix(in srgb, var(--color-light) 85%, transparent);}`}</style>
       <Nav />
       <main className="index">
         <section className="index-intro">
