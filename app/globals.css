@@ -2853,3 +2853,114 @@ body:has(main.about) .project-mobile-bottom-nav {
     display: block;
   }
 }
+
+/* ──────────────────────────────────────────────────────────────────
+   TOBRIT — desktop polish.
+     1. Falling-faces canvas (#TOBRIT_Canvas, fixed/inset:0 via inline
+        style) sits BEHIND the photos on desktop, IN FRONT on mobile.
+     2. tobrit-sketch Pair: process.png uncropped, both images
+        vertically centered at their natural aspect.
+     3. Last two pieces before a credits piece render at 100% width
+        with natural aspect (no cropping). Generic `:has()` pattern
+        so any project ending with a `tobrit-credits`-style piece
+        gets the same treatment.
+   ────────────────────────────────────────────────────────────────── */
+
+@media (min-width: 721px) {
+  /* Animation BEHIND images on desktop. The canvas is portaled to
+     body with `position: fixed; inset: 0; z-index: 100` inline; CSS
+     overrides the z-index to drop it BELOW the page content, and
+     lifts the project-track-content into its own stacking context
+     ABOVE the canvas. */
+  body:has(main[data-project-slug="tobrit"]) #TOBRIT_Canvas {
+    z-index: 1 !important;
+  }
+  body:has(main[data-project-slug="tobrit"]) .project-track-content[data-slug="tobrit"] {
+    position: relative;
+    z-index: 2;
+  }
+}
+@media (max-width: 720px) {
+  /* Animation ON TOP of images on mobile. Restore the high z-index
+     so the falling faces overlay the photo stack. */
+  body:has(main[data-project-slug="tobrit"]) #TOBRIT_Canvas {
+    z-index: 100 !important;
+  }
+}
+
+/* tobrit-sketch Pair — uncropped images centered vertically.
+   The two source images differ wildly in aspect (a tall sketch on
+   the left, a wide 8-panel build plan on the right), so cover-crop
+   would either chop the sketch or smush the plan. `object-fit:
+   contain` + `width/height: auto` + `max-*: 100%` keeps each at
+   its natural ratio; `align-self: center` centers them vertically
+   in the row so both read as floating side-by-side. Universal —
+   applies on both desktop and mobile (mobile keeps its base 2-col
+   `.piece-layout--pair` grid; we just swap the image fit from the
+   default cover-crop to contain). */
+.piece[data-piece-id="tobrit-sketch"] .piece-layout--pair {
+  align-items: center;
+}
+.piece[data-piece-id="tobrit-sketch"] .piece-layout--pair img {
+  width: auto !important;
+  height: auto !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain !important;
+  align-self: center;
+  justify-self: center;
+}
+
+/* Pattern — last two pieces before a credits piece render at 100%
+   width with natural aspect (no cropping). Uses `:has()` to match
+   pieces whose next-or-second-next sibling is a credits piece. Any
+   project that ends with `<Piece id="{slug}-credits">` (or similar)
+   automatically gets this treatment for its final two image pieces.
+   Override is scoped to `.piece-layout` (and `.piece-layout--cover`
+   when authored as `<Cover>`); the closing moments of the project
+   become uncropped full-width images instead of a cropped hero
+   slot. Universal — applies on both desktop and mobile. */
+.piece:has(+ .piece[data-piece-id$="-credits"]) .piece-layout,
+.piece:has(+ .piece + .piece[data-piece-id$="-credits"]) .piece-layout,
+.piece:has(+ .piece[data-piece-id$="-credits"]) .piece-layout--cover,
+.piece:has(+ .piece + .piece[data-piece-id$="-credits"]) .piece-layout--cover {
+  width: 100vw !important;
+  height: auto !important;
+  overflow: visible;
+}
+.piece:has(+ .piece[data-piece-id$="-credits"]) .piece-layout > img,
+.piece:has(+ .piece + .piece[data-piece-id$="-credits"]) .piece-layout > img,
+.piece:has(+ .piece[data-piece-id$="-credits"]) .piece-layout--cover > img,
+.piece:has(+ .piece + .piece[data-piece-id$="-credits"]) .piece-layout--cover > img {
+  width: 100% !important;
+  height: auto !important;
+  object-fit: contain !important;
+  display: block;
+}
+
+/* tobrit-vessel on mobile — the Row has `hideOnMobile` on the middle
+   image (maruquevedo-2), so the mobile filter leaves a 2-col pair of
+   trevorburnzy + day_&_time-1. Those two source images have very
+   different intrinsic aspect ratios, so the base mobile pair
+   (`height: auto`) renders them at mismatched heights. Lock both to
+   a shared `40vh` height with `object-fit: cover` so the row reads
+   as a balanced strip — same treatment desktop pairs use at 60dvh. */
+@media (max-width: 720px) {
+  .piece[data-piece-id="tobrit-vessel"] .piece-layout--pair img {
+    width: 100%;
+    height: 40vh;
+    object-fit: cover;
+  }
+}
+
+/* tobrit-vessel pair + tobrit-build 2×2 grid — match the inter-image
+   gap on mobile to the page's `--piece-gap` (1.5vw) so the rhythm
+   between images inside a piece reads as the same rhythm between
+   pieces (which use the `gap` on `.project-track-content`).
+   Overrides the base mobile pair/grid rules' tight 1px gap. */
+@media (max-width: 720px) {
+  .piece[data-piece-id="tobrit-vessel"] .piece-layout--pair,
+  .piece[data-piece-id="tobrit-build"] .piece-layout--grid-2x2 {
+    gap: var(--piece-gap, 1.5vw);
+  }
+}
