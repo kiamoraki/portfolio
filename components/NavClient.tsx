@@ -35,14 +35,17 @@ export function NavClient() {
           </svg>
         </Link>
       </nav>
-      {/* Hide the CV chip on the CV page itself — once the user is on
-          /about there's nothing for the chip to do, and showing it
-          adds a redundant button to the chrome row. */}
-      {isAbout ? null : (
-        <Link href="/about" className="nav-info" aria-label="About">
-          <span className="nav-info-label">cv</span>
-        </Link>
-      )}
+      {/* CV chip — always rendered so it stays in the chrome strip on
+          every page. On /about itself it gets the `active` class, same
+          rainbow-gif backdrop the Home button uses on the homepage. */}
+      <Link
+        href="/about"
+        className={`nav-info ${isAbout ? "active" : ""}`}
+        aria-label="About"
+        aria-current={isAbout ? "page" : undefined}
+      >
+        <span className="nav-info-label">cv</span>
+      </Link>
     </>
   );
 }

@@ -225,11 +225,19 @@
   },
   {
     "projectSlug": "precarity-a-domestic-tale",
-    "pieceId": "precarity-sketch",
+    "pieceId": "precarity-rooms-to-let",
     "tags": [
       "activation"
     ],
     "indexInProject": 5
+  },
+  {
+    "projectSlug": "precarity-a-domestic-tale",
+    "pieceId": "precarity-sketch",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 6
   },
   {
     "projectSlug": "multiverse",
@@ -257,11 +265,35 @@
   },
   {
     "projectSlug": "lissajous",
-    "pieceId": "lissajous-unique",
+    "pieceId": "lissajous-full",
     "tags": [
       "animations"
     ],
     "indexInProject": 1,
+    "sketch": {
+      "id": "lissajous-full",
+      "bg": "#130c12"
+    }
+  },
+  {
+    "projectSlug": "lissajous",
+    "pieceId": "lissajous-portraits",
+    "tags": [
+      "animations"
+    ],
+    "indexInProject": 2,
+    "sketch": {
+      "id": "lissajous-portraits",
+      "bg": "#130c12"
+    }
+  },
+  {
+    "projectSlug": "lissajous",
+    "pieceId": "lissajous-unique",
+    "tags": [
+      "animations"
+    ],
+    "indexInProject": 3,
     "sketch": {
       "id": "lissajous-unique",
       "bg": "#130c12"
@@ -273,33 +305,9 @@
     "tags": [
       "animations"
     ],
-    "indexInProject": 2,
-    "sketch": {
-      "id": "lissajous-grid",
-      "bg": "#130c12"
-    }
-  },
-  {
-    "projectSlug": "lissajous",
-    "pieceId": "lissajous-portraits",
-    "tags": [
-      "animations"
-    ],
-    "indexInProject": 3,
-    "sketch": {
-      "id": "lissajous-portraits",
-      "bg": "#130c12"
-    }
-  },
-  {
-    "projectSlug": "lissajous",
-    "pieceId": "lissajous-full",
-    "tags": [
-      "animations"
-    ],
     "indexInProject": 4,
     "sketch": {
-      "id": "lissajous-full",
+      "id": "lissajous-grid",
       "bg": "#130c12"
     }
   },
@@ -330,7 +338,7 @@
   },
   {
     "projectSlug": "artificial-consciousness",
-    "pieceId": "ac-tiles",
+    "pieceId": "ac-oc-tiles",
     "tags": [
       "activation"
     ],
@@ -338,7 +346,7 @@
   },
   {
     "projectSlug": "artificial-consciousness",
-    "pieceId": "ac-glamtech-trio",
+    "pieceId": "ac-tiles",
     "tags": [
       "activation"
     ],
@@ -346,7 +354,7 @@
   },
   {
     "projectSlug": "artificial-consciousness",
-    "pieceId": "ac-glamtech-3",
+    "pieceId": "ac-glamtech-trio",
     "tags": [
       "activation"
     ],
@@ -354,7 +362,7 @@
   },
   {
     "projectSlug": "artificial-consciousness",
-    "pieceId": "ac-glamtech-4",
+    "pieceId": "ac-glamtech-3",
     "tags": [
       "activation"
     ],
@@ -362,11 +370,19 @@
   },
   {
     "projectSlug": "artificial-consciousness",
-    "pieceId": "ac-install",
+    "pieceId": "ac-glamtech-4",
     "tags": [
       "activation"
     ],
     "indexInProject": 7
+  },
+  {
+    "projectSlug": "artificial-consciousness",
+    "pieceId": "ac-install",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 8
   },
   {
     "projectSlug": "radioactivitea",

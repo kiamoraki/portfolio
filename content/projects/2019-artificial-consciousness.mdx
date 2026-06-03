@@ -28,7 +28,22 @@ description: |
 </Piece>
 
 <Piece id="ac-interference" tags="activation,design">
-  <Hero src="/img/artificial_consciousness/interference.jpg" alt="Interference" />
+  <Single src="/img/artificial_consciousness/interference.jpg" alt="Interference" />
+</Piece>
+
+{/* 6 square OC tiles arranged 3×2 on desktop and 2×3 on mobile — see
+    scoped `.piece[data-piece-id="ac-oc-tiles"]` rules in app/globals.css
+    for the responsive grid layout. Tiles are rendered uncropped at
+    natural square aspect. */}
+<Piece id="ac-oc-tiles" tags="activation">
+  <Grid>
+    <Img src="/img/artificial_consciousness/ac-oc-tile-1.png" alt="OC tile 1" />
+    <Img src="/img/artificial_consciousness/ac-oc-tile-2.png" alt="OC tile 2" />
+    <Img src="/img/artificial_consciousness/ac-oc-tile-3.png" alt="OC tile 3" />
+    <Img src="/img/artificial_consciousness/ac-oc-tile-4.png" alt="OC tile 4" />
+    <Img src="/img/artificial_consciousness/ac-oc-tile-5.png" alt="OC tile 5" />
+    <Img src="/img/artificial_consciousness/ac-oc-tile-6.png" alt="OC tile 6" />
+  </Grid>
 </Piece>
 
 <Piece id="ac-tiles" tags="activation">
@@ -56,12 +71,30 @@ description: |
   />
 </Piece>
 
+{/* Glamtech-install-3 + 4 pieces each get flanked by 2 stacked
+    PORNJ tiles on each side (4 tiles per piece, 8 tiles total). The
+    main image sits in column 2 spanning both rows; side cells hold
+    one square tile each. CSS scoped via `data-piece-id` sizes the
+    grid so the tile height pair adds up to the main image's height,
+    and tiles render uncropped at their natural square aspect. */}
 <Piece id="ac-glamtech-3" tags="activation">
-  <Single src="/img/artificial_consciousness/glamtech-install-3.jpg" alt="Glamtech install" />
+  <Grid>
+    <Img src="/img/artificial_consciousness/glamtech-install-3.jpg" alt="Glamtech install" />
+    <Img src="/img/artificial_consciousness/pornj-tile-1.jpg" alt="PORNJ tile" />
+    <Img src="/img/artificial_consciousness/pornj-tile-2.jpg" alt="PORNJ tile" />
+    <Img src="/img/artificial_consciousness/pornj-tile-3.jpg" alt="PORNJ tile" />
+    <Img src="/img/artificial_consciousness/pornj-tile-4.jpg" alt="PORNJ tile" />
+  </Grid>
 </Piece>
 
 <Piece id="ac-glamtech-4" tags="activation">
-  <Single src="/img/artificial_consciousness/glamtech-install-4.jpg" alt="Glamtech install" />
+  <Grid>
+    <Img src="/img/artificial_consciousness/glamtech-install-4.jpg" alt="Glamtech install" />
+    <Img src="/img/artificial_consciousness/pornj-tile-5.jpg" alt="PORNJ tile" />
+    <Img src="/img/artificial_consciousness/pornj-tile-6.jpg" alt="PORNJ tile" />
+    <Img src="/img/artificial_consciousness/pornj-tile-7.jpg" alt="PORNJ tile" />
+    <Img src="/img/artificial_consciousness/pornj-tile-8.jpg" alt="PORNJ tile" />
+  </Grid>
 </Piece>
 
 <Piece id="ac-install" tags="activation">

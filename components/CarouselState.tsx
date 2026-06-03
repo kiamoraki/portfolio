@@ -15,6 +15,12 @@ type State = { pos: number; total: number } | null;
 type Controls = { prev: () => void; next: () => void };
 type InfoState = { visible: boolean } | null;
 type InfoControls = { toggle: () => void };
+/** Per-slide title + description for meta-carousel pages — bridged
+ *  from `MetaCarousel`'s internal active-slide state to `ProjectNav`
+ *  so the slide-out title chip can show the active piece's title
+ *  ("Lissajous", "Wave", …) instead of the static meta project name
+ *  ("Animations"). Null when no meta carousel is mounted. */
+type ActiveSlide = { title: string; description: string } | null;
 
 type ContextValue = {
   state: State;
@@ -23,6 +29,8 @@ type ContextValue = {
   infoState: InfoState;
   setInfoState: (s: InfoState) => void;
   infoControlsRef: RefObject<InfoControls | null>;
+  activeSlide: ActiveSlide;
+  setActiveSlide: (s: ActiveSlide) => void;
 };
 
 const noopRef: RefObject<Controls | null> = { current: null };
@@ -35,6 +43,8 @@ const CarouselStateContext = createContext<ContextValue>({
   infoState: null,
   setInfoState: () => {},
   infoControlsRef: noopInfoRef,
+  activeSlide: null,
+  setActiveSlide: () => {},
 });
 
 export function CarouselStateProvider({ children }: { children: ReactNode }) {
@@ -42,6 +52,7 @@ export function CarouselStateProvider({ children }: { children: ReactNode }) {
   const controlsRef = useRef<Controls | null>(null);
   const [infoState, setInfoState] = useState<InfoState>(null);
   const infoControlsRef = useRef<InfoControls | null>(null);
+  const [activeSlide, setActiveSlide] = useState<ActiveSlide>(null);
   return (
     <CarouselStateContext.Provider
       value={{
@@ -51,6 +62,8 @@ export function CarouselStateProvider({ children }: { children: ReactNode }) {
         infoState,
         setInfoState,
         infoControlsRef,
+        activeSlide,
+        setActiveSlide,
       }}
     >
       {children}

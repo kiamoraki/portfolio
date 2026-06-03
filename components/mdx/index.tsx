@@ -23,6 +23,11 @@ import { LissajousLatticeCanvas } from "@/components/sketches/LissajousLatticeCa
 import { LissajousCousinsCanvas } from "@/components/sketches/LissajousCousinsCanvas";
 import { LissajousAliasingCompareCanvas } from "@/components/sketches/LissajousAliasingCompareCanvas";
 import { LissajousPairLinesCanvas } from "@/components/sketches/LissajousPairLinesCanvas";
+// Dev-only variant of PairLines that predicts the rotation drift over
+// the upcoming morph and matches particles to where slots *will be*
+// at morph end (vs. the production sketch which matches to where slots
+// are at morph start). Lives only on /projects/dev-animations.
+import { LissajousPairLinesPredictCanvas } from "@/components/sketches/LissajousPairLinesPredictCanvas";
 // Lives on the /projects/dev-animations dev page rather than in the
 // public animations carousel.
 import { LissajousAssignmentCompareCanvas } from "@/components/sketches/LissajousAssignmentCompareCanvas";
@@ -187,6 +192,7 @@ export const mdxComponents = {
   RoseGridCanvas,
   LissajousFullCanvas,
   LissajousAssignmentCompareCanvas,
+  LissajousPairLinesPredictCanvas,
   LissajousLatticeCanvas,
   LissajousCousinsCanvas,
   LissajousAliasingCompareCanvas,

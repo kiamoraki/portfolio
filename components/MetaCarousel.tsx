@@ -9,7 +9,10 @@ import {
   type ReactNode,
   type TouchEvent,
 } from "react";
-import { useReportCarouselState } from "@/components/CarouselState";
+import {
+  useCarouselState,
+  useReportCarouselState,
+} from "@/components/CarouselState";
 
 const TRANSITION_MS = 450;
 
@@ -34,6 +37,9 @@ export function MetaCarousel({ slides }: Props) {
   const [activeTitle, setActiveTitle] = useState<string>("");
   const [activeDescription, setActiveDescription] = useState<string>("");
   const [descriptionOpen, setDescriptionOpen] = useState(false);
+  // Bridge active slide → `CarouselStateContext` so `ProjectNav` can
+  // read the per-slide title and use it in its slide-out chip.
+  const { setActiveSlide } = useCarouselState();
   const touchStartX = useRef<number | null>(null);
   const wrappingRef = useRef(false);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -81,6 +87,12 @@ export function MetaCarousel({ slides }: Props) {
         .description ?? "";
     setActiveTitle(title);
     setActiveDescription(description);
+    // Bridge the active slide's title + description into the shared
+    // `CarouselStateContext` so `ProjectNav` can show the per-slide
+    // title in its slide-out chip instead of the static meta project
+    // name. Updates on every slide change; cleanup nulls it back out
+    // so the next non-meta-carousel page sees no stale value.
+    setActiveSlide({ title, description });
     // Close the description dropdown whenever the active slide changes
     // so the user starts fresh on each new slide instead of inheriting
     // the previous slide's open/closed state.
@@ -94,6 +106,7 @@ export function MetaCarousel({ slides }: Props) {
         document.body.classList.remove("light-slide");
         delete document.body.dataset.metaActiveSlug;
       }
+      setActiveSlide(null);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pos, N]);

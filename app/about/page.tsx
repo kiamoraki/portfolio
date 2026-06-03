@@ -83,18 +83,19 @@ export default function AboutPage() {
                 <h3>Experience</h3>
                 <ul>
                   <li>Digital Creative Director <a target="_blank" rel="noopener noreferrer" href="https://audiofemme.com">Audiofemme</a></li>
-                  <li>Office Manager @ HEaT for The Burning Man Project</li>
+                  <li>Office Manager @ HEaT for <a href="https://burningman.org">The Burning Man Project</a></li>
                   <li>Virutal STEAM startup Co-Founder <a target="_blank" rel="noopener noreferrer" href="https://mars.radio">Mars.Radio</a></li>
-                  <li>Front End Developer, C&G Partners</li>
-                  <li>Product Designer, Nasdaq OMX</li>
+                  <li>Front End Developer, <a href="https://cgp.com">C&G Partners</a></li>
+                  <li>Product Designer, <a href="https://nasdaq.com">Nasdaq</a></li>
+                  <li>Graphic Designer, <a href="https://taprootfoundation.org">Taproot Foundation</a></li>
                 </ul>
 
                 <h3>Teaching</h3>
                 <ul>
-                  <li>Professor @ Mars College</li>
+                  <li>Professor @ <a href="https://mars.college">Mars College</a></li>
                   <li>Coach @ Mars Radio Cyber Arts Camp</li>
-                  <li>Adobe Suite & Web Design @ Third Ward</li>
-                  <li>Web Design & Dev @ ScriptEd</li>
+                  <li>Adobe Suite & Web Design @ <a href="https://thirdward.org">Third Ward</a></li>
+                  <li>Web Design & Dev @ <a href="https://codenation.org/">Code Nation</a></li>
                 </ul>
 
                 <h3>Speaking Engagements</h3>
@@ -107,11 +108,11 @@ export default function AboutPage() {
 
                 <h3>Selected Exhibitions & Residencies</h3>
                 <ul>
-                  <li><span className="date">2021-26</span> Mars.College (Residency)</li>
-                  <li><span className="date">2020</span> Brahmain.ai (Residency)</li>
-                  <li><span className="date">2020</span> &ldquo;Roses&rdquo; / Bombay Beach</li>
+                  <li><span className="date">2021-26</span> Mars.College / Art Residency in Bombay Beach / CA</li>
+                  <li><span className="date">2020</span> Brahmain.ai / Art Residency in Bombay Beach / CA</li>
+                  <li><span className="date">2020</span> &ldquo;Roses&rdquo; / Bombay Beach / CA</li>
                   <li><span className="date">2019</span> &ldquo;TOBRIT&rdquo; / Burning Man</li>
-                  <li><span className="date">2019</span> &ldquo;Artificial Consciousness&rdquo; / Glamtech / Chelsea Music Venue</li>
+                  <li><span className="date">2019</span> &ldquo;Artificial Consciousness&rdquo; / Glamtech / Chelsea Music Venue / NYC</li>
                   <li><span className="date">2019</span> &ldquo;RadioactiviTEA&rdquo; / The Night Market / NYC</li>
                   <li><span className="date">2018</span> &ldquo;Mandalas&rdquo; / Moonshot</li>
                   <li><span className="date">2018</span> &ldquo;Portals&rdquo; / The West BK</li>
@@ -122,12 +123,17 @@ export default function AboutPage() {
 
                 <h3>Study</h3>
                 <ul>
-                  <li><strong>2025</strong> 200hr Yoga Teacher Training / Triguna Yoga School / Rishikesh, India</li>
-                  <li><strong>2025</strong> 10 Day Vipassana Meditation Workshop / North Fork, CA</li>
+                  <li><strong>2025</strong> 200hr Yoga Teacher Training / Triguna Yoga School / Rishikesh / India</li>
+                  <li><strong>2025</strong> 10 Day Vipassana Meditation Workshop / North Fork / CA</li>
                   <li><strong>2025</strong> 15hr Breathwork Coach Training Yoga Body</li>
                   <li><strong>2013-18</strong> School of Practical Philosophy / NYC</li>
                   <li><strong>2012</strong>MFA Design & Technology / Parsons The New School for Design / NYC</li>
-                  <li><strong>2009</strong> BFA Fine Arts & Architecture / Miami University / Oxford, OH</li>
+                  <li><strong>2009</strong> BFA Fine Arts & Architecture / Miami University / Oxford / OH</li>
+                </ul>
+
+                <h3>Websites</h3>
+                <ul>
+                  <li><a href="https://audiofemme.com">Audiofemme</a> / Design & Dev</li>
                 </ul>
               </>
             }

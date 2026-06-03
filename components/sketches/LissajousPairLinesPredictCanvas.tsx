@@ -16,6 +16,14 @@ const NUM_DOTS = 20;
 // toward the next pair in the cycle. The motion never settles.
 const MORPH_FRAMES = 150; // ~5s @ 30fps for each pair-to-pair transition
 const TRAIL_LENGTH = 90; // ~3s @ 30fps — only the endpoint dots leave trails
+// Per-frame rotation rate (radians/frame). Factored out so the
+// assignment step can predict where target slots will be by the end
+// of a morph (`rotation + ROTATION_PER_FRAME * MORPH_FRAMES`) and
+// match particles to the *future* positions instead of the snapshot
+// at morph-start. Without this prediction, the figure drifts ~13°
+// over the 5-second morph and the Hungarian-picked "closest target"
+// is stale by the time particles actually arrive.
+const ROTATION_PER_FRAME = 0.0015;
 
 const easeInOutCubic = (t: number) =>
   t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -158,15 +166,23 @@ const sketch = (p: any) => {
     const tgtX = new Array<number>(NUM_DOTS);
     const tgtY = new Array<number>(NUM_DOTS);
     // Source positions: where each particle currently sits — at the
-    // slot it was assigned to in the morph that just finished.
+    // slot it was assigned to in the morph that just finished, sampled
+    // at the CURRENT rotation.
     for (let i = 0; i < NUM_DOTS; i++) {
       const theta = rotation + (sourceSlot[i] * 2 * Math.PI) / NUM_DOTS;
       srcX[i] = Math.sin(a1 * theta) * ampX;
       srcY[i] = Math.sin(b1 * theta) * ampY;
     }
-    // Candidate target positions: every slot 0..N-1 under the new pair.
+    // Candidate target positions: every slot 0..N-1 under the new pair,
+    // sampled at the PREDICTED rotation at the end of the upcoming morph
+    // (`rotation + ROTATION_PER_FRAME * MORPH_FRAMES`). Without the
+    // prediction, the figure drifts ~13° during the morph and the
+    // Hungarian "closest target" picked at morph-start is stale by the
+    // time particles actually arrive — predicting matches each particle
+    // to the slot it will end at, not where the slot was when assigned.
+    const targetRotation = rotation + ROTATION_PER_FRAME * MORPH_FRAMES;
     for (let k = 0; k < NUM_DOTS; k++) {
-      const theta = rotation + (k * 2 * Math.PI) / NUM_DOTS;
+      const theta = targetRotation + (k * 2 * Math.PI) / NUM_DOTS;
       tgtX[k] = Math.sin(a2 * theta) * ampX;
       tgtY[k] = Math.sin(b2 * theta) * ampY;
     }
@@ -225,8 +241,10 @@ const sketch = (p: any) => {
     const [a1, b1] = PAIRS[pairIdx];
     const [a2, b2] = PAIRS[nextPairIdx];
     // Slowed way down — at ~0.0015 the planes drift almost imperceptibly,
-    // so the illusion is meditative rather than shimmery.
-    rotation += 0.0015;
+    // so the illusion is meditative rather than shimmery. Uses the same
+    // `ROTATION_PER_FRAME` constant the assignment step references when
+    // predicting the target rotation (`rotation + RPF * MORPH_FRAMES`).
+    rotation += ROTATION_PER_FRAME;
 
     const ctx = p.drawingContext as CanvasRenderingContext2D;
     // Size visual elements relative to the SMALLER axis so a tall
@@ -371,7 +389,7 @@ const sketch = (p: any) => {
 
 type CanvasProps = { isActive?: boolean; inFlow?: boolean };
 
-export function LissajousPairLinesCanvas({
+export function LissajousPairLinesPredictCanvas({
   isActive = true,
 }: CanvasProps = {}) {
   const containerRef = useRef<HTMLDivElement>(null);

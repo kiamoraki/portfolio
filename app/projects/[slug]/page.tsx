@@ -108,6 +108,7 @@ export default async function ProjectPage({
       <ProjectNav
         slug={slug}
         title={project.title}
+        description={project.description}
         prev={prev}
         next={next}
         navigableProjects={navigableProjects}
