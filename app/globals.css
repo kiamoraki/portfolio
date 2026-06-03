@@ -2566,18 +2566,42 @@ body:has(main.about) .project-mobile-bottom-nav {
   background: transparent;
 }
 
+/* Fake Rekordz mobile — stack each Pair's covers vertically instead
+   of side-by-side. Posters are detailed and read better full-width
+   on a phone than at half-width. Overrides the base mobile
+   `.piece-layout--pair` (2-col grid + 1px gap) with a 1-col grid +
+   `--piece-gap` between the two covers; the inter-piece gap stays
+   the same. */
+@media (max-width: 720px) {
+  .project-track-content[data-slug="fake-rekordz"] .piece-layout--pair {
+    grid-template-columns: 1fr;
+    gap: var(--piece-gap, 1.5vw);
+  }
+}
+
 /* Fake Rekordz — first piece is a Pair (record covers), not a Hero,
    so it needs explicit padding-top to clear the navbar. Posters
-   never get cropped — object-fit: contain on the pair images. */
+   never get cropped — object-fit: contain. The base pair rule
+   forces a 60dvh slot; that creates a mismatch with the actual
+   square cover aspect on most viewports (slot taller-than-image OR
+   wider-than-image leaves dead space inside each piece, which then
+   reads as oversized inter-piece gaps). Drop the slot height to
+   `auto` so each pair sizes to its content; cap the image at 90dvh
+   so the tall spaceout/bbbiennale pair doesn't overflow. The
+   default `.project-track-content` `gap: 1.5vw` then shows as the
+   single, consistent inter-piece rhythm. */
 @media (min-width: 721px) {
   .project-track-content[data-slug="fake-rekordz"] {
     padding-top: calc(1rem + 56px + var(--piece-gap, 1.5vw));
+  }
+  .project-track-content[data-slug="fake-rekordz"] .piece-layout--pair {
+    height: auto;
   }
   .project-track-content[data-slug="fake-rekordz"] .piece-layout--pair img {
     width: auto !important;
     height: auto !important;
     max-width: 100% !important;
-    max-height: 100% !important;
+    max-height: 90dvh !important;
     object-fit: contain !important;
     place-self: center;
   }
@@ -2963,4 +2987,41 @@ body:has(main.about) .project-mobile-bottom-nav {
   .piece[data-piece-id="tobrit-build"] .piece-layout--grid-2x2 {
     gap: var(--piece-gap, 1.5vw);
   }
+}
+
+/* Dojo per-piece backdrops — each illustration plate is a solid color
+   that we sampled from the image edges; the matching color is
+   painted on the `.piece` section so it extends past the contained
+   image to the full viewport width. The image (centered, contained,
+   max-height 100dvh on desktop) sits on top with its edges blending
+   into the surrounding band — reads as one continuous color plate
+   that just happens to bleed to the page edges. On mobile the image
+   already fills 100% width so the bg is only visible if the image
+   doesn't quite reach edge-to-edge, but it's harmless either way.
+
+   Colors below are the image-edge plate color **converted from the
+   JPEG's embedded "Generic RGB" (wide-gamut, Apple) ICC profile into
+   sRGB**. Raw edge pixels are ~`#ffadff` / `#a97801` etc., but the
+   browser applies the embedded profile when rendering the image, so
+   the CSS bg (always interpreted as sRGB) must use the post-conversion
+   values to match what's on screen. Otherwise dragon reads slightly
+   under-magenta, leopard under-blue, crane noticeably under-warm. */
+/* Dragon/leopard/crane values are user-eyedropped from the rendered
+   image on screen (the ground truth — accounts for both the JPEG's
+   embedded ICC profile and the user's display calibration). Snake +
+   tiger keep the raw edge-pixel sample since those already read
+   correctly against the rendered images. */
+main[data-project-slug="dojo"] .piece[data-piece-id="dojo-dragon"]  { background: #ffc1fe; }
+main[data-project-slug="dojo"] .piece[data-piece-id="dojo-leopard"] { background: #8abbff; }
+main[data-project-slug="dojo"] .piece[data-piece-id="dojo-snake"]   { background: #dbf852; }
+main[data-project-slug="dojo"] .piece[data-piece-id="dojo-tiger"]   { background: #fffc3f; }
+main[data-project-slug="dojo"] .piece[data-piece-id="dojo-crane"]   { background: #b78a00; }
+
+/* Dojo — collapse the inter-piece gutter so the colored plates stack
+   edge-to-edge as one continuous strip. Overrides the default
+   `.project-track-content` `gap: var(--piece-gap)` + matching
+   `padding-bottom` that show white between pieces elsewhere. */
+main[data-project-slug="dojo"] .project-track-content {
+  gap: 0;
+  padding-bottom: 0;
 }
