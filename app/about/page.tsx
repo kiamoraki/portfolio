@@ -122,12 +122,12 @@ export default function AboutPage() {
 
                 <h3>Study</h3>
                 <ul>
-                  <li><span>2025</span> <strong>200hr Yoga Teacher Training</strong> Triguna Yoga School in Rishikesh, India</li>
-                  <li><span>2025</span> <strong>10 Day Vipassana Meditation Workshop</strong> North Fork, CA</li>
-                  <li><span>2025</span> <strong>15hr Breathwork Coach Training</strong> Yoga Body</li>
-                  <li><span>2013-18</span> <strong>School of Practical Philosophy</strong> NYC</li>
-                  <li><span>2012</span> <strong>MFA Design & Technology</strong> — Parsons The New School for Design</li>
-                  <li><span>2009</span> <strong>BFA Fine Arts & Architecture</strong> — Miami University of Ohio</li>
+                  <li><strong>2025</strong> 200hr Yoga Teacher Training / Triguna Yoga School / Rishikesh, India</li>
+                  <li><strong>2025</strong> 10 Day Vipassana Meditation Workshop / North Fork, CA</li>
+                  <li><strong>2025</strong> 15hr Breathwork Coach Training Yoga Body</li>
+                  <li><strong>2013-18</strong> School of Practical Philosophy / NYC</li>
+                  <li><strong>2012</strong>MFA Design & Technology / Parsons The New School for Design / NYC</li>
+                  <li><strong>2009</strong> BFA Fine Arts & Architecture / Miami University / Oxford, OH</li>
                 </ul>
               </>
             }
@@ -136,7 +136,7 @@ export default function AboutPage() {
                 <li>
                   <h4>2026</h4>
                   <ul>
-                    <li>Mars College – OG camp founder &amp; anarchist lead to 20 new Martians</li>
+                    <li>OG camp founder &amp; lead to 20 new Martians @ <a href="https://mars.college">Mars College</a> high–tech low–cost off–grid art residency</li>
                     <li>DJ @ Sub Club, Bliss Club &amp; Mars College</li>
                     <li><a href="https://www.bombaybeachbiennale.org/">Bombay Beach Biennale</a> Artist Liaison</li>
                     <li>Site rebrand for <a href="audiofemme.com">Audiofemme</a></li>
@@ -147,9 +147,9 @@ export default function AboutPage() {
                 <li>
                   <h4>2025</h4>
                   <ul>
-                    <li>200hr Yoga Teacher Training, Triguna Yoga, Rishikesh India</li>
-                    <li>10day Vipassana Meditation Workshop</li>
-                    <li>15hr Breathwork Coach Training with Yoga Body</li>
+                    <li>200hr Yoga Teacher Training <a href="https://trigunayoga.com">Triguna Yoga</a> in Rishikesh, India</li>
+                    <li>10day <a href="https://www.dhamma.org/en-us/meditation-courses/vipassana-meditation-course/">Vipassana Meditation</a> Workshop</li>
+                    <li>15hr Breathwork Coach Training with <a href="https://yogabody.com">Yoga Body</a></li>
                     <li>
                       Became a homeowner of{" "}
                       <a target="_blank" rel="noopener noreferrer" href="https://neptune.kiamoraki.com">

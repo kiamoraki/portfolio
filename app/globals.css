@@ -10,7 +10,23 @@
   --color-sand: #fffcd4;
   --color-ocean: #66b6f8;
 
-  --spacing-nav-h: 60px;
+  /* Single source of truth for desktop chrome height. Drives the
+     Home/CV icon chips, project title chip, PREV/NEXT buttons, and
+     every `calc(... + var(--spacing-nav-h) * N)` offset between
+     them. Adjusting this scales the whole header strip consistently. */
+  --spacing-nav-h: 54px;
+  /* Home/CV icon chip width — matches `--spacing-nav-h` (54px) so
+     the chips render as exact squares on desktop. Referenced by
+     `.nav-main a`, `.nav-info`, and the title chip's `left` calc
+     so all three move in lock-step. */
+  --spacing-nav-icon-w: var(--spacing-nav-h);
+  /* PREV/NEXT button width — referenced both by `.project-nav-btn`
+     (fixed width per button) and by `.project-title`'s `right` calc
+     so the title chip ends exactly at the PREV button's left edge.
+     At 130px, "PREV"/"NEXT" (~50px text) centers with ~40px of
+     breathing room on each side — tighter than the earlier 160px
+     but still generous next to the icon chips. */
+  --spacing-nav-prev-w: 130px;
   --spacing-nav-h-mobile: 44px;
   --spacing-sidebar-mobile: 44px;
   --spacing-sidebar-icon-w-mobile: 72px;
@@ -110,7 +126,16 @@ a {
   transition: color 0.2s ease;
 }
 a:hover { color: var(--color-orchid); cursor: pointer; }
-strong { font-family: var(--font-bold); }
+/* Universal `<strong>` style across the site — matches the
+   `#about-cv .date` chip (bold font, right margin, slight opacity)
+   so date-prefix strongs in the CV Study section (and anywhere else
+   `<strong>` is used as a leading label) read consistently with the
+   Exhibitions/Residencies `<span class="date">` siblings. */
+strong {
+  font-family: var(--font-bold);
+  margin-right: 0.5rem;
+  opacity: 0.7;
+}
 
 /* ─── Icon fonts ────────────────────────────────────────────── */
 .icon-standard { font-family: var(--font-icon-std); font-size: 18px; line-height: 1; }
@@ -423,6 +448,7 @@ main.dark .text { color: var(--color-light); }
   align-items: center;
   justify-content: center;
   margin-bottom: 3px;
+  font-family: "Neuropol", var(--font-bold);
   font-size: 14px;
   color: var(--color-dark);
 }
@@ -492,9 +518,9 @@ main.dark .text { color: var(--color-light); }
   height: var(--spacing-nav-h);
   display: flex;
   align-items: center;
-  font-family: var(--font-bold);
+  font-family: "Neuropol", var(--font-bold);
   text-transform: uppercase;
-  font-size: 17px;
+  font-size: 14px;
   letter-spacing: 0.04em;
   padding: 0 1rem;
   margin: 0;
@@ -609,7 +635,10 @@ main.dark .text { color: var(--color-light); }
   font-family: "Neuropol", var(--font-bold);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  font-size: 11px;
+  /* Header chrome runs at a uniform 14px across every text element
+     (CV label, project title, PREV/NEXT) — matches the PREV/NEXT
+     baseline so all four bordered chips read as one consistent row. */
+  font-size: 14px;
   line-height: 1;
 }
 .nav-info.dark { color: var(--color-light); }
@@ -1834,12 +1863,20 @@ main.about #about-cv .about-tabs { margin: 0; }
   appearance: none;
   background: transparent;
   border: none;
+  /* Subtle bottom border space so the active tab's underline lands
+     on a consistent baseline across both tabs without shifting
+     content. Transparent for non-active tabs. */
+  border-bottom: 2px solid transparent;
   display: inline-block;
-  font-family: var(--font-body);
+  font-family: "Neuropol", var(--font-bold);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   font-size: 12px;
-  padding: 1rem 0 0.6rem;
+  /* More generous tap-area + breathing room: was `1rem 0 0.6rem`
+     (vertical-only). Bumped to add horizontal padding so the tabs
+     read as chunkier buttons, plus a bit more vertical for the
+     underline to sit clear of the text baseline. */
+  padding: 1rem 1.25rem 0.85rem;
   text-align: left;
   cursor: pointer;
   color: rgba(2, 0, 20, 0.55);
@@ -1848,15 +1885,16 @@ main.about #about-cv .about-tabs { margin: 0; }
 .about-tab::after {
   content: attr(data-label);
   display: block;
-  font-family: var(--font-bold);
+  font-family: "Neuropol", var(--font-bold);
   height: 0;
   overflow: hidden;
   visibility: hidden;
 }
-.about-tab:hover { font-family: var(--font-bold); }
+.about-tab:hover { font-family: "Neuropol", var(--font-bold); }
 .about-tab.active {
-  font-family: var(--font-bold);
+  font-family: "Neuropol", var(--font-bold);
   color: var(--color-dark);
+  border-bottom-color: currentColor;
 }
 .about-tab-panel { padding-top: .25rem; }
 #about-cv .about-tab-panel > *:first-child { margin-top: 0; }
@@ -2287,8 +2325,10 @@ button.meta-carousel-active-title {
    inline <style> block in app/projects/[slug]/page.tsx.
    ────────────────────────────────────────────────────────────────── */
 
-/* Desktop sidebar chrome: Home + CV side-by-side (the previous stacked
-   layout is replaced). Each is a 56×56 bordered square. */
+/* Desktop sidebar chrome: Home + CV side-by-side. All four chrome
+   chips (Home, CV, title, PREV/NEXT) size from `--spacing-nav-h`
+   defined at the top of this file — change it once to scale the
+   whole strip consistently. */
 @media (min-width: 721px) {
   .nav-main {
     left: 1rem;
@@ -2297,8 +2337,8 @@ button.meta-carousel-active-title {
     padding-top: 0;
   }
   .nav-main a {
-    width: 56px;
-    height: 56px;
+    width: var(--spacing-nav-icon-w);
+    height: var(--spacing-nav-h);
     box-sizing: border-box;
     border: 2px solid currentColor;
     margin-bottom: 0;
@@ -2309,10 +2349,10 @@ button.meta-carousel-active-title {
      pages). Shares its left border with Home's right border. */
   .nav-info {
     top: 1rem;
-    left: calc(1rem + 56px);
+    left: calc(1rem + var(--spacing-nav-icon-w));
     right: auto;
-    width: 56px;
-    height: 56px;
+    width: var(--spacing-nav-icon-w);
+    height: var(--spacing-nav-h);
     box-sizing: border-box;
     border: 2px solid currentColor;
     border-left: 0;
@@ -2322,13 +2362,16 @@ button.meta-carousel-active-title {
 
   /* Project page title chip — bordered chip slotting between
      Home/CV (left) and PREV/NEXT (right). The .project-title element
-     inside `.nav-projects` becomes a fixed-position chip on desktop. */
+     inside `.nav-projects` becomes a fixed-position chip on desktop.
+     `right` reserves space for the two PREV/NEXT chips so the title's
+     right edge meets PREV's left edge exactly (both widths derive
+     from `--spacing-nav-prev-w`). */
   .nav-projects .project-title {
     position: fixed;
     top: 1rem;
-    left: calc(1rem + 56px * 2);
-    right: calc(1rem + 96px * 2);
-    height: 56px;
+    left: calc(1rem + var(--spacing-nav-icon-w) * 2);
+    right: calc(1rem + var(--spacing-nav-prev-w) * 2);
+    height: var(--spacing-nav-h);
     margin: 0;
     padding: 0.5rem 1rem;
     box-sizing: border-box;
@@ -2343,7 +2386,9 @@ button.meta-carousel-active-title {
     border-right: 0;
     font-family: "Neuropol", var(--font-bold);
     font-weight: normal;
-    font-size: 16px;
+    /* Uniform 14px header — matches `.nav-info-label` (CV) and
+       `.project-nav-btn` (PREV/NEXT). */
+    font-size: 14px;
     line-height: 1;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -2356,15 +2401,33 @@ button.meta-carousel-active-title {
   /* PREV/NEXT chips at top-right, 96×56 each, sharing borders */
   .project-nav-buttons {
     position: fixed;
+    /* Match the rest of the desktop chrome (`.nav-main a`, `.nav-info`,
+       `.project-title` — all `top: 1rem`, `height: 56px`, `2px` border)
+       so PREV/NEXT slot in at the same baseline as Home/CV/title and
+       the four chips read as one continuous bordered strip. */
     top: 1rem;
     right: 1rem;
     z-index: 3001;
     display: flex;
     gap: 0;
   }
+  /* PREV/NEXT are `<a>` elements (Next.js Link), so the base rule
+     `.nav-main a, .nav-projects a { width / height: var(--spacing-nav-h);
+      color: var(--color-dark) }` matches at specificity (0,1,1) and
+     beats any plain `.project-nav-btn` selector (0,1,0). All
+     properties that need to override the base are scoped via
+     `.nav-projects .project-nav-btn` (specificity 0,2,0) to win:
+     width (so the buttons are actually `--spacing-nav-prev-w` wide
+     instead of squished to `--spacing-nav-h`), height (so the
+     baseline matches the rest of the chrome), and color (so the
+     body-cascaded ink colour reaches the button for the dark/light
+     polarity flip). */
+  .nav-projects .project-nav-btn {
+    width: var(--spacing-nav-prev-w);
+    height: var(--spacing-nav-h);
+    color: inherit;
+  }
   .project-nav-btn {
-    width: 96px;
-    height: 56px;
     box-sizing: border-box;
     display: flex;
     align-items: center;
@@ -3024,4 +3087,577 @@ main[data-project-slug="dojo"] .piece[data-piece-id="dojo-crane"]   { background
 main[data-project-slug="dojo"] .project-track-content {
   gap: 0;
   padding-bottom: 0;
+}
+
+/* Paintings — v1 format (`<Figure>` / `<Row>` legacy primitives, not
+   v2 `<Piece>`) — bring its inter-image rhythm in line with the v2
+   site standard `--piece-gap: 1.5vw`. The defaults (`figure.image
+   { margin: 3rem 0 }`, `.row { margin: 3rem 0; gap: spacing-page/2 }`
+   on desktop; `main { gap: 1px }`, `.row { gap: 1px }` on mobile)
+   are zeroed and replaced with a single `gap: 1.5vw` on `main` for
+   the inter-figure rhythm plus the same gap inside rows. Video-row
+   mobile overrides (`!important`) still win — videos stay tightly
+   paired with their sibling figure as intended. */
+main[data-project-slug="paintings"] {
+  --piece-gap: 1.5vw;
+  gap: var(--piece-gap);
+}
+main[data-project-slug="paintings"] figure.image,
+main[data-project-slug="paintings"] .row {
+  margin: 0;
+}
+main[data-project-slug="paintings"] .row {
+  gap: var(--piece-gap);
+}
+
+/* AC `ac-tiles` — pornj-playa + blue-playa Pair, both square, both
+   uncropped. Base `.piece-layout--pair` forces `object-fit: cover`
+   which slices the tile imagery; override to contain so the full
+   square reads. */
+.piece[data-piece-id="ac-tiles"] .piece-layout--pair img {
+  object-fit: contain !important;
+}
+
+/* AC `ac-glamtech-trio` — layered composition: a Pair of
+   (glamtech-install-2-flip left, glamtech-install-1 right) sits
+   side-by-side uncropped at the standard --piece-gap; the
+   glamtech-logo.png (rendered as a Piece-level sibling
+   `<Img className="ac-glamtech-logo-overlay">`) is absolutely
+   positioned over the centre seam of the pair, scaled to ~18vw
+   with sane min/max so it stays legible on phones and doesn't
+   dominate on widescreens. The base pair forces 60dvh + cover;
+   both are overridden so the photos render at natural aspect. */
+.piece[data-piece-id="ac-glamtech-trio"] {
+  position: relative;
+}
+.piece[data-piece-id="ac-glamtech-trio"] .piece-layout--pair img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+}
+.piece[data-piece-id="ac-glamtech-trio"] .ac-glamtech-logo-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 18vw;
+  min-width: 120px;
+  max-width: 240px;
+  height: auto;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* AC `ac-video-1` + `ac-video-2` — the top-of-page animations clip at
+   90dvh tall while preserving the video's natural aspect. The Video
+   primitive's inline `width: 100%; height: auto` would let an
+   unusually tall portrait clip overflow the viewport; cap the
+   visible video frame via `max-height: 90dvh` + `width: auto`
+   (overrides the inline `width: 100%`), then `max-width: 100%` so
+   landscape clips still respect the page edges. Centered with
+   `margin: 0 auto`. !important is needed to beat the inline style
+   the primitive sets on `<video>`. */
+.piece[data-piece-id="ac-video-1"] .piece-layout--single video,
+.piece[data-piece-id="ac-video-2"] .piece-layout--single video {
+  width: auto !important;
+  height: auto !important;
+  max-width: 100% !important;
+  max-height: 90dvh !important;
+  margin: 0 auto !important;
+}
+
+/* AC desktop — first piece is `ac-video-1` (an animation), so the
+   page needs the same top-padding nudge as Fake Rekordz / Lissajous
+   to clear the fixed top nav (1rem inset + 56px nav + 1.5vw gap).
+   Without it, the video's top edge tucks under the chrome on
+   first-paint. */
+@media (min-width: 721px) {
+  .project-track-content[data-slug="artificial-consciousness"] {
+    padding-top: calc(1rem + 56px + var(--piece-gap, 1.5vw));
+  }
+}
+
+/* Intergalactic Helm — same v1 → standard-gap treatment as Paintings
+   (it's also legacy `<Figure>` / `<Row>` markup, not v2 `<Piece>`).
+   Drops the default `figure.image { margin: 3rem 0 }` +
+   `.row { margin: 3rem 0; gap: spacing-page/2 }` (desktop) and
+   `main { gap: 1px } / row { gap: 1px }` (mobile) for a single
+   `gap: var(--piece-gap)` (1.5vw) rhythm on the flex `main` parent
+   plus the same gap between row children. */
+main[data-project-slug="intergalactic-helm"] {
+  --piece-gap: 1.5vw;
+  gap: var(--piece-gap);
+}
+main[data-project-slug="intergalactic-helm"] figure.image,
+main[data-project-slug="intergalactic-helm"] .row {
+  margin: 0;
+}
+main[data-project-slug="intergalactic-helm"] .row {
+  gap: var(--piece-gap);
+}
+
+/* Intergalactic Helm — images in a row float toward the centre. With
+   `object-fit: contain` + `max-height: 90vh`, portrait images render
+   narrower than their flex cell, leaving air on both sides of every
+   image inside its cell. Shifting `object-position` pulls the first
+   cell's content to its right edge and the last cell's content to its
+   left edge so the images sit next to each other near the row's
+   centre, with combined air on the outer ends. Middle cells (3-up
+   rows) keep the default centred object-position. Desktop only —
+   mobile collapses rows to a vertical stack where each image already
+   fills the row width. */
+@media (min-width: 721px) {
+  main[data-project-slug="intergalactic-helm"] .row > figure.image:first-child img {
+    object-position: 100% 50%;
+  }
+  main[data-project-slug="intergalactic-helm"] .row > figure.image:last-child img {
+    object-position: 0% 50%;
+  }
+}
+
+/* RadioactiviTEA grid — all four images are square (1024² / 720²),
+   but the base `.piece-layout--grid-2x2` is `80dvh` tall × `100%`
+   wide, making cells ~50vw × 40dvh on a typical landscape viewport
+   (cell aspect ~1.8). `object-fit: cover` then slices ~37% off the
+   top + bottom of each square image. Override the grid to be square
+   overall via `aspect-ratio: 1 / 1` so each cell is square too,
+   matching the images perfectly — no vertical crop. */
+@media (min-width: 721px) {
+  .project-track-content[data-slug="radioactivitea"] .piece-layout--grid-2x2 {
+    height: auto;
+    aspect-ratio: 1 / 1;
+  }
+}
+
+/* Precarity `precarity-09-11` — the only Pair on this page with
+   portrait images (-09 + -11 are both ~2:3 aspect). The base
+   `.piece-layout--pair` is `60dvh` tall × `cover`, which slices
+   ~55% off the top + bottom of these portraits on a landscape
+   viewport. Bump the slot to full `100dvh` and switch the images
+   to `contain` so they render at natural height edge-to-edge in
+   their cells with horizontal air on the sides — no vertical crop.
+   The other Precarity pairs (landscape -01/04/05/02/06/07) keep
+   the default 60dvh + cover treatment. */
+@media (min-width: 721px) {
+  .project-track-content[data-slug="precarity-a-domestic-tale"] .piece[data-piece-id="precarity-09-11"] .piece-layout--pair {
+    height: 100dvh;
+  }
+  .project-track-content[data-slug="precarity-a-domestic-tale"] .piece[data-piece-id="precarity-09-11"] .piece-layout--pair img {
+    object-fit: contain;
+  }
+}
+
+/* Precarity desktop — Pair images align toward the centre of the
+   page: the first cell's image shifts to its right edge (object-
+   position 100% 50%) and the last cell's image shifts to its left
+   edge (0% 50%). Most visible on the contain-fit portrait pair
+   (`precarity-09-11`) where there's horizontal air inside each
+   cell — pulls the two portraits next to each other near the centre
+   with combined air on the outer ends. On the cover-fit landscape
+   pairs the image fills its cell with little/no air, so the shift
+   is effectively a no-op (controls which side of the slight overflow
+   gets cropped, not the visible position). */
+@media (min-width: 721px) {
+  .project-track-content[data-slug="precarity-a-domestic-tale"] .piece-layout--pair > img:first-of-type {
+    object-position: 100% 50%;
+  }
+  .project-track-content[data-slug="precarity-a-domestic-tale"] .piece-layout--pair > img:last-of-type {
+    object-position: 0% 50%;
+  }
+}
+
+/* Eternal Return — `eternal-return-diagrams` 2x2 grid. The base
+   desktop rule is `80dvh × 100%` which makes cells ~50vw × 40dvh
+   (aspect ~2.22 on a 1920×1080 viewport) — visually rectangular,
+   so the four mixed-aspect diagrams (1.19 colorboard, three 1.41
+   diagrams) read at inconsistent crop ratios. Make the grid square
+   overall via `aspect-ratio: 1 / 1` so each cell becomes square too;
+   all four cover-fit images then render at uniform cell size with
+   their full vertical content visible (horizontal crop only). On
+   mobile the base `aspect-ratio: 1/1` per-image rule already covers
+   this; we only adjust the gap there. */
+.project-track-content[data-slug="eternal-return"] .piece-layout--grid-2x2 {
+  gap: var(--piece-gap, 1.5vw);
+}
+@media (min-width: 721px) {
+  .project-track-content[data-slug="eternal-return"] .piece-layout--grid-2x2 {
+    height: auto;
+    aspect-ratio: 1 / 1;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Mobile chrome — restructured to mirror the desktop continuous
+   bordered strip:
+   - Top row: Home + CV side-by-side, then the project title chip
+     fills the remaining width to the right edge. All three share
+     borders so the strip reads as one continuous box.
+   - Bottom: PREV and NEXT bordered chips floating in opposite corners.
+
+   Source-order wins over the earlier mobile rules (which stacked CV
+   below Home and hid the title); colours use `currentColor` + `color:
+   inherit` so the body's inline `color: ${ink}` cascade flips the
+   polarity automatically — same approach as desktop.
+   ────────────────────────────────────────────────────────────────── */
+@media (max-width: 720px) {
+  /* CV chip moves from below Home (stacked) to right of Home — same
+     top as Home, shifted right by one chip width. Shares its left
+     border with Home's right border (border-left: 0). */
+  .nav-info {
+    top: var(--mobile-sidebar-icon-inset);
+    left: calc(
+      var(--mobile-sidebar-icon-inset) + var(--mobile-sidebar-icon-size)
+    );
+    width: var(--mobile-sidebar-icon-size);
+    height: var(--mobile-sidebar-icon-size);
+    box-sizing: border-box;
+    border: 2px solid currentColor;
+    border-left: 0;
+    /* The earlier rule set border-top: 0 (when CV stacked below Home);
+       reset it since the chip is now sideways. */
+    border-top-width: 2px;
+    color: inherit;
+    background: transparent;
+  }
+
+  /* Home: use currentColor so it tracks the body-cascaded ink. */
+  .nav-main a {
+    color: inherit;
+    border-color: currentColor;
+  }
+
+  /* Project title chip — was hidden on mobile. Show it again, fill
+     the rest of the top row from after CV to the right inset.
+     Top/bottom borders only so it joins seamlessly with CV's right
+     border on one side and the screen edge on the other. */
+  .nav-projects .project-title {
+    display: flex;
+    position: fixed;
+    top: var(--mobile-sidebar-icon-inset);
+    left: calc(
+      var(--mobile-sidebar-icon-inset) + var(--mobile-sidebar-icon-size) * 2
+    );
+    right: var(--mobile-sidebar-icon-inset);
+    height: var(--mobile-sidebar-icon-size);
+    margin: 0;
+    padding: 0 1rem;
+    box-sizing: border-box;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: left;
+    background: transparent;
+    color: inherit;
+    /* Top, bottom, AND right borders — the title is the rightmost
+       chip on mobile (no PREV/NEXT in the top row), so the right
+       border closes the strip cleanly at the viewport's right
+       inset. Left border is shared with CV's right border. */
+    border: 2px solid currentColor;
+    border-left: 0;
+    font-family: "Neuropol", var(--font-bold);
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 1;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    z-index: 3000;
+  }
+  /* Hide the desktop info-toggle button + slide-indicators inside the
+     title on mobile so just the title text reads cleanly. */
+  .nav-projects .project-title .project-info-toggle,
+  .nav-projects .project-title .slide-indicators {
+    display: none;
+  }
+
+  /* PREV / NEXT — restyle the bottom nav from a full-width 2-cell row
+     to two bordered chips floating in opposite bottom corners,
+     matching the desktop PREV/NEXT chip family (bordered, Neuropol,
+     14px, currentColor for polarity). */
+  .project-mobile-bottom-nav {
+    position: fixed;
+    bottom: var(--mobile-sidebar-icon-inset);
+    left: var(--mobile-sidebar-icon-inset);
+    right: var(--mobile-sidebar-icon-inset);
+    width: auto;
+    height: auto;
+    padding: 0;
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    background: transparent;
+    z-index: 5000;
+  }
+  /* `button.project-mobile-bottom-nav-link { border: 0 }` from the
+     earlier mobile block (specificity 0,1,1 — class + element) would
+     beat a plain `.project-mobile-bottom-nav-link` (0,1,0) selector
+     and erase the border on the actual `<button>` elements that the
+     PREV/NEXT chips render as. Doubling up the selector with
+     `button.project-mobile-bottom-nav-link` here brings specificity
+     up to 0,1,1 too, and source-order then puts these rules on top
+     so the bordered-chip styling wins. */
+  .project-mobile-bottom-nav-link,
+  a.project-mobile-bottom-nav-link,
+  button.project-mobile-bottom-nav-link,
+  .project-mobile-bottom-nav-link:link,
+  .project-mobile-bottom-nav-link:visited,
+  .project-mobile-bottom-nav-link:hover,
+  .project-mobile-bottom-nav-link:active,
+  .project-mobile-bottom-nav-link:focus,
+  .project-mobile-bottom-nav-link:focus-visible {
+    flex: 0 0 auto;
+    width: 96px;
+    height: var(--mobile-sidebar-icon-size);
+    box-sizing: border-box;
+    border: 2px solid currentColor;
+    background: transparent;
+    color: inherit;
+    font-family: "Neuropol", var(--font-bold);
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 1;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    cursor: pointer;
+  }
+}
+
+/* Hide the desktop PREV/NEXT chips (`.project-nav-buttons`) on mobile —
+   the mobile chrome shows them at the bottom via
+   `.project-mobile-bottom-nav` instead. Without this, the desktop
+   buttons still render in the DOM inside the fixed `.nav-projects`
+   container at top-right. */
+@media (max-width: 720px) {
+  .project-nav-buttons {
+    display: none;
+  }
+}
+
+
+/* Precarity mobile — Pair images sit at the base mobile `.piece-
+   layout--pair` rule's 1px gap by default; align to the standard
+   `--piece-gap` (1.5vw) so the inter-image rhythm matches the
+   inter-piece rhythm elsewhere on the page. */
+@media (max-width: 720px) {
+  .project-track-content[data-slug="precarity-a-domestic-tale"] .piece-layout--pair {
+    gap: var(--piece-gap, 1.5vw);
+  }
+}
+
+/* Moon Raves `moon-raves-zeva-live` mobile — the desktop CSS defines
+   the VideoTopLeft as a 3×3 grid with the iframe at top-left 2x2,
+   but there's no mobile equivalent. Without one, the iframe inside
+   `.piece-video-top-left__video` has inline `width: 100%; height:
+   100%` but its parent has no explicit height, so the iframe
+   collapses to its default ~150px and reads as a short letterbox.
+   Mobile layout: 2-col CSS grid — video iframe spans both cols at
+   16:9, then images 1 & 2 (snays-3 + snays-2, matching 16:9 aspect)
+   sit side-by-side as a pair, and images 3–5 (live-1/2/3) each
+   span both cols full-width below. */
+@media (max-width: 720px) {
+  .piece[data-piece-id="moon-raves-zeva-live"] .piece-video-top-left {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--piece-gap, 1.5vw);
+    width: 100%;
+  }
+  .piece[data-piece-id="moon-raves-zeva-live"] .piece-video-top-left__video {
+    grid-column: 1 / -1;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+  }
+  .piece[data-piece-id="moon-raves-zeva-live"] .piece-video-top-left > img:nth-of-type(1) {
+    grid-column: 1;
+  }
+  .piece[data-piece-id="moon-raves-zeva-live"] .piece-video-top-left > img:nth-of-type(2) {
+    grid-column: 2;
+  }
+  .piece[data-piece-id="moon-raves-zeva-live"] .piece-video-top-left > img:nth-of-type(n+3) {
+    grid-column: 1 / -1;
+  }
+  .piece[data-piece-id="moon-raves-zeva-live"] .piece-video-top-left > img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+}
+
+/* Moon Raves `moon-raves-laz-mason` mobile — Stack3PairSide renders
+   as `.piece-layout--stack`, which by default stacks one image per
+   row on mobile. Override with a 2-col grid so the two laz portraits
+   (same 3:4 aspect, so natural heights match) sit side-by-side as a
+   pair on the first row, then mason / spanky / laz-sub each span
+   full width below. */
+@media (max-width: 720px) {
+  .piece[data-piece-id="moon-raves-laz-mason"] .piece-layout--stack {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--piece-gap, 1.5vw);
+    width: 100%;
+  }
+  .piece[data-piece-id="moon-raves-laz-mason"] .piece-layout--stack > img:nth-of-type(1) {
+    grid-column: 1;
+  }
+  .piece[data-piece-id="moon-raves-laz-mason"] .piece-layout--stack > img:nth-of-type(2) {
+    grid-column: 2;
+  }
+  .piece[data-piece-id="moon-raves-laz-mason"] .piece-layout--stack > img:nth-of-type(n+3) {
+    grid-column: 1 / -1;
+  }
+  .piece[data-piece-id="moon-raves-laz-mason"] .piece-layout--stack > img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+}
+
+/* Moon Raves mobile — standardize the inter-image gap to
+   `--piece-gap (1.5vw)` across every piece layout, overriding the
+   base mobile rules' 1px gap on `.piece-layout--pair`,
+   `.piece-layout--grid-2x2`, and `.piece-layout--stack`. Matches
+   the inter-piece rhythm on `.project-track-content`. */
+@media (max-width: 720px) {
+  .project-track-content[data-slug="moon-raves"] .piece-layout--pair,
+  .project-track-content[data-slug="moon-raves"] .piece-layout--grid-2x2,
+  .project-track-content[data-slug="moon-raves"] .piece-layout--stack {
+    gap: var(--piece-gap, 1.5vw);
+  }
+}
+
+/* Moon Raves `moon-raves-nico-alejandro` mobile — StackPairSide
+   renders as `.piece-layout--stack` (vertical column by default).
+   Override with a 2-col grid so images 2 + 3 (alejandro + joaquin)
+   sit side-by-side as a pair on row 2; nico (img 1) and adam (img 4)
+   each span both columns full-width on rows 1 and 3. */
+@media (max-width: 720px) {
+  .piece[data-piece-id="moon-raves-nico-alejandro"] .piece-layout--stack {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--piece-gap, 1.5vw);
+    width: 100%;
+  }
+  .piece[data-piece-id="moon-raves-nico-alejandro"] .piece-layout--stack > img:nth-of-type(1) {
+    grid-column: 1 / -1;
+  }
+  .piece[data-piece-id="moon-raves-nico-alejandro"] .piece-layout--stack > img:nth-of-type(2) {
+    grid-column: 1;
+  }
+  .piece[data-piece-id="moon-raves-nico-alejandro"] .piece-layout--stack > img:nth-of-type(3) {
+    grid-column: 2;
+  }
+  .piece[data-piece-id="moon-raves-nico-alejandro"] .piece-layout--stack > img:nth-of-type(4) {
+    grid-column: 1 / -1;
+  }
+  .piece[data-piece-id="moon-raves-nico-alejandro"] .piece-layout--stack > img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+}
+
+/* CV mobile — restore the bordered-square chip look on the Home icon
+   and apply the same treatment to each social icon. The earlier rule
+   `body:has(main.about) .nav-main a { border: 0 !important }` (inside
+   the mobile @media block, line ~759) stripped the Home border on
+   /about; this overrides it with `border: 2px solid currentColor`
+   to match the project-page chrome chip family. The socials get the
+   same bordered-square styling so they read as a column of matching
+   buttons. */
+@media (max-width: 720px) {
+  body:has(main.about) .nav-main a {
+    box-sizing: border-box !important;
+    border: 2px solid currentColor !important;
+  }
+
+  /* Social icons — each anchor renders as a `--spacing-nav-h-mobile`
+     square bordered button matching the Home chip. */
+  main.about #about-info ul.socials li {
+    border: 0 !important;
+    margin: 0;
+  }
+  main.about #about-info ul.socials a,
+  main.about #about-info ul.socials a:link,
+  main.about #about-info ul.socials a:visited {
+    width: var(--spacing-nav-h-mobile);
+    height: var(--spacing-nav-h-mobile);
+    box-sizing: border-box;
+    border: 2px solid currentColor;
+    background: transparent;
+    color: var(--color-dark);
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+  }
+}
+
+/* CV mobile — Home + all social chips form ONE continuous vertical
+   strip with shared 2px borders (no gap). The socials container
+   anchors at Home's bottom edge minus a 2px overlap so the first
+   social's top picks up Home's bottom border; each social drops
+   its own top border so adjacent chips share a single line. Width
+   and left-inset match Home (`--mobile-sidebar-icon-size` square,
+   `--mobile-sidebar-icon-inset` left). */
+@media (max-width: 720px) {
+  main.about #about-info ul.socials {
+    top: calc(
+      var(--mobile-sidebar-icon-inset) + var(--mobile-sidebar-icon-size) - 2px
+    );
+    left: var(--mobile-sidebar-icon-inset);
+    width: var(--mobile-sidebar-icon-size);
+    gap: 0;
+    padding-top: 0;
+    align-items: stretch;
+  }
+  /* Match Home's chip size (56×56) so the strip reads as uniform.
+     Drop the top border so the chip above's bottom edge is the
+     shared line. */
+  main.about #about-info ul.socials a,
+  main.about #about-info ul.socials a:link,
+  main.about #about-info ul.socials a:visited {
+    width: var(--mobile-sidebar-icon-size);
+    height: var(--mobile-sidebar-icon-size);
+    border-top: 0;
+  }
+}
+
+/* CV mobile — shift the main column right so the text doesn't sit
+   underneath the bordered button strip. Padding-left targets the
+   chip strip's right edge (`inset + chip width = 1rem + 56px = 72px`);
+   the inner `#about-info` keeps its existing `padding-left: 1rem`,
+   so the text's left edge ends up `72 + 16 = 88px` from the viewport
+   — same `1rem` gap between text and chip strip as between the chip
+   strip and the viewport's left edge. */
+@media (max-width: 720px) {
+  main.about {
+    padding-left: calc(
+      var(--mobile-sidebar-icon-inset) + var(--mobile-sidebar-icon-size)
+    );
+  }
+}
+
+/* CV mobile — push the "Kirby" h1 down a touch so it visually
+   centers next to the Home icon (the icon's top-aligned position
+   left the h1 cap sitting above the icon's optical centre). 18px
+   of #about-info top padding lands the h1 right next to the
+   icon's middle. `main.about { padding-top: 1rem }` keeps the
+   column anchored at Home's top, and h1 `margin-top: 0` keeps
+   the offset deterministic. */
+@media (max-width: 720px) {
+  main.about {
+    padding-top: var(--mobile-sidebar-icon-inset);
+  }
+  main.about #about-info {
+    padding-top: 18px;
+  }
+  main.about #about-info h1 {
+    margin-top: 0;
+  }
 }

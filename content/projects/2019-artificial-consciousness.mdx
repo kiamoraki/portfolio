@@ -19,6 +19,14 @@ description: |
   — Robert H. Heinlein, The Moon is a Harsh Mistress (1966)
 ---
 
+<Piece id="ac-video-1" tags="animations">
+  <Video src="/img/artificial_consciousness/ac.MP4" />
+</Piece>
+
+<Piece id="ac-video-2" tags="animations">
+  <Video src="/img/artificial_consciousness/ac-shipibo.MP4" />
+</Piece>
+
 <Piece id="ac-interference" tags="activation,design">
   <Hero src="/img/artificial_consciousness/interference.jpg" alt="Interference" />
 </Piece>
@@ -30,12 +38,22 @@ description: |
   </Pair>
 </Piece>
 
-<Piece id="ac-glamtech-logo" tags="activation">
-  <Row>
+{/* Glamtech logo trio — Pair of (install-2-flip left, install-1 right)
+    side-by-side at the standard `--piece-gap` (1.5vw), both uncropped.
+    The glamtech-logo follows the Pair as a sibling `<Img>` with
+    `className="ac-glamtech-logo-overlay"`; scoped CSS in app/globals.css
+    positions it absolutely over the centre seam of the pair, scaled to
+    ~18vw with sane min/max so it stays legible on phones. */}
+<Piece id="ac-glamtech-trio" tags="activation">
+  <Pair>
     <Img src="/img/artificial_consciousness/glamtech-install-2-flip.jpg" alt="Glamtech install" />
-    <Img src="/img/artificial_consciousness/glamtech-logo.png" alt="Glamtech logo" />
     <Img src="/img/artificial_consciousness/glamtech-install-1.jpg" alt="Glamtech install" />
-  </Row>
+  </Pair>
+  <Img
+    src="/img/artificial_consciousness/glamtech-logo.png"
+    alt="Glamtech logo"
+    className="ac-glamtech-logo-overlay"
+  />
 </Piece>
 
 <Piece id="ac-glamtech-3" tags="activation">
@@ -44,14 +62,6 @@ description: |
 
 <Piece id="ac-glamtech-4" tags="activation">
   <Single src="/img/artificial_consciousness/glamtech-install-4.jpg" alt="Glamtech install" />
-</Piece>
-
-<Piece id="ac-video-1" tags="animations">
-  <Video src="/img/artificial_consciousness/ac.MP4" />
-</Piece>
-
-<Piece id="ac-video-2" tags="animations">
-  <Video src="/img/artificial_consciousness/ac-shipibo.MP4" />
 </Piece>
 
 <Piece id="ac-install" tags="activation">

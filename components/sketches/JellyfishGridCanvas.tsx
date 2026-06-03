@@ -13,8 +13,16 @@ const INCREMENT = 0.0091;
 const NUM_PARTICLES = 5;
 const RADIUS = 3;
 
-const GRID_COLS = 3;
-const GRID_ROWS = 6;
+// Grid orientation tracks the viewport aspect so the sketch fills the
+// page edge-to-edge in either direction: a 3 wide × 6 tall portrait
+// grid on phones, a 6 wide × 3 tall landscape grid on desktops. Either
+// orientation gives 18 cells.
+function gridDims(): [number, number] {
+  if (typeof window !== "undefined" && window.innerWidth >= window.innerHeight) {
+    return [6, 3];
+  }
+  return [3, 6];
+}
 
 function gcd(a: number, b: number): number {
   let x = Math.abs(a) || 1;
@@ -62,19 +70,22 @@ const sketch = (p: any) => {
 
   const buildLissas = () => {
     lissas = [];
-    const gridSquareW = p.width / GRID_COLS;
-    const gridSquareH = p.height / GRID_ROWS;
+    const [gridCols, gridRows] = gridDims();
+    const gridSquareW = p.width / gridCols;
+    const gridSquareH = p.height / gridRows;
     // Original used `grid_square_w / 2 - 35`, but the −35 margin is too
     // chunky on narrow viewports. Match the proportional spirit:
-    // ampMax ≈ 35% of the min cell side so each jellyfish sits with
-    // more breathing room inside its cell.
+    // ampMax ≈ 25% of the min cell side so each jellyfish sits with
+    // generous breathing room inside its cell. (Was 35%; the 28%
+    // shrink reads as more refined, less crowded across both
+    // portrait + landscape grids.)
     const ampMax = Math.max(
       5,
-      Math.min(gridSquareW, gridSquareH) * 0.35,
+      Math.min(gridSquareW, gridSquareH) * 0.25,
     );
 
-    for (let xi = 0; xi < GRID_COLS; xi++) {
-      for (let yi = 0; yi < GRID_ROWS; yi++) {
+    for (let xi = 0; xi < gridCols; xi++) {
+      for (let yi = 0; yi < gridRows; yi++) {
         let freqA = 1 + Math.floor(Math.random() * 9);
         let freqB = 1 + Math.floor(Math.random() * 9);
         while (freqA === freqB) {

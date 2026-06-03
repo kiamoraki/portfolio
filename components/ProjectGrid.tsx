@@ -5,6 +5,7 @@ import type { Project } from "@/lib/projects";
 import imageManifest from "@/lib/image-manifest.json";
 import { MoonRavesThumbnail } from "@/components/sketches/MoonRavesThumbnail";
 import { WaveThumbnail } from "@/components/sketches/WaveThumbnail";
+import { JellyfishThumbnail } from "@/components/sketches/JellyfishThumbnail";
 import { EternalReturnThumbnail } from "@/components/sketches/EternalReturnThumbnail";
 import { EmergenceThumbnail } from "@/components/sketches/EmergenceThumbnail";
 import { MultiverseThumbnail } from "@/components/sketches/MultiverseThumbnail";
@@ -17,6 +18,7 @@ const manifest = imageManifest as Record<string, { width: number; height: number
 const SKETCH_REGISTRY: Record<string, ComponentType> = {
   MoonRavesThumbnail,
   WaveThumbnail,
+  JellyfishThumbnail,
   EternalReturnThumbnail,
   EmergenceThumbnail,
   MultiverseThumbnail,

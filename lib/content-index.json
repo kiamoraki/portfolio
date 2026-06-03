@@ -94,6 +94,24 @@
     "indexInProject": 4
   },
   {
+    "projectSlug": "eternal-return",
+    "pieceId": "eternal-return-transmitter-receiver",
+    "tags": [],
+    "indexInProject": 5
+  },
+  {
+    "projectSlug": "jellyfish",
+    "pieceId": "jellyfish-grid",
+    "tags": [
+      "animations"
+    ],
+    "indexInProject": 0,
+    "sketch": {
+      "id": "jellyfish-grid",
+      "bg": "#000"
+    }
+  },
+  {
     "projectSlug": "wave",
     "pieceId": "wave-1",
     "tags": [
@@ -162,18 +180,6 @@
     "indexInProject": 5,
     "sketch": {
       "id": "wave-5",
-      "bg": "#000"
-    }
-  },
-  {
-    "projectSlug": "wave",
-    "pieceId": "jellyfish-grid",
-    "tags": [
-      "animations"
-    ],
-    "indexInProject": 6,
-    "sketch": {
-      "id": "jellyfish-grid",
       "bg": "#000"
     }
   },
@@ -299,12 +305,28 @@
   },
   {
     "projectSlug": "artificial-consciousness",
+    "pieceId": "ac-video-1",
+    "tags": [
+      "animations"
+    ],
+    "indexInProject": 0
+  },
+  {
+    "projectSlug": "artificial-consciousness",
+    "pieceId": "ac-video-2",
+    "tags": [
+      "animations"
+    ],
+    "indexInProject": 1
+  },
+  {
+    "projectSlug": "artificial-consciousness",
     "pieceId": "ac-interference",
     "tags": [
       "activation",
       "design"
     ],
-    "indexInProject": 0
+    "indexInProject": 2
   },
   {
     "projectSlug": "artificial-consciousness",
@@ -312,27 +334,11 @@
     "tags": [
       "activation"
     ],
-    "indexInProject": 1
-  },
-  {
-    "projectSlug": "artificial-consciousness",
-    "pieceId": "ac-glamtech-logo",
-    "tags": [
-      "activation"
-    ],
-    "indexInProject": 2
-  },
-  {
-    "projectSlug": "artificial-consciousness",
-    "pieceId": "ac-glamtech-3",
-    "tags": [
-      "activation"
-    ],
     "indexInProject": 3
   },
   {
     "projectSlug": "artificial-consciousness",
-    "pieceId": "ac-glamtech-4",
+    "pieceId": "ac-glamtech-trio",
     "tags": [
       "activation"
     ],
@@ -340,17 +346,17 @@
   },
   {
     "projectSlug": "artificial-consciousness",
-    "pieceId": "ac-video-1",
+    "pieceId": "ac-glamtech-3",
     "tags": [
-      "animations"
+      "activation"
     ],
     "indexInProject": 5
   },
   {
     "projectSlug": "artificial-consciousness",
-    "pieceId": "ac-video-2",
+    "pieceId": "ac-glamtech-4",
     "tags": [
-      "animations"
+      "activation"
     ],
     "indexInProject": 6
   },

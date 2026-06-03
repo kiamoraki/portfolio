@@ -48,6 +48,7 @@ const CUSTOM_ORDER = [
   "fake-rekordz",
   "eternal-return",
   "wave",
+  "jellyfish",
   "tobrit",
   "artificial-consciousness",
   "moon-raves",
