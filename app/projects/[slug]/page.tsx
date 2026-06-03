@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { notFound, redirect } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { Nav } from "@/components/Nav";
@@ -119,20 +120,34 @@ export default async function ProjectPage({
         <style>{`html,body{color:${ink};}body{--chrome-scrim:${chromeScrim};}`}</style>
       )}
       <Nav />
-      <ProjectNav
-        slug={slug}
-        title={project.title}
-        description={project.description}
-        prev={prev}
-        next={next}
-        navigableProjects={navigableProjects}
-      />
-      <ProjectMobileBottomNav
-        slug={slug}
-        prev={prev}
-        next={next}
-        navigableProjects={navigableProjects}
-      />
+      {/* `ProjectNav`, `ProjectMobileBottomNav`, and (on the
+          `shape-of-time` route) `ShapeOfTime` all call
+          `useSearchParams()` to pick up `?tag=…`. Next 16's static
+          export refuses to prerender a tree that suspends on a
+          client search-params read unless it's inside a Suspense
+          boundary — without these the build hard-fails on `Error
+          occurred prerendering page "/projects/shape-of-time"`.
+          Fallback is `null` so the chrome simply doesn't paint
+          server-side; it hydrates in with the right ?tag values
+          on the client. */}
+      <Suspense fallback={null}>
+        <ProjectNav
+          slug={slug}
+          title={project.title}
+          description={project.description}
+          prev={prev}
+          next={next}
+          navigableProjects={navigableProjects}
+        />
+      </Suspense>
+      <Suspense fallback={null}>
+        <ProjectMobileBottomNav
+          slug={slug}
+          prev={prev}
+          next={next}
+          navigableProjects={navigableProjects}
+        />
+      </Suspense>
       <main
         className={[
           project.imageBelowTitle ? "image-below-title" : "",
@@ -144,6 +159,7 @@ export default async function ProjectPage({
         data-project-slug={project.slug}
         style={bg ? { background: bg } : undefined}
       >
+        <Suspense fallback={null}>
         {project.format === "v2" ? (
           <ProjectRenderer project={project}>
             <MDXRemote
@@ -154,6 +170,7 @@ export default async function ProjectPage({
         ) : (
           <MDXRemote source={project.content} components={mdxComponents} />
         )}
+        </Suspense>
       </main>
     </CarouselStateProvider>
   );

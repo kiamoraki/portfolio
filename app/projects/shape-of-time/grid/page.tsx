@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Nav } from "@/components/Nav";
@@ -33,15 +34,22 @@ export default function ShapeOfTimeGridPage() {
     <CarouselStateProvider>
       <style>{`html,body{background:${bg};color:${ink};}`}</style>
       <Nav />
-      <ProjectNav
-        slug={PROJECT_SLUG}
-        title={`${project.title} — Grid`}
-        prev={prev}
-        next={next}
-        navigableProjects={navigableProjects}
-      />
+      {/* ProjectNav + ShapeOfTimeGrid both call `useSearchParams()`;
+          Next 16 static export refuses to prerender without an
+          enclosing Suspense boundary. */}
+      <Suspense fallback={null}>
+        <ProjectNav
+          slug={PROJECT_SLUG}
+          title={`${project.title} — Grid`}
+          prev={prev}
+          next={next}
+          navigableProjects={navigableProjects}
+        />
+      </Suspense>
       <main style={{ background: bg, padding: 0 }}>
-        <ShapeOfTimeGrid />
+        <Suspense fallback={null}>
+          <ShapeOfTimeGrid />
+        </Suspense>
       </main>
     </CarouselStateProvider>
   );
