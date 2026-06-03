@@ -1,0 +1,782 @@
+[
+  {
+    "projectSlug": "emergence",
+    "pieceId": "emergence",
+    "tags": [
+      "animations"
+    ],
+    "indexInProject": 0,
+    "sketch": {
+      "id": "emergence",
+      "bg": "#fff"
+    }
+  },
+  {
+    "projectSlug": "dojo",
+    "pieceId": "dojo-dragon",
+    "tags": [
+      "design"
+    ],
+    "indexInProject": 0
+  },
+  {
+    "projectSlug": "dojo",
+    "pieceId": "dojo-leopard",
+    "tags": [
+      "design"
+    ],
+    "indexInProject": 1
+  },
+  {
+    "projectSlug": "dojo",
+    "pieceId": "dojo-snake",
+    "tags": [
+      "design"
+    ],
+    "indexInProject": 2
+  },
+  {
+    "projectSlug": "dojo",
+    "pieceId": "dojo-tiger",
+    "tags": [
+      "design"
+    ],
+    "indexInProject": 3
+  },
+  {
+    "projectSlug": "dojo",
+    "pieceId": "dojo-crane",
+    "tags": [
+      "design"
+    ],
+    "indexInProject": 4
+  },
+  {
+    "projectSlug": "eternal-return",
+    "pieceId": "eternal-return-unobserved",
+    "tags": [
+      "animations"
+    ],
+    "indexInProject": 0,
+    "sketch": {
+      "id": "eternal-return-unobserved",
+      "bg": "#000"
+    }
+  },
+  {
+    "projectSlug": "eternal-return",
+    "pieceId": "eternal-return-observed",
+    "tags": [
+      "animations"
+    ],
+    "indexInProject": 1,
+    "sketch": {
+      "id": "eternal-return-observed",
+      "bg": "#000"
+    }
+  },
+  {
+    "projectSlug": "eternal-return",
+    "pieceId": "eternal-return-install",
+    "tags": [],
+    "indexInProject": 2
+  },
+  {
+    "projectSlug": "eternal-return",
+    "pieceId": "eternal-return-diagrams",
+    "tags": [],
+    "indexInProject": 3
+  },
+  {
+    "projectSlug": "eternal-return",
+    "pieceId": "eternal-return-hardware",
+    "tags": [],
+    "indexInProject": 4
+  },
+  {
+    "projectSlug": "wave",
+    "pieceId": "wave-1",
+    "tags": [
+      "animations"
+    ],
+    "indexInProject": 0,
+    "sketch": {
+      "id": "wave-1",
+      "bg": "#000"
+    }
+  },
+  {
+    "projectSlug": "wave",
+    "pieceId": "wave-6",
+    "tags": [
+      "animations"
+    ],
+    "indexInProject": 1,
+    "sketch": {
+      "id": "wave-6",
+      "bg": "#000"
+    }
+  },
+  {
+    "projectSlug": "wave",
+    "pieceId": "wave-2",
+    "tags": [
+      "animations"
+    ],
+    "indexInProject": 2,
+    "sketch": {
+      "id": "wave-2",
+      "bg": "#000"
+    }
+  },
+  {
+    "projectSlug": "wave",
+    "pieceId": "wave-3",
+    "tags": [
+      "animations"
+    ],
+    "indexInProject": 3,
+    "sketch": {
+      "id": "wave-3",
+      "bg": "#000"
+    }
+  },
+  {
+    "projectSlug": "wave",
+    "pieceId": "wave-4",
+    "tags": [
+      "animations"
+    ],
+    "indexInProject": 4,
+    "sketch": {
+      "id": "wave-4",
+      "bg": "#000"
+    }
+  },
+  {
+    "projectSlug": "wave",
+    "pieceId": "wave-5",
+    "tags": [
+      "animations"
+    ],
+    "indexInProject": 5,
+    "sketch": {
+      "id": "wave-5",
+      "bg": "#000"
+    }
+  },
+  {
+    "projectSlug": "wave",
+    "pieceId": "jellyfish-grid",
+    "tags": [
+      "animations"
+    ],
+    "indexInProject": 6,
+    "sketch": {
+      "id": "jellyfish-grid",
+      "bg": "#000"
+    }
+  },
+  {
+    "projectSlug": "precarity-a-domestic-tale",
+    "pieceId": "precarity-peekinside",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 0
+  },
+  {
+    "projectSlug": "precarity-a-domestic-tale",
+    "pieceId": "precarity-09-11",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 1
+  },
+  {
+    "projectSlug": "precarity-a-domestic-tale",
+    "pieceId": "precarity-01-04",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 2
+  },
+  {
+    "projectSlug": "precarity-a-domestic-tale",
+    "pieceId": "precarity-05-02",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 3
+  },
+  {
+    "projectSlug": "precarity-a-domestic-tale",
+    "pieceId": "precarity-06-07",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 4
+  },
+  {
+    "projectSlug": "precarity-a-domestic-tale",
+    "pieceId": "precarity-sketch",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 5
+  },
+  {
+    "projectSlug": "multiverse",
+    "pieceId": "multiverse",
+    "tags": [
+      "animations"
+    ],
+    "indexInProject": 0,
+    "sketch": {
+      "id": "multiverse",
+      "bg": "#00001c"
+    }
+  },
+  {
+    "projectSlug": "lissajous",
+    "pieceId": "lissajous-pair-lines",
+    "tags": [
+      "animations"
+    ],
+    "indexInProject": 0,
+    "sketch": {
+      "id": "lissajous-pair-lines",
+      "bg": "#130c12"
+    }
+  },
+  {
+    "projectSlug": "lissajous",
+    "pieceId": "lissajous-unique",
+    "tags": [
+      "animations"
+    ],
+    "indexInProject": 1,
+    "sketch": {
+      "id": "lissajous-unique",
+      "bg": "#130c12"
+    }
+  },
+  {
+    "projectSlug": "lissajous",
+    "pieceId": "lissajous-grid",
+    "tags": [
+      "animations"
+    ],
+    "indexInProject": 2,
+    "sketch": {
+      "id": "lissajous-grid",
+      "bg": "#130c12"
+    }
+  },
+  {
+    "projectSlug": "lissajous",
+    "pieceId": "lissajous-portraits",
+    "tags": [
+      "animations"
+    ],
+    "indexInProject": 3,
+    "sketch": {
+      "id": "lissajous-portraits",
+      "bg": "#130c12"
+    }
+  },
+  {
+    "projectSlug": "lissajous",
+    "pieceId": "lissajous-full",
+    "tags": [
+      "animations"
+    ],
+    "indexInProject": 4,
+    "sketch": {
+      "id": "lissajous-full",
+      "bg": "#130c12"
+    }
+  },
+  {
+    "projectSlug": "artificial-consciousness",
+    "pieceId": "ac-interference",
+    "tags": [
+      "activation",
+      "design"
+    ],
+    "indexInProject": 0
+  },
+  {
+    "projectSlug": "artificial-consciousness",
+    "pieceId": "ac-tiles",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 1
+  },
+  {
+    "projectSlug": "artificial-consciousness",
+    "pieceId": "ac-glamtech-logo",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 2
+  },
+  {
+    "projectSlug": "artificial-consciousness",
+    "pieceId": "ac-glamtech-3",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 3
+  },
+  {
+    "projectSlug": "artificial-consciousness",
+    "pieceId": "ac-glamtech-4",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 4
+  },
+  {
+    "projectSlug": "artificial-consciousness",
+    "pieceId": "ac-video-1",
+    "tags": [
+      "animations"
+    ],
+    "indexInProject": 5
+  },
+  {
+    "projectSlug": "artificial-consciousness",
+    "pieceId": "ac-video-2",
+    "tags": [
+      "animations"
+    ],
+    "indexInProject": 6
+  },
+  {
+    "projectSlug": "artificial-consciousness",
+    "pieceId": "ac-install",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 7
+  },
+  {
+    "projectSlug": "radioactivitea",
+    "pieceId": "radioactivitea-day",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 0
+  },
+  {
+    "projectSlug": "radioactivitea",
+    "pieceId": "radioactivitea-grid",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 1
+  },
+  {
+    "projectSlug": "radioactivitea",
+    "pieceId": "radioactivitea-interior-people",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 2
+  },
+  {
+    "projectSlug": "radioactivitea",
+    "pieceId": "radioactivitea-kirbyseva",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 3
+  },
+  {
+    "projectSlug": "tobrit",
+    "pieceId": "tobrit-cover",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 0
+  },
+  {
+    "projectSlug": "tobrit",
+    "pieceId": "tobrit-sketch",
+    "tags": [
+      "activation",
+      "process"
+    ],
+    "indexInProject": 1,
+    "credit": "Kirby"
+  },
+  {
+    "projectSlug": "tobrit",
+    "pieceId": "tobrit-build",
+    "tags": [
+      "activation",
+      "process"
+    ],
+    "indexInProject": 2,
+    "credit": "Jakob Markus Heer, Riafish, Disgaux"
+  },
+  {
+    "projectSlug": "tobrit",
+    "pieceId": "tobrit-painting",
+    "tags": [
+      "activation",
+      "process"
+    ],
+    "indexInProject": 3,
+    "credit": "Jakob Markus Heer"
+  },
+  {
+    "projectSlug": "tobrit",
+    "pieceId": "tobrit-disgaux-1",
+    "tags": [
+      "activation",
+      "process"
+    ],
+    "indexInProject": 4,
+    "credit": "Disgaux"
+  },
+  {
+    "projectSlug": "tobrit",
+    "pieceId": "tobrit-become-brad",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 5,
+    "credit": "tobrit.com"
+  },
+  {
+    "projectSlug": "tobrit",
+    "pieceId": "tobrit-vessel",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 6,
+    "credit": "Trevor Burnzy, Maru Quevedo, Day & Time"
+  },
+  {
+    "projectSlug": "tobrit",
+    "pieceId": "tobrit-autobiographica",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 7
+  },
+  {
+    "projectSlug": "tobrit",
+    "pieceId": "tobrit-release",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 8,
+    "credit": "Geodesic Temple"
+  },
+  {
+    "projectSlug": "tobrit",
+    "pieceId": "tobrit-relic",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 9,
+    "credit": "Day & Time"
+  },
+  {
+    "projectSlug": "tobrit",
+    "pieceId": "tobrit-credits",
+    "tags": [
+      "credits"
+    ],
+    "indexInProject": 10
+  },
+  {
+    "projectSlug": "roses",
+    "pieceId": "roses-portal-01",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 0
+  },
+  {
+    "projectSlug": "roses",
+    "pieceId": "roses-portal-02-03",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 1
+  },
+  {
+    "projectSlug": "roses",
+    "pieceId": "roses-portal-04",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 2
+  },
+  {
+    "projectSlug": "roses",
+    "pieceId": "roses-portal-07",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 3
+  },
+  {
+    "projectSlug": "roses",
+    "pieceId": "roses-portal-05",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 4
+  },
+  {
+    "projectSlug": "roses",
+    "pieceId": "roses-portal-06",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 5
+  },
+  {
+    "projectSlug": "roses",
+    "pieceId": "roses-grid",
+    "tags": [
+      "animations"
+    ],
+    "indexInProject": 6,
+    "sketch": {
+      "id": "roses-grid",
+      "bg": "#000d19"
+    }
+  },
+  {
+    "projectSlug": "roses",
+    "pieceId": "roses-portraits",
+    "tags": [
+      "animations"
+    ],
+    "indexInProject": 7,
+    "sketch": {
+      "id": "roses-portraits",
+      "bg": "#000d19"
+    }
+  },
+  {
+    "projectSlug": "fake-rekordz",
+    "pieceId": "fake-rekordz-spanky-claireshort",
+    "tags": [
+      "design"
+    ],
+    "indexInProject": 0
+  },
+  {
+    "projectSlug": "fake-rekordz",
+    "pieceId": "fake-rekordz-popelaz-lynxyx",
+    "tags": [
+      "design"
+    ],
+    "indexInProject": 1
+  },
+  {
+    "projectSlug": "fake-rekordz",
+    "pieceId": "fake-rekordz-claireshort-casualt",
+    "tags": [
+      "design"
+    ],
+    "indexInProject": 2
+  },
+  {
+    "projectSlug": "fake-rekordz",
+    "pieceId": "fake-rekordz-spaceout-bbbiennale",
+    "tags": [
+      "design"
+    ],
+    "indexInProject": 3
+  },
+  {
+    "projectSlug": "fake-rekordz",
+    "pieceId": "fake-rekordz-goldify",
+    "tags": [
+      "design"
+    ],
+    "indexInProject": 4
+  },
+  {
+    "projectSlug": "moon-raves",
+    "pieceId": "moon-raves-zeva-live",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 0
+  },
+  {
+    "projectSlug": "moon-raves",
+    "pieceId": "moon-raves-nico-alejandro",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 1
+  },
+  {
+    "projectSlug": "moon-raves",
+    "pieceId": "moon-raves-cody-karo",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 2
+  },
+  {
+    "projectSlug": "moon-raves",
+    "pieceId": "moon-raves-laz-mason",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 3
+  },
+  {
+    "projectSlug": "moon-raves",
+    "pieceId": "moon-raves-dauwke",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 4
+  },
+  {
+    "projectSlug": "moon-raves",
+    "pieceId": "moon-raves-quad-seva",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 5
+  },
+  {
+    "projectSlug": "moon-raves",
+    "pieceId": "moon-raves-quad",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 6
+  },
+  {
+    "projectSlug": "moon-raves",
+    "pieceId": "moon-raves-portraits-2x2",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 7
+  },
+  {
+    "projectSlug": "moon-raves",
+    "pieceId": "moon-raves-me",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 8
+  },
+  {
+    "projectSlug": "moon-raves",
+    "pieceId": "moon-raves-beach",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 9
+  },
+  {
+    "projectSlug": "mars",
+    "pieceId": "mars-sus-art-1",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 0
+  },
+  {
+    "projectSlug": "mars",
+    "pieceId": "mars-sus-art-2",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 1
+  },
+  {
+    "projectSlug": "mars",
+    "pieceId": "mars-sus-art-3",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 2
+  },
+  {
+    "projectSlug": "mars",
+    "pieceId": "mars-sus-art-install",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 3
+  },
+  {
+    "projectSlug": "mars",
+    "pieceId": "mars-sus-art-psuedo-1",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 4
+  },
+  {
+    "projectSlug": "mars",
+    "pieceId": "mars-sus-art-psuedo-2",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 5
+  },
+  {
+    "projectSlug": "mars",
+    "pieceId": "mars-sus-coins-poster",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 6
+  },
+  {
+    "projectSlug": "mars",
+    "pieceId": "mars-mural-zenbus",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 7
+  },
+  {
+    "projectSlug": "mars",
+    "pieceId": "mars-midterms-poster-all",
+    "tags": [
+      "activation",
+      "design"
+    ],
+    "indexInProject": 8
+  },
+  {
+    "projectSlug": "mars",
+    "pieceId": "mars-yama-ichi-logo-v2",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 9
+  },
+  {
+    "projectSlug": "shape-of-time",
+    "pieceId": "shape-of-time",
+    "tags": [
+      "animations"
+    ],
+    "indexInProject": 0,
+    "sketch": {
+      "id": "shape-of-time",
+      "bg": "#000"
+    }
+  }
+]

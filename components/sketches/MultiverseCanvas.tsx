@@ -172,7 +172,7 @@ export function MultiverseCanvas() {
       ref={containerRef}
       style={{
         width: "100%",
-        height: "100vh",
+        height: "100dvh",
         background: "#00001c",
         overflow: "hidden",
       }}

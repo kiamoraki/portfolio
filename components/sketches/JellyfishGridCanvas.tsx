@@ -265,7 +265,7 @@ export function JellyfishGridCanvas({
       ref={containerRef}
       style={{
         width: "100vw",
-        height: "100vh",
+        height: "100dvh",
         background: "#000",
         overflow: "hidden",
       }}

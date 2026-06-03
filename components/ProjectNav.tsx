@@ -1,44 +1,106 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import type { Project } from "@/lib/projects";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo } from "react";
+import type { NavigableProject, Project } from "@/lib/projects";
 import { useCarouselState } from "@/components/CarouselState";
 
 type Props = {
+  slug: string;
   title: string;
+  /** Build-time prev/next for the FULL ring (no tag filter). Used as
+   *  the SSR/initial-render values; the client recomputes when a
+   *  `?tag=…` URL param scopes the ring. */
   prev: Project;
   next: Project;
-  theme?: "dark" | "light";
+  /** Lightweight {slug, title, tags} of every navigable project, so
+   *  ProjectNav can recompute neighbors client-side when a tag filter
+   *  is active (static export precludes server-side searchParams). */
+  navigableProjects: NavigableProject[];
 };
 
-export function ProjectNav({ title, prev, next, theme = "light" }: Props) {
-  const dark = theme === "dark";
+type NavRef = { slug: string; title: string };
+
+/** Walks `list` (already filtered + ordered) to find the prev/next
+ *  entry around `slug` with wrap-around. Returns the build-time
+ *  `fallback` pair if the slug isn't in the list (defensive — meta
+ *  projects don't appear in `navigableProjects`). */
+function neighborsFromList(
+  list: NavigableProject[],
+  slug: string,
+  fallback: { prev: NavRef; next: NavRef },
+): { prev: NavRef; next: NavRef } {
+  const idx = list.findIndex((p) => p.slug === slug);
+  if (idx === -1 || list.length === 0) {
+    return { prev: fallback.prev, next: fallback.next };
+  }
+  return {
+    prev: list[(idx - 1 + list.length) % list.length],
+    next: list[(idx + 1) % list.length],
+  };
+}
+
+export function ProjectNav({
+  slug,
+  title,
+  prev,
+  next,
+  navigableProjects,
+}: Props) {
+  // `theme` prop kept on the type for API stability but no longer
+  // applied as a `.dark` className — theming cascades from body via
+  // the page's inline `<style>` block (see app/projects/[slug]/page.tsx).
   const router = useRouter();
-  const {
-    state: carousel,
-    controlsRef,
-    infoState,
-    infoControlsRef,
-  } = useCarouselState();
+  const params = useSearchParams();
+  const { state: carouselState, controlsRef, infoState, infoControlsRef } =
+    useCarouselState();
+
+  // When a carousel is registered (MetaCarousel mounts and calls
+  // `useReportCarouselState`), the chrome's PREV/NEXT chips drive its
+  // paging instead of navigating between projects. The check is
+  // reactive on `carouselState` so the chips re-render from <Link> to
+  // <button> as soon as the carousel hydrates.
+  const carouselActive = carouselState !== null && controlsRef.current !== null;
+
+  const tag = params.get("tag") ?? undefined;
+  const suffix = tag ? `?tag=${tag}` : "";
+
+  // Recompute neighbors client-side when a tag filter is active.
+  // Without the filter we use the SSR-provided `prev`/`next` as-is
+  // (no `<Link>` href changes either, so prefetching still works).
+  const { prev: activePrev, next: activeNext } = useMemo(() => {
+    if (!tag) return { prev, next };
+    const filtered = navigableProjects.filter((p) => p.tags.includes(tag));
+    return neighborsFromList(filtered, slug, { prev, next });
+  }, [tag, slug, prev, next, navigableProjects]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      // When a carousel is active, swallow ArrowUp/Down (carousel keys
+      // are ArrowLeft/Right, handled inside MetaCarousel).
+      if (carouselActive) return;
       if (e.key === "ArrowUp") {
         e.preventDefault();
-        router.push(`/projects/${prev.slug}`);
+        router.push(`/projects/${activePrev.slug}${suffix}`);
       } else if (e.key === "ArrowDown") {
         e.preventDefault();
-        router.push(`/projects/${next.slug}`);
+        router.push(`/projects/${activeNext.slug}${suffix}`);
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [router, prev.slug, next.slug]);
+  }, [router, activePrev.slug, activeNext.slug, suffix, carouselActive]);
 
   return (
-    <nav className={`nav-projects ${dark ? "dark" : ""}`}>
+    <nav className="nav-projects">
+      {/* Title chip — sits between Home/CV (left) and prev/next chips
+          (right) on desktop. Renders as a bordered chip matching the
+          meta-carousel title style. The inline carets, slide dots, and
+          up/down project chevrons that used to live inside this title
+          have been removed in favor of the explicit prev/next chips
+          below (`.project-nav-buttons`), so the chrome reads as one
+          consistent navbar row across project + meta pages. */}
       <p className="project-title">
         <span>{title}</span>
         {infoState ? (
@@ -70,124 +132,51 @@ export function ProjectNav({ title, prev, next, theme = "light" }: Props) {
             </svg>
           </button>
         ) : null}
-        {carousel ? (
-          <span className="slide-indicators">
+      </p>
+      {/* Prev/next project navigation — bordered text chips on the
+          top-right, mirroring the meta carousel's prev/next chips
+          (`.meta-carousel-btn`). When `?tag=…` is in the URL the chips
+          point at projects scoped to the same tag and preserve the
+          query string so the user stays inside the filter. */}
+      <div className="project-nav-buttons">
+        {carouselActive ? (
+          <>
             <button
               type="button"
-              className="slide-nav-caret"
+              className="project-nav-btn project-nav-prev"
               onClick={() => controlsRef.current?.prev()}
               aria-label="Previous slide"
             >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2.5}
-                width="16"
-                height="16"
-              >
-                <polyline
-                  points="15,4 9,12 15,20"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              prev
             </button>
-            {Array.from({ length: carousel.total }).map((_, i) => (
-              <span
-                key={i}
-                className={`slide-indicator${i === carousel.pos ? " active" : ""}`}
-                aria-hidden="true"
-              />
-            ))}
             <button
               type="button"
-              className="slide-nav-caret"
+              className="project-nav-btn project-nav-next"
               onClick={() => controlsRef.current?.next()}
               aria-label="Next slide"
             >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2.5}
-                width="16"
-                height="16"
-              >
-                <polyline
-                  points="9,4 15,12 9,20"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              next
             </button>
-          </span>
-        ) : null}
-        <span className="project-nav-arrows">
-          <Link
-            href={`/projects/${prev.slug}`}
-            className="project-nav-arrow"
-            aria-label={`Previous: ${prev.title}`}
-            style={{
-              width: "auto",
-              height: "auto",
-              margin: 0,
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 4,
-              color: "inherit",
-              lineHeight: 0,
-              textDecoration: "none",
-            }}
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2.5}
-              width="16"
-              height="16"
+          </>
+        ) : (
+          <>
+            <Link
+              href={`/projects/${activePrev.slug}${suffix}`}
+              className="project-nav-btn project-nav-prev"
+              aria-label={`Previous project: ${activePrev.title}`}
             >
-              <polyline
-                points="4,15 12,9 20,15"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </Link>
-          <Link
-            href={`/projects/${next.slug}`}
-            className="project-nav-arrow"
-            aria-label={`Next: ${next.title}`}
-            style={{
-              width: "auto",
-              height: "auto",
-              margin: 0,
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 4,
-              color: "inherit",
-              lineHeight: 0,
-              textDecoration: "none",
-            }}
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2.5}
-              width="16"
-              height="16"
+              prev
+            </Link>
+            <Link
+              href={`/projects/${activeNext.slug}${suffix}`}
+              className="project-nav-btn project-nav-next"
+              aria-label={`Next project: ${activeNext.title}`}
             >
-              <polyline
-                points="4,9 12,15 20,9"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </Link>
-        </span>
-      </p>
+              next
+            </Link>
+          </>
+        )}
+      </div>
     </nav>
   );
 }

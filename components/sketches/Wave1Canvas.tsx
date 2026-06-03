@@ -1,64 +1,41 @@
 "use client";
 
 import { WaveCanvasShell } from "./WaveCanvasShell";
+import { cellPos as cellPosOf, computeWaveLayout } from "./waveLayout";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const sketch = (p: any) => {
-  // Layout — 3×3 on desktop, 2×4 stacked on mobile so each cell can
-  // be larger and the grid fits a portrait viewport (sq9 dropped on
-  // mobile). On mobile the canvas matches the viewport pixel-for-
-  // pixel so cells render perfectly square (no DOM scaling
-  // distortion) and the leftover space on each axis distributes as
-  // equal outer-margin + inner-gap.
-  const isMobileLayout =
-    typeof window !== "undefined" && window.innerWidth <= 720;
-  const COLS = isMobileLayout ? 2 : 3;
-  const ROWS = isMobileLayout ? 4 : 3;
-  const SIZE_W =
-    isMobileLayout && typeof window !== "undefined"
-      ? Math.round(window.innerWidth)
-      : 700;
-  const SIZE_H =
-    isMobileLayout && typeof window !== "undefined"
-      ? Math.round(window.innerHeight)
-      : 700;
-  // Cell side — 92% of the tighter axis so each axis always has at
-  // least ~8% left over for gaps. Desktop keeps the legacy 225 cell.
-  const square = isMobileLayout
-    ? Math.floor(Math.min(SIZE_W / COLS, SIZE_H / ROWS) * 0.92)
-    : 225;
-  const amp = square / 2;
-  const cx = square / 2;
-  const cy = square / 2;
-  // Even gap distribution: (COLS+1) slots on x (one left margin,
-  // COLS-1 inner gaps, one right margin), (ROWS+1) on y.
-  const gap_x = isMobileLayout
-    ? (SIZE_W - COLS * square) / (COLS + 1)
-    : 4;
-  const gap_y = isMobileLayout
-    ? (SIZE_H - ROWS * square) / (ROWS + 1)
-    : 4;
-  const cellPos = (idx: number): [number, number] => {
-    const col = idx % COLS;
-    const row = Math.floor(idx / COLS);
-    return [
-      gap_x + col * (square + gap_x),
-      gap_y + row * (square + gap_y),
-    ];
-  };
+  // Layout values come from the shared helper so we can recompute on
+  // every `windowResized` event — Safari's URL bar appearing/
+  // disappearing changes `100dvh` and `window.innerHeight`, so the
+  // cells need to re-square + re-distribute or they squish vertically.
+  // The mutable `layout` reference is read by `cellPos()` and the
+  // draw loop below; recompute mutates it in place and resizes the
+  // p5 canvas pixel buffer to match.
+  let layout = computeWaveLayout();
+  const cellPos = (idx: number) => cellPosOf(layout, idx);
   const angleAdder = 0.013;
   const dot = 2;
   let angle = Math.PI / 3;
 
   p.setup = () => {
-    const c = p.createCanvas(SIZE_W, SIZE_H);
+    const c = p.createCanvas(layout.SIZE_W, layout.SIZE_H);
     c.style("display", "block");
     c.style("width", "100%");
     c.style("height", "100%");
     p.frameRate(24);
   };
 
+  p.windowResized = () => {
+    layout = computeWaveLayout();
+    p.resizeCanvas(layout.SIZE_W, layout.SIZE_H);
+  };
+
   p.draw = () => {
+    // Destructure the latest layout values each frame so resize
+    // updates take effect immediately (the layout reference is
+    // mutated by `p.windowResized`).
+    const { amp, cx, cy, isMobileLayout } = layout;
     angle += angleAdder;
     const a = angle + angleAdder;
     const s = Math.sin(a) * amp;

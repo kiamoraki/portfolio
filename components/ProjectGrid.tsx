@@ -32,7 +32,15 @@ function slugify(s: string) {
     .replace(/^-+|-+$/g, "");
 }
 
-export function ProjectGrid({ projects }: { projects: Project[] }) {
+export function ProjectGrid({
+  projects,
+  linkSuffix,
+}: {
+  projects: Project[];
+  /** Optional query string (e.g. "?tag=design") appended to each tile
+   *  href, so a click into a project page carries a filter context. */
+  linkSuffix?: string;
+}) {
   return (
     <ul id="project-list">
       {projects.map((p) => {
@@ -42,7 +50,7 @@ export function ProjectGrid({ projects }: { projects: Project[] }) {
         return (
           <li key={p.slug} className={`grid-item-${slugify(p.title)}`}>
             <Link
-              href={`/projects/${p.slug}`}
+              href={`/projects/${p.slug}${linkSuffix ?? ""}`}
               style={
                 p.cardBg
                   ? ({ "--card-bg": p.cardBg } as React.CSSProperties)

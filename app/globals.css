@@ -1893,3 +1893,963 @@ main.about #about-cv .about-tabs { margin: 0; }
   .cv-timeline > li { padding-bottom: 1.4rem; }
   .cv-timeline h4 { font-size: 15px; }
 }
+
+/* ──────────────────────────────────────────────────────────────────
+   v2 architecture — piece layout primitives + project-track wrapper.
+   Reconstructed after a CSS regression; original rules accumulated
+   incrementally across the session. The shape below is what the
+   <Piece>, <Cover>, <Single>, <Pair>, etc. primitives + ProjectRenderer
+   need to render correctly on every v2 project page.
+   ────────────────────────────────────────────────────────────────── */
+
+/* Each <Piece> wrapper element. Vertical padding is defensively zeroed
+   so the only source of inter-piece spacing is the parent's flex `gap`
+   (set on `.project-track-content`). */
+.piece {
+  width: 100%;
+  margin-block: 0;
+  padding-block: 0;
+}
+
+/* Base for every per-primitive layout (`--cover`, `--single`, `--pair`,
+   `--grid-2x2`, `--hero`, `--stack`, `--text`). Each one specializes
+   further below. */
+.piece-layout {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Outer container around every project page's stacked pieces.
+   `.project-track` is the layout slot; `.project-track-content` is the
+   pieces wrapper with the 1.5vw inter-piece gap rhythm. */
+.project-track {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.project-track-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  --piece-gap: 1.5vw;
+  gap: var(--piece-gap);
+  padding-bottom: var(--piece-gap);
+  box-sizing: border-box;
+}
+
+/* MOBILE — pieces stack at natural height, body scrolls. */
+@media (max-width: 720px) {
+  .piece-layout--cover {
+    width: 100%;
+    height: 45vh;
+    overflow: hidden;
+  }
+  .piece-layout--cover > img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+  .piece-layout--single {
+    width: 100%;
+    padding: 0;
+  }
+  .piece-layout--single img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .piece-layout--pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    width: 100%;
+  }
+  .piece-layout--pair img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .piece-layout--grid-2x2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    width: 100%;
+  }
+  .piece-layout--grid-2x2 > img {
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    width: 100%;
+    height: auto;
+  }
+  .piece-layout--stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    width: 100%;
+  }
+  .piece-layout--stack img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .piece-layout--text {
+    padding: 1.5rem var(--spacing-page-mobile);
+  }
+  .piece-layout--hero {
+    width: 100%;
+  }
+  .piece-layout--hero img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+}
+
+/* DESKTOP — each piece is centered and uses the --piece-gap (1.5vw)
+   rhythm. Per-piece-type sizing below. */
+@media (min-width: 721px) {
+  /* Cover — full bleed at viewport */
+  .piece-layout--cover {
+    width: 100vw;
+    height: 100dvh;
+    overflow: hidden;
+  }
+  .piece-layout--cover > img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+  /* Single — horizontal inset, contained image */
+  .piece-layout--single {
+    width: 100%;
+    padding: 0 var(--piece-gap, 1.5vw);
+    box-sizing: border-box;
+  }
+  .piece-layout--single img {
+    max-width: 100%;
+    max-height: 100dvh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    margin: 0 auto;
+    display: block;
+  }
+  /* Pair — 60dvh tall, two cells */
+  .piece-layout--pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--piece-gap, 1.5vw);
+    width: 100%;
+    height: 60dvh;
+    padding: 0 var(--piece-gap, 1.5vw);
+    place-items: stretch;
+    box-sizing: border-box;
+  }
+  .piece-layout--pair > * { min-width: 0; min-height: 0; }
+  .piece-layout--pair img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  /* Grid 2x2 — 80dvh tall */
+  .piece-layout--grid-2x2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: var(--piece-gap, 1.5vw);
+    width: 100%;
+    height: 80dvh;
+    padding: 0 var(--piece-gap, 1.5vw);
+    box-sizing: border-box;
+  }
+  .piece-layout--grid-2x2 > * { min-width: 0; min-height: 0; }
+  .piece-layout--grid-2x2 img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  /* Stack — vertical column of images, no fixed height */
+  .piece-layout--stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--piece-gap, 1.5vw);
+    width: 100%;
+    padding: 0 var(--piece-gap, 1.5vw);
+    box-sizing: border-box;
+  }
+  .piece-layout--stack img {
+    max-width: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    margin: 0 auto;
+    display: block;
+  }
+  /* Text — readable inset */
+  .piece-layout--text {
+    width: 100%;
+    padding: 2rem var(--piece-gap, 1.5vw);
+    max-width: 80ch;
+    margin: 0 auto;
+    box-sizing: border-box;
+  }
+  /* Hero — clears the navbar via padding-top, 80dvh image */
+  .piece-layout--hero {
+    width: 100%;
+    padding: calc(1rem + 56px + var(--piece-gap, 1.5vw)) var(--piece-gap, 1.5vw) 0;
+    box-sizing: border-box;
+  }
+  .piece-layout--hero img {
+    max-width: 100%;
+    height: 80dvh;
+    width: auto;
+    object-fit: cover;
+    margin: 0 auto;
+    display: block;
+  }
+}
+
+/* Defensive no-doubling rule: zero vertical padding/margin on every
+   piece + its inner layout containers so the .project-track-content
+   flex `gap` is the SOLE source of inter-piece spacing. Per-slug
+   overrides below may set their own padding-top to clear the navbar. */
+.piece,
+.piece .piece-layout--single,
+.piece .piece-layout--pair,
+.piece .piece-layout--grid-2x2,
+.piece .piece-layout--stack {
+  margin-block: 0;
+  padding-block: 0;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Meta carousel chrome — title chip, description dropdown, slide
+   track, prev/next chips. Used only by the animations meta carousel
+   now (activations + design render via <TagIndex> grids instead).
+   ────────────────────────────────────────────────────────────────── */
+
+/* Carousel container — full viewport on its page */
+.meta-carousel {
+  position: relative;
+  width: 100vw;
+  height: 100dvh;
+  overflow: hidden;
+  touch-action: pan-y pinch-zoom;
+  background: inherit;
+}
+
+/* Inner track — flex row that translateXs to page between slides */
+.meta-carousel-track {
+  display: flex;
+  height: 100%;
+  background: inherit;
+}
+
+/* Each slide is a .project-track inside .meta-carousel-track. The
+   slide slot is 100vw × 100% (= 100dvh), centered content, internal
+   overflow-y for long content like AC's multiple pieces. */
+.meta-carousel-track > .project-track {
+  flex-shrink: 0;
+  width: 100vw;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: safe center;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  background: inherit;
+  position: relative;
+}
+
+/* Pinned, viewport-fixed title chip for the active slide. Driven by
+   the active slide's data-title; renders as a clickable <button> when
+   there's a data-description, with a ▾ caret SVG glyph. */
+.meta-carousel-active-title {
+  position: fixed;
+  top: 4px;
+  right: 1rem;
+  height: var(--spacing-nav-h-mobile);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0.55rem 1rem;
+  box-sizing: border-box;
+  margin: 0;
+  max-width: calc(100vw - 2 * var(--spacing-nav-h-mobile) - 16px);
+  font-family: "Neuropol", var(--font-bold);
+  font-weight: normal;
+  font-size: 16px;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: inherit;
+  text-align: right;
+  pointer-events: none;
+  z-index: 3000;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: transparent;
+  border: 2px solid currentColor;
+}
+
+/* Button variant — clickable to toggle description panel */
+button.meta-carousel-active-title {
+  cursor: pointer;
+  font-family: "Neuropol", var(--font-bold);
+  font-weight: normal;
+  font-size: 16px;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: inherit;
+  pointer-events: auto;
+}
+
+/* Caret glyph — SVG chevron pointing down, rotates 180° when panel
+   open. Uses stroke="currentColor" so it inherits text color. */
+.meta-carousel-active-title__glyph {
+  display: inline-block;
+  margin-left: 0.5em;
+  flex-shrink: 0;
+  transition: transform 200ms ease;
+}
+.meta-carousel-active-title--has-description[aria-expanded="true"] .meta-carousel-active-title__glyph {
+  transform: rotate(180deg);
+}
+
+/* Description panel — slides down from below the title chip when the
+   chevron is clicked. */
+.meta-carousel-description-panel {
+  position: fixed;
+  top: calc(var(--spacing-nav-h-mobile) + 4px);
+  right: 1rem;
+  max-width: calc(100vw - 2 * var(--spacing-nav-h-mobile) - 16px);
+  z-index: 2999;
+  box-sizing: border-box;
+  overflow: hidden;
+  padding: 0 1rem;
+  background: transparent;
+  color: inherit;
+  border: 2px solid currentColor;
+  border-top: 0;
+  font-family: var(--font-bold);
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 250ms ease, opacity 200ms ease, padding 250ms ease;
+  pointer-events: none;
+}
+.meta-carousel-description-panel[data-open="true"] {
+  max-height: 50vh;
+  opacity: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  pointer-events: auto;
+}
+
+/* Desktop chrome adjustments — title chip moves to align with the
+   rest of the top bar (Home + CV at top-left, prev/next at top-right). */
+@media (min-width: 721px) {
+  .meta-carousel-active-title {
+    top: 1rem;
+    left: calc(1rem + 56px * 2);
+    right: calc(1rem + 96px * 2);
+    width: auto;
+    max-width: none;
+    height: 56px;
+    transform: none;
+    justify-content: flex-start;
+    text-align: left;
+    border-left: 0;
+    border-right: 0;
+  }
+  .meta-carousel-description-panel {
+    top: calc(1rem + 56px);
+    left: calc(1rem + 56px * 2 - 2px);
+    right: calc(1rem + 96px * 2);
+    max-width: none;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Universal chrome — Home icon + CV chip + Title chip + PREV/NEXT
+   chips. Sketches: mobile = top-left Home/CV/Title + bottom PREV/NEXT
+   chips; desktop = single top row Home·CV·Title·PREV·NEXT.
+   Theming: every chip uses `color: inherit` + `border: 2px solid
+   currentColor`, so polarity tracks body color set per-page via the
+   inline <style> block in app/projects/[slug]/page.tsx.
+   ────────────────────────────────────────────────────────────────── */
+
+/* Desktop sidebar chrome: Home + CV side-by-side (the previous stacked
+   layout is replaced). Each is a 56×56 bordered square. */
+@media (min-width: 721px) {
+  .nav-main {
+    left: 1rem;
+    top: 1rem;
+    flex-direction: column;
+    padding-top: 0;
+  }
+  .nav-main a {
+    width: 56px;
+    height: 56px;
+    box-sizing: border-box;
+    border: 2px solid currentColor;
+    margin-bottom: 0;
+    background: transparent;
+    color: inherit;
+  }
+  /* CV chip placed to the RIGHT of Home (universal across all project
+     pages). Shares its left border with Home's right border. */
+  .nav-info {
+    top: 1rem;
+    left: calc(1rem + 56px);
+    right: auto;
+    width: 56px;
+    height: 56px;
+    box-sizing: border-box;
+    border: 2px solid currentColor;
+    border-left: 0;
+    background: transparent;
+    color: inherit;
+  }
+
+  /* Project page title chip — bordered chip slotting between
+     Home/CV (left) and PREV/NEXT (right). The .project-title element
+     inside `.nav-projects` becomes a fixed-position chip on desktop. */
+  .nav-projects .project-title {
+    position: fixed;
+    top: 1rem;
+    left: calc(1rem + 56px * 2);
+    right: calc(1rem + 96px * 2);
+    height: 56px;
+    margin: 0;
+    padding: 0.5rem 1rem;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: left;
+    background: transparent;
+    color: inherit;
+    border: 2px solid currentColor;
+    border-left: 0;
+    border-right: 0;
+    font-family: "Neuropol", var(--font-bold);
+    font-weight: normal;
+    font-size: 16px;
+    line-height: 1;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    z-index: 3000;
+  }
+
+  /* PREV/NEXT chips at top-right, 96×56 each, sharing borders */
+  .project-nav-buttons {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 3001;
+    display: flex;
+    gap: 0;
+  }
+  .project-nav-btn {
+    width: 96px;
+    height: 56px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    color: inherit;
+    border: 2px solid currentColor;
+    border-right-width: 0;
+    font-family: "Neuropol", var(--font-bold);
+    font-weight: normal;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .project-nav-btn:last-child {
+    border-right-width: 2px;
+  }
+
+  /* Body-cascaded inkColor — when a meta-carousel page is active and
+     the active slide has a light background (body.light-slide), flip
+     title chip + buttons + sidebar icons to dark ink. */
+  body.light-slide .nav-main a,
+  body.light-slide .nav-info,
+  body.light-slide .project-nav-btn,
+  body.light-slide .project-title,
+  body.light-slide button.meta-carousel-active-title,
+  body.light-slide .meta-carousel-active-title {
+    color: #000 !important;
+    border-color: #000 !important;
+  }
+}
+
+/* MOBILE chrome — Home + CV stacked top-left, PREV/NEXT at bottom */
+@media (max-width: 720px) {
+  .nav-main a, .nav-projects a {
+    color: inherit;
+  }
+  .nav-main a {
+    box-sizing: border-box;
+    border: 2px solid currentColor;
+    margin-bottom: 0;
+  }
+  .nav-info {
+    box-sizing: border-box;
+    border: 2px solid currentColor;
+    border-top: 0;
+    color: inherit;
+  }
+
+  /* The desktop .project-title chip is hidden on mobile — the title
+     surface on mobile shows via a different element in some pages
+     and is intentionally minimal in chrome. */
+  .nav-projects .project-title {
+    display: none;
+  }
+
+  /* Mobile bottom PREV/NEXT chips — matches the meta-carousel chip
+     family. Container is pointer-events: none; chips re-enable
+     pointer-events. */
+  .project-mobile-bottom-nav {
+    position: fixed;
+    bottom: 1rem;
+    left: 0;
+    right: 0;
+    padding: 0 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    pointer-events: none;
+    z-index: 5000;
+    box-sizing: border-box;
+    background: transparent;
+  }
+  .project-mobile-bottom-nav-link,
+  .project-mobile-bottom-nav-link:link,
+  .project-mobile-bottom-nav-link:visited,
+  .project-mobile-bottom-nav-link:hover,
+  .project-mobile-bottom-nav-link:active,
+  .project-mobile-bottom-nav-link:focus,
+  .project-mobile-bottom-nav-link:focus-visible {
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+    background: transparent;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+    font-family: "Neuropol", var(--font-bold);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 14px;
+    padding: 0.55rem 1rem;
+    border: 2px solid currentColor;
+    box-sizing: border-box;
+    cursor: pointer;
+  }
+
+  /* Mobile chrome polarity (light-slide flip same as desktop) */
+  body.light-slide .nav-main a,
+  body.light-slide .nav-info,
+  body.light-slide .project-mobile-bottom-nav-link {
+    color: #000 !important;
+    border-color: #000 !important;
+  }
+}
+
+/* Hide PREV/NEXT chrome buttons on /about (no carousel/project context) */
+body:has(main.about) .project-nav-buttons,
+body:has(main.about) .project-mobile-bottom-nav {
+  display: none;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Sketch primitives — <Sketch> renders `.piece-sketch.piece-layout
+   .piece-layout--single` with inline `width: 100vw; height: 100dvh`.
+   Wave/Eternal-Return canvases internally draw 3×3 (desktop) or 2×4
+   (mobile) cell grids that need a square wrapper on desktop and a
+   portrait viewport on mobile to render evenly.
+   ────────────────────────────────────────────────────────────────── */
+
+/* Sketch piece on the standalone project page — neutralize the
+   `--single`'s horizontal padding so the canvas can fill 100vw */
+.project-track .piece .piece-sketch.piece-layout--single {
+  padding: 0;
+}
+
+/* Wave + Eternal Return — DESKTOP forces square wrapper so the 3×3
+   cells render as squares (not stretched rectangles in a wide
+   wrapper). Inside the wave-canvas-shell, aspect-ratio: 1 holds the
+   square shape. */
+@media (min-width: 721px) {
+  .meta-carousel-track > .project-track .piece-sketch[data-sketch-id^="wave-"],
+  .meta-carousel-track > .project-track .piece-sketch[data-sketch-id^="eternal-return"],
+  .project-track .piece-sketch[data-sketch-id^="wave-"],
+  .project-track .piece-sketch[data-sketch-id^="eternal-return"] {
+    width: min(100vw, 100dvh) !important;
+    height: min(100vw, 100dvh) !important;
+    margin: 0 auto;
+    align-self: center;
+  }
+  .meta-carousel-track > .project-track .piece-sketch[data-sketch-id^="wave-"] .wave-canvas-shell,
+  .project-track .piece-sketch[data-sketch-id^="wave-"] .wave-canvas-shell {
+    width: 100% !important;
+    height: 100% !important;
+    aspect-ratio: 1;
+  }
+  /* Jellyfish — 3×6 cell grid wants the full wide viewport */
+  .meta-carousel-track > .project-track .piece-sketch[data-sketch-id="jellyfish-grid"],
+  .project-track .piece-sketch[data-sketch-id="jellyfish-grid"] {
+    width: 100vw !important;
+    height: 100dvh !important;
+    margin: 0;
+  }
+  .meta-carousel-track > .project-track .piece-sketch[data-sketch-id="jellyfish-grid"] .wave-canvas-shell,
+  .project-track .piece-sketch[data-sketch-id="jellyfish-grid"] .wave-canvas-shell {
+    width: 100% !important;
+    height: 100% !important;
+    aspect-ratio: auto;
+  }
+}
+
+/* MOBILE — wave/eternal-return get the full portrait viewport so the
+   canvas's internal pixel buffer (window.innerWidth × innerHeight)
+   matches the wrapper's CSS dimensions 1:1. Without this the square
+   `min(100vw, 100dvh)` would squish the portrait canvas vertically. */
+@media (max-width: 720px) {
+  .meta-carousel-track > .project-track .piece-sketch[data-sketch-id^="wave-"],
+  .meta-carousel-track > .project-track .piece-sketch[data-sketch-id^="eternal-return"],
+  .project-track .piece-sketch[data-sketch-id^="wave-"],
+  .project-track .piece-sketch[data-sketch-id^="eternal-return"] {
+    width: 100vw !important;
+    height: 100dvh !important;
+    margin: 0 !important;
+    align-self: stretch !important;
+  }
+  .wave-canvas-shell { aspect-ratio: auto; height: 100%; }
+}
+
+/* Default desktop wave-canvas-shell aspect — overridden by the
+   square / jellyfish rules above for those specific sketches. */
+.wave-canvas-shell { aspect-ratio: 1 / 1; }
+
+/* ──────────────────────────────────────────────────────────────────
+   Per-slug overrides — applied via `.project-track-content[data-slug
+   ="…"]`. Both the standalone project page (ProjectRenderer emits
+   data-slug there) and the meta-carousel slide (TagCarousel/now-
+   AnimationsCarousel does the same) get these rules.
+   ────────────────────────────────────────────────────────────────── */
+
+/* TOBRIT — light-themed project (white bg, dark text). The piece
+   styling specifics (sketch image at 70%, etc.) are minor polish and
+   can be reapplied later as needed. */
+.project-track-content[data-slug="tobrit"] {
+  background: transparent;
+}
+
+/* Fake Rekordz — first piece is a Pair (record covers), not a Hero,
+   so it needs explicit padding-top to clear the navbar. Posters
+   never get cropped — object-fit: contain on the pair images. */
+@media (min-width: 721px) {
+  .project-track-content[data-slug="fake-rekordz"] {
+    padding-top: calc(1rem + 56px + var(--piece-gap, 1.5vw));
+  }
+  .project-track-content[data-slug="fake-rekordz"] .piece-layout--pair img {
+    width: auto !important;
+    height: auto !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: contain !important;
+    place-self: center;
+  }
+}
+
+/* Lissajous — first sketch piece is framed at reduced height (80dvh)
+   below the navbar; subsequent sketches use the default sketch
+   sizing. */
+@media (min-width: 721px) {
+  .project-track-content[data-slug="lissajous"] {
+    padding-top: calc(1rem + 56px + var(--piece-gap, 1.5vw));
+  }
+  .project-track-content[data-slug="lissajous"] > .piece:first-child:has(.piece-sketch) .piece-sketch {
+    height: 80dvh !important;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   MOON RAVES — each piece is one viewport-tall "slide" matching the
+   original /moon-raves carousel layouts. Stacked vertically on the
+   project page so the user scrolls through them top-to-bottom.
+   Each per-piece block below replicates the original slide's grid:
+     1.  zeva-live — VideoTopLeft (3×3, video at 1-2/1-2, 5 imgs fill)
+     2.  nico-alejandro — StackPairSide (3 cols × 2 rows)
+     3.  cody-karo — Pair (2 cols, full viewport)
+     4.  laz-mason — Stack3PairSide (3 cols × 3 rows)
+     5.  dauwke — Row of 3 cover-fit
+     6.  quad-seva — RowCover of 3 cover-fit
+     7.  quad — Single (contained, centered)
+     8.  portraits-2x2 — 2×2 grid
+     9.  me — Row of 3 cover-fit
+     10. beach — Single (contained, centered)
+   Mobile uses the default piece-layout vertical stacking.
+   ────────────────────────────────────────────────────────────────── */
+
+@media (min-width: 721px) {
+  /* Each moon-raves piece is one viewport-tall section. The padding
+     leaves a slim breathing edge against the viewport borders. */
+  .project-track-content[data-slug="moon-raves"] > .piece {
+    width: 100vw;
+    height: 100dvh;
+    padding: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  /* Slide 1 — moon-raves-zeva-live: VideoTopLeft 3×3 grid.
+       row1: [video][video][img2 zeva-live-1]
+       row2: [video][video][img3 zeva-live-2]
+       row3: [img0 zeva-snays-3][img1 zeva-snays-2][img4 zeva-live-3] */
+  .piece[data-piece-id="moon-raves-zeva-live"] .piece-video-top-left {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: var(--piece-gap, 1.5vw);
+    width: 100%;
+    height: 100%;
+  }
+  .piece[data-piece-id="moon-raves-zeva-live"] .piece-video-top-left__video {
+    grid-column: 1 / span 2;
+    grid-row: 1 / span 2;
+    overflow: hidden;
+    min-width: 0;
+    min-height: 0;
+  }
+  .piece[data-piece-id="moon-raves-zeva-live"] .piece-video-top-left > img:nth-of-type(1) {
+    grid-column: 1; grid-row: 3;
+  }
+  .piece[data-piece-id="moon-raves-zeva-live"] .piece-video-top-left > img:nth-of-type(2) {
+    grid-column: 2; grid-row: 3;
+  }
+  .piece[data-piece-id="moon-raves-zeva-live"] .piece-video-top-left > img:nth-of-type(3) {
+    grid-column: 3; grid-row: 1;
+  }
+  .piece[data-piece-id="moon-raves-zeva-live"] .piece-video-top-left > img:nth-of-type(4) {
+    grid-column: 3; grid-row: 2;
+  }
+  .piece[data-piece-id="moon-raves-zeva-live"] .piece-video-top-left > img:nth-of-type(5) {
+    grid-column: 3; grid-row: 3;
+  }
+  .piece[data-piece-id="moon-raves-zeva-live"] .piece-video-top-left > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  /* Slide 2 — moon-raves-nico-alejandro: StackPairSide 3 cols × 2 rows.
+       row1: [nico][alejandro tall][joaquin tall]
+       row2: [adam] [alejandro    ][joaquin    ] */
+  .piece[data-piece-id="moon-raves-nico-alejandro"] .piece-layout--stack {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: 1fr 1fr;
+    gap: var(--piece-gap, 1.5vw);
+    width: 100%;
+    height: 100%;
+    padding: 0;
+  }
+  .piece[data-piece-id="moon-raves-nico-alejandro"] .piece-layout--stack > img:nth-of-type(1) {
+    grid-column: 1; grid-row: 1;
+  }
+  .piece[data-piece-id="moon-raves-nico-alejandro"] .piece-layout--stack > img:nth-of-type(2) {
+    grid-column: 2; grid-row: 1 / span 2;
+  }
+  .piece[data-piece-id="moon-raves-nico-alejandro"] .piece-layout--stack > img:nth-of-type(3) {
+    grid-column: 3; grid-row: 1 / span 2;
+  }
+  .piece[data-piece-id="moon-raves-nico-alejandro"] .piece-layout--stack > img:nth-of-type(4) {
+    grid-column: 1; grid-row: 2;
+  }
+  .piece[data-piece-id="moon-raves-nico-alejandro"] .piece-layout--stack > img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    min-width: 0; min-height: 0;
+  }
+
+  /* Slide 3 — moon-raves-cody-karo: simple 2-col row, full viewport */
+  .piece[data-piece-id="moon-raves-cody-karo"] .piece-layout--pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--piece-gap, 1.5vw);
+    width: 100%;
+    height: 100% !important;
+    padding: 0 !important;
+  }
+  .piece[data-piece-id="moon-raves-cody-karo"] .piece-layout--pair img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    min-width: 0; min-height: 0;
+  }
+
+  /* Slide 4 — moon-raves-laz-mason: Stack3PairSide 3 cols × 3 rows.
+       col1 spans rows1-3: laz-1
+       col2 row1: mason, row2: spanky, row3: laz-sub
+       col3 spans rows1-3: laz-2 */
+  .piece[data-piece-id="moon-raves-laz-mason"] .piece-layout--stack {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: var(--piece-gap, 1.5vw);
+    width: 100%;
+    height: 100%;
+    padding: 0;
+  }
+  .piece[data-piece-id="moon-raves-laz-mason"] .piece-layout--stack > img:nth-of-type(1) {
+    grid-column: 1; grid-row: 1 / span 3;
+  }
+  .piece[data-piece-id="moon-raves-laz-mason"] .piece-layout--stack > img:nth-of-type(2) {
+    grid-column: 3; grid-row: 1 / span 3;
+  }
+  .piece[data-piece-id="moon-raves-laz-mason"] .piece-layout--stack > img:nth-of-type(3) {
+    grid-column: 2; grid-row: 1;
+  }
+  .piece[data-piece-id="moon-raves-laz-mason"] .piece-layout--stack > img:nth-of-type(4) {
+    grid-column: 2; grid-row: 2;
+  }
+  .piece[data-piece-id="moon-raves-laz-mason"] .piece-layout--stack > img:nth-of-type(5) {
+    grid-column: 2; grid-row: 3;
+  }
+  .piece[data-piece-id="moon-raves-laz-mason"] .piece-layout--stack > img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    min-width: 0; min-height: 0;
+  }
+
+  /* Slide 5 — moon-raves-dauwke: 2-col × 2-row.
+       col1 row1: dauwke-2 (img:nth-of-type(1))
+       col1 row2: dauwke-1 (img:nth-of-type(2))
+       col2 spans rows1-2: dauwke-3 (img:nth-of-type(3), full-height) */
+  .piece[data-piece-id="moon-raves-dauwke"] .piece-layout--stack {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: var(--piece-gap, 1.5vw);
+    width: 100%;
+    height: 100%;
+    padding: 0;
+  }
+  .piece[data-piece-id="moon-raves-dauwke"] .piece-layout--stack > img:nth-of-type(1) {
+    grid-column: 1; grid-row: 1;
+  }
+  .piece[data-piece-id="moon-raves-dauwke"] .piece-layout--stack > img:nth-of-type(2) {
+    grid-column: 1; grid-row: 2;
+  }
+  .piece[data-piece-id="moon-raves-dauwke"] .piece-layout--stack > img:nth-of-type(3) {
+    grid-column: 2; grid-row: 1 / span 2;
+  }
+  .piece[data-piece-id="moon-raves-dauwke"] .piece-layout--stack > img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    min-width: 0; min-height: 0;
+  }
+
+  /* Slide 6 — moon-raves-quad-seva: RowCover, 3 images full viewport */
+  .piece[data-piece-id="moon-raves-quad-seva"] .piece-layout--pair {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--piece-gap, 1.5vw);
+    width: 100%;
+    height: 100% !important;
+    padding: 0 !important;
+  }
+  .piece[data-piece-id="moon-raves-quad-seva"] .piece-layout--pair img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    min-width: 0; min-height: 0;
+  }
+
+  /* Slide 7 — moon-raves-quad: Single image. Collapse the piece to
+     the image's natural aspect (100vw × auto) instead of stretching
+     to 100dvh — a landscape image in a viewport-tall slot leaves
+     dead vertical space above + below. The inter-piece flex `gap`
+     on `.project-track-content` keeps the 1.5vw separation from
+     neighbors. */
+  .project-track-content[data-slug="moon-raves"] > .piece[data-piece-id="moon-raves-quad"] {
+    height: auto;
+  }
+  .piece[data-piece-id="moon-raves-quad"] .piece-layout--single {
+    padding: 0 !important;
+    width: 100%;
+    display: block;
+  }
+  .piece[data-piece-id="moon-raves-quad"] .piece-layout--single img {
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+    display: block;
+  }
+
+  /* Slide 8 — moon-raves-portraits-2x2: 2×2 grid, cover-fit, full viewport */
+  .piece[data-piece-id="moon-raves-portraits-2x2"] .piece-layout--grid-2x2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: var(--piece-gap, 1.5vw);
+    width: 100%;
+    height: 100% !important;
+    padding: 0 !important;
+  }
+  .piece[data-piece-id="moon-raves-portraits-2x2"] .piece-layout--grid-2x2 img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    min-width: 0; min-height: 0;
+  }
+
+  /* Slide 9 — moon-raves-me: Row of 3 cover-fit */
+  .piece[data-piece-id="moon-raves-me"] .piece-layout--pair {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--piece-gap, 1.5vw);
+    width: 100%;
+    height: 100% !important;
+    padding: 0 !important;
+  }
+  .piece[data-piece-id="moon-raves-me"] .piece-layout--pair img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    min-width: 0; min-height: 0;
+  }
+
+  /* Slide 10 — moon-raves-beach: Single image. Same natural-aspect
+     treatment as moon-raves-quad — collapse the piece to the
+     image's height so a landscape beach photo doesn't sit in a
+     100dvh slot with empty vertical space. */
+  .project-track-content[data-slug="moon-raves"] > .piece[data-piece-id="moon-raves-beach"] {
+    height: auto;
+  }
+  .piece[data-piece-id="moon-raves-beach"] .piece-layout--single {
+    padding: 0 !important;
+    width: 100%;
+    display: block;
+  }
+  .piece[data-piece-id="moon-raves-beach"] .piece-layout--single img {
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+    display: block;
+  }
+}

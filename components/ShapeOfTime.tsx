@@ -95,7 +95,7 @@ function ShapeOfTimeInner() {
   const [a, b] = pinnedFreqs ?? COPRIME_PAIRS[pairIndex];
 
   return (
-    <div style={{ width: "100vw", height: "100vh", overflow: "hidden" }}>
+    <div style={{ width: "100vw", height: "100dvh", overflow: "hidden" }}>
       <ShapeOfTimeCanvas
         isActive
         loopFrames={loopFrames}

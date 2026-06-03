@@ -3,22 +3,16 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-type Props = { theme?: "dark" | "light" };
-
-export function NavClient({ theme = "light" }: Props) {
+export function NavClient() {
   const pathname = usePathname();
   const normalized = (pathname ?? "/").replace(/\/+$/, "") || "/";
   const isIndex = normalized === "/";
   const isAbout = normalized === "/about";
-  const dark = theme === "dark";
 
   return (
     <>
-      <div
-        className={`mobile-header-frame ${dark ? "dark" : ""}`}
-        aria-hidden="true"
-      />
-      <nav className={`nav-main ${dark ? "dark" : ""}`}>
+      <div className="mobile-header-frame" aria-hidden="true" />
+      <nav className="nav-main">
         <Link
           href="/"
           className={`icon-standard ${isIndex ? "active" : ""}`}
@@ -41,13 +35,14 @@ export function NavClient({ theme = "light" }: Props) {
           </svg>
         </Link>
       </nav>
-      <Link
-        href="/about"
-        className={`nav-info ${isAbout ? "active" : ""} ${dark ? "dark" : ""}`}
-        aria-label="About"
-      >
-        <span className="nav-info-label">cv</span>
-      </Link>
+      {/* Hide the CV chip on the CV page itself — once the user is on
+          /about there's nothing for the chip to do, and showing it
+          adds a redundant button to the chrome row. */}
+      {isAbout ? null : (
+        <Link href="/about" className="nav-info" aria-label="About">
+          <span className="nav-info-label">cv</span>
+        </Link>
+      )}
     </>
   );
 }

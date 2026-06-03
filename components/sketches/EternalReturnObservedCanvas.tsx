@@ -302,7 +302,7 @@ export function EternalReturnObservedCanvas({
               alignSelf: "stretch",
               marginLeft: "calc(-1 * var(--spacing-page))",
               marginRight: "calc(-1 * var(--spacing-page))",
-              height: "100vh",
+              height: "100dvh",
               background: "#000",
               overflow: "hidden",
             }

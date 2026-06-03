@@ -4,8 +4,8 @@
   "description": "Kirby's Portfolio",
   "private": true,
   "scripts": {
-    "dev": "node scripts/build-image-manifest.mjs && node scripts/build-tag-index.mjs && next dev",
-    "build": "node scripts/build-image-manifest.mjs && node scripts/build-tag-index.mjs && next build && node scripts/build-redirects.mjs",
+    "dev": "node scripts/build-image-manifest.mjs && node scripts/build-tag-index.mjs && node scripts/build-content-index.mjs && next dev",
+    "build": "node scripts/build-image-manifest.mjs && node scripts/build-tag-index.mjs && node scripts/build-content-index.mjs && next build && node scripts/build-redirects.mjs",
     "start": "next start",
     "lint": "next lint",
     "optimize-images": "node scripts/optimize-images.mjs",

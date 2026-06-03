@@ -303,7 +303,7 @@ export function LissajousFullCanvas({
       ref={containerRef}
       style={{
         width: "100%",
-        height: inFlow ? "100%" : "100vh",
+        height: inFlow ? "100%" : "100dvh",
         background: "#130c12",
         overflow: "hidden",
       }}

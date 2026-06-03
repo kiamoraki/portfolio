@@ -172,7 +172,7 @@ export function ShapeOfTimeGridCanvas({ isActive = true }: CanvasProps = {}) {
       ref={containerRef}
       style={{
         width: "100%",
-        height: "100vh",
+        height: "100dvh",
         background: "#130c12",
         overflow: "hidden",
       }}

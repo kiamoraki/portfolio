@@ -231,7 +231,7 @@ export function RosePortraitsCanvas({
       ref={containerRef}
       style={{
         width: "100%",
-        height: inFlow ? "100%" : "100vh",
+        height: inFlow ? "100%" : "100dvh",
         background: "#000d19",
         overflow: "hidden",
       }}

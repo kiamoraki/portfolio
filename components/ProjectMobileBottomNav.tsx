@@ -1,67 +1,76 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useMemo } from "react";
+import type { NavigableProject, Project } from "@/lib/projects";
 import { useCarouselState } from "@/components/CarouselState";
 
-// Pages whose project page hosts its own internal carousel (the
-// component published its controls via useReportCarouselState). On
-// these pages the bottom nav drives the carousel's prev/next instead
-// of navigating between projects.
-const PAGES_WITH_MOBILE_CAROUSEL = new Set<string>([
-  "/projects/lissajous",
-  "/projects/wave",
-]);
+type NavRef = { slug: string; title: string };
 
-type ProjectRef = { slug: string; title: string };
+function neighborsFromList(
+  list: NavigableProject[],
+  slug: string,
+  fallback: { prev: NavRef; next: NavRef },
+): { prev: NavRef; next: NavRef } {
+  const idx = list.findIndex((p) => p.slug === slug);
+  if (idx === -1 || list.length === 0) {
+    return { prev: fallback.prev, next: fallback.next };
+  }
+  return {
+    prev: list[(idx - 1 + list.length) % list.length],
+    next: list[(idx + 1) % list.length],
+  };
+}
 
 export function ProjectMobileBottomNav({
+  slug,
   prev,
   next,
-  isMeta,
+  navigableProjects,
 }: {
-  prev: ProjectRef;
-  next: ProjectRef;
-  // Meta pages (e.g. /projects/animations) use MetaCarousel, which
-  // ships its own visible prev/next + counter at the bottom of each
-  // slide — we render nothing here on those so they don't double up.
-  isMeta: boolean;
+  slug: string;
+  prev: Project;
+  next: Project;
+  navigableProjects: NavigableProject[];
 }) {
-  const pathname = usePathname();
   const router = useRouter();
-  const { controlsRef } = useCarouselState();
+  const params = useSearchParams();
+  const { state: carouselState, controlsRef } = useCarouselState();
 
-  if (isMeta) return null;
+  // When a carousel has registered prev/next via
+  // `useReportCarouselState` (e.g. on the animations meta page),
+  // drive its paging directly. Otherwise PREV/NEXT navigates between
+  // projects, honoring the `?tag=…` URL filter if present.
+  const carouselActive = carouselState !== null && controlsRef.current !== null;
+  const tag = params.get("tag") ?? undefined;
+  const suffix = tag ? `?tag=${tag}` : "";
 
-  const normalizedPath = (pathname ?? "").replace(/\/$/, "");
-  const useCarouselControls =
-    PAGES_WITH_MOBILE_CAROUSEL.has(normalizedPath);
+  const { prev: activePrev, next: activeNext } = useMemo(() => {
+    if (!tag) return { prev, next };
+    const filtered = navigableProjects.filter((p) => p.tags.includes(tag));
+    return neighborsFromList(filtered, slug, { prev, next });
+  }, [tag, slug, prev, next, navigableProjects]);
 
   const handlePrev = () => {
-    if (useCarouselControls && controlsRef.current) {
-      controlsRef.current.prev();
-    } else {
-      router.push(`/projects/${prev.slug}`);
-    }
+    if (carouselActive) controlsRef.current?.prev();
+    else router.push(`/projects/${activePrev.slug}${suffix}`);
   };
   const handleNext = () => {
-    if (useCarouselControls && controlsRef.current) {
-      controlsRef.current.next();
-    } else {
-      router.push(`/projects/${next.slug}`);
-    }
+    if (carouselActive) controlsRef.current?.next();
+    else router.push(`/projects/${activeNext.slug}${suffix}`);
   };
 
-  const ariaPrev = useCarouselControls
+  const ariaPrev = carouselActive
     ? "Previous slide"
-    : `Previous project: ${prev.title}`;
-  const ariaNext = useCarouselControls
+    : `Previous project: ${activePrev.title}`;
+  const ariaNext = carouselActive
     ? "Next slide"
-    : `Next project: ${next.title}`;
+    : `Next project: ${activeNext.title}`;
 
   return (
     <nav
       className="project-mobile-bottom-nav"
-      aria-label={useCarouselControls ? "Slide navigation" : "Project navigation"}
+      aria-label={carouselActive ? "Slide navigation" : "Project navigation"}
     >
       <button
         type="button"
@@ -69,20 +78,7 @@ export function ProjectMobileBottomNav({
         onClick={handlePrev}
         aria-label={ariaPrev}
       >
-        <svg
-          className="project-mobile-bottom-nav-arrow"
-          viewBox="0 0 24 24"
-          width="22"
-          height="22"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={3}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-        >
-          <polyline points="15,4 7,12 15,20" />
-        </svg>
+        prev
       </button>
       <button
         type="button"
@@ -90,20 +86,7 @@ export function ProjectMobileBottomNav({
         onClick={handleNext}
         aria-label={ariaNext}
       >
-        <svg
-          className="project-mobile-bottom-nav-arrow"
-          viewBox="0 0 24 24"
-          width="22"
-          height="22"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={3}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-        >
-          <polyline points="9,4 17,12 9,20" />
-        </svg>
+        next
       </button>
     </nav>
   );

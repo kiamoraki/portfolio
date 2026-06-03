@@ -255,7 +255,7 @@ export function RoseGridCanvas() {
           margin-left: calc(50% - 50vw);
           margin-right: calc(50% - 50vw);
           margin-bottom: calc(-1 * var(--spacing-page));
-          height: 100vh;
+          height: 100dvh;
           background: #000d19;
           overflow: hidden;
         }

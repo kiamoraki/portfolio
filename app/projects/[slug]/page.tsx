@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { Nav } from "@/components/Nav";
 import { ProjectNav } from "@/components/ProjectNav";
@@ -6,10 +6,29 @@ import { ProjectMobileBottomNav } from "@/components/ProjectMobileBottomNav";
 import { CarouselStateProvider } from "@/components/CarouselState";
 import { mdxComponents } from "@/components/mdx";
 import {
+  ProjectRenderer,
+  mdxPieceComponents,
+} from "@/components/content";
+import {
   getAllProjects,
+  getNavigableProjects,
   getProject,
   getProjectNeighbors,
 } from "@/lib/projects";
+
+// Meta routes that redirect to the FIRST project matching the tag,
+// with a `?tag=…` URL param so the chrome's PREV/NEXT walks only
+// other projects sharing that tag. Click "activations" on the
+// homepage → land on the first activation project → click PREV/NEXT
+// → walk through other activation projects only.
+//
+// The animations meta route is the one exception: it keeps its
+// piece-level carousel (handled via the MDX body of animations.mdx
+// rendering <AnimationsCarousel />), so it does NOT appear here.
+const TAG_REDIRECT_SLUGS: Record<string, string> = {
+  activations: "activation",
+  design: "design",
+};
 
 export function generateStaticParams() {
   return getAllProjects().map((p) => ({ slug: p.slug }));
@@ -38,33 +57,88 @@ export default async function ProjectPage({
   const project = getProject(slug);
   if (!project) notFound();
 
+  // Meta route redirect — `/projects/activations` and `/projects/design`
+  // jump to the FIRST project matching the tag, carrying `?tag=…` so
+  // chrome PREV/NEXT on the destination scopes the ring to other
+  // tag-matched projects. Runs at build time in static export, so the
+  // emitted HTML is a redirect, not a real page.
+  const redirectTag = TAG_REDIRECT_SLUGS[project.slug];
+  if (redirectTag) {
+    const first = getAllProjects().find(
+      (p) =>
+        !p.meta &&
+        !p.navHidden &&
+        !p.hidden &&
+        (p.tags ?? []).includes(redirectTag),
+    );
+    if (first) {
+      redirect(`/projects/${first.slug}/?tag=${redirectTag}`);
+    }
+  }
+
+  // Static export precludes server-side `searchParams` reads, so the
+  // page renders prev/next for the FULL navigable ring at build time;
+  // the client (ProjectNav / ProjectMobileBottomNav) recomputes them
+  // on the fly when a `?tag=…` URL param is present, picking from
+  // `navigableProjects` (a lightweight list of every navigable project
+  // with its tags).
   const { prev, next } = getProjectNeighbors(slug);
+  const navigableProjects = getNavigableProjects();
   const theme = project.theme ?? "light";
   const bg = project.bg ?? (theme === "dark" ? "#020014" : undefined);
+  // Page-level ink color, paired with bg below. Setting it on body via
+  // the inline `<style>` block (instead of via a `.dark` className on
+  // main) means the theme cascades from body to every descendant
+  // naturally — including chrome elements like the nav icons (whose
+  // `color: inherit` rules pick this up) and the meta-carousel title
+  // chip — without forcing dark text onto light-bg slides inside the
+  // meta carousel. The old `.dark` class globally set every h2 / span
+  // inside main to off-white, which overrode the per-slide polarity
+  // flip on TOBRIT / AC / Mars etc.
+  const ink = theme === "dark" ? "var(--color-light)" : "var(--color-dark)";
 
   return (
     <CarouselStateProvider>
       {bg ? (
-        <style>{`html,body{background:${bg};}`}</style>
-      ) : null}
-      <Nav theme={theme} />
-      <ProjectNav title={project.title} prev={prev} next={next} theme={theme} />
-      <ProjectMobileBottomNav
+        <style>{`html,body{background:${bg};color:${ink};}`}</style>
+      ) : (
+        <style>{`html,body{color:${ink};}`}</style>
+      )}
+      <Nav />
+      <ProjectNav
+        slug={slug}
+        title={project.title}
         prev={prev}
         next={next}
-        isMeta={Boolean(project.meta)}
+        navigableProjects={navigableProjects}
+      />
+      <ProjectMobileBottomNav
+        slug={slug}
+        prev={prev}
+        next={next}
+        navigableProjects={navigableProjects}
       />
       <main
         className={[
-          theme === "dark" ? "dark" : "",
           project.imageBelowTitle ? "image-below-title" : "",
           project.fullbleed ? "fullbleed" : "",
+          project.format === "v2" ? "project-v2" : "",
         ]
           .filter(Boolean)
           .join(" ")}
+        data-project-slug={project.slug}
         style={bg ? { background: bg } : undefined}
       >
-        <MDXRemote source={project.content} components={mdxComponents} />
+        {project.format === "v2" ? (
+          <ProjectRenderer project={project}>
+            <MDXRemote
+              source={project.content}
+              components={mdxPieceComponents}
+            />
+          </ProjectRenderer>
+        ) : (
+          <MDXRemote source={project.content} components={mdxComponents} />
+        )}
       </main>
     </CarouselStateProvider>
   );

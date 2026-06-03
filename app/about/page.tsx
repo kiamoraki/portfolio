@@ -14,7 +14,7 @@ export default function AboutPage() {
         <AboutTabs
           header={
             <>
-              <h1>Kiamora Kirby</h1>
+              <h1>Kirby</h1>
               <div className="multi-stack">
                 <span className="multi-prefix">Multi</span>
                 <span className="multi-dash">—</span>

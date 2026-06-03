@@ -25,6 +25,15 @@ export type ProjectFrontmatter = {
   // the homepage grid, skipped from prev/next, and skipped when other
   // meta pages aggregate by tag.
   meta?: boolean;
+  // Content-model version. Default = legacy (per-project carousel
+  // components, MDX renders <TobritCarousel/> etc.). "v2" = the new
+  // <Piece>-based model rendered by <ProjectRenderer>.
+  format?: "v2";
+  // Drives chrome (page bg, sidebar icons, prev/next, pinned title) via
+  // CSS variables. Falls back to `theme` for backward compatibility.
+  colorMode?: "light" | "dark";
+  // Project-default credit. Individual pieces may override.
+  credit?: string;
 };
 
 export type Project = ProjectFrontmatter & {
@@ -39,8 +48,8 @@ const CUSTOM_ORDER = [
   "fake-rekordz",
   "eternal-return",
   "wave",
-  "artificial-consciousness",
   "tobrit",
+  "artificial-consciousness",
   "moon-raves",
   "multiverse",
   "roses",
@@ -91,6 +100,12 @@ export function getAllProjects(): Project[] {
       cardBg: data.cardBg ? String(data.cardBg) : undefined,
       imageBelowTitle: Boolean(data.imageBelowTitle),
       meta: Boolean(data.meta),
+      format: data.format === "v2" ? "v2" : undefined,
+      colorMode:
+        data.colorMode === "light" || data.colorMode === "dark"
+          ? data.colorMode
+          : undefined,
+      credit: data.credit ? String(data.credit) : undefined,
       content,
     };
   });
@@ -118,29 +133,46 @@ export function getProject(slug: string): Project | undefined {
   return getAllProjects().find((p) => p.slug === slug);
 }
 
-export function getProjectNeighbors(slug: string): {
-  prev: Project;
-  next: Project;
-} {
+/**
+ * Lightweight navigable-projects list passed to client components so
+ * they can recompute prev/next on the fly when a `?tag=…` URL param
+ * scopes the ring to a subset. `getProjectNeighbors` (below) is still
+ * called server-side to seed the default (no-tag) prev/next so the
+ * page renders correctly without JS — the client can override.
+ */
+export type NavigableProject = {
+  slug: string;
+  title: string;
+  tags: string[];
+};
+
+export function getNavigableProjects(): NavigableProject[] {
+  return getAllProjects()
+    .filter((p) => !p.navHidden && !p.meta)
+    .map((p) => ({ slug: p.slug, title: p.title, tags: p.tags ?? [] }));
+}
+
+export function getProjectNeighbors(
+  slug: string,
+  tagFilter?: string,
+): { prev: Project; next: Project } {
   const all = getAllProjects();
   // Exclude navHidden + meta projects from up/down navigation, but keep
   // the current project in the list even if it's itself excluded so we
   // still have a starting index. Then find prev/next in the filtered ring.
+  //
+  // When `tagFilter` is provided (set via the `?tag=…` URL param that
+  // TagIndex grids attach to each tile's href), narrow the navigable
+  // ring to projects that share that tag — so PREV/NEXT inside a
+  // filter context walks only matching projects. Always keep the
+  // current slug in the list so we have a valid starting index even
+  // if it doesn't itself match the filter.
   let navigable = all.filter(
     (p) => (!p.navHidden && !p.meta) || p.slug === slug,
   );
-  const current = navigable.find((p) => p.slug === slug);
-
-  // Tag-based loop groups: when viewing a project tagged with one of
-  // these, prev/next only cycles through other projects sharing that
-  // tag (anchored on the current project). Driven by the matching hero
-  // CTAs on the homepage — "Animations" lands in the animations loop,
-  // "Design" lands in the design loop.
-  const LOOP_TAGS = ["animations", "design"];
-  const loopTag = LOOP_TAGS.find((tag) => current?.tags?.includes(tag));
-  if (loopTag) {
+  if (tagFilter) {
     navigable = navigable.filter(
-      (p) => p.tags?.includes(loopTag) || p.slug === slug,
+      (p) => (p.tags ?? []).includes(tagFilter) || p.slug === slug,
     );
   }
 
