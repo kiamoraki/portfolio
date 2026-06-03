@@ -330,11 +330,16 @@ export function Video({
 
 export function Iframe({
   src,
-  aspect = 16 / 9,
+  // `aspect` accepts a CSS aspect-ratio string ("9 / 16", "1.7777") or
+  // a number — strings are required because `next-mdx-remote` v6 drops
+  // JSX expression attributes (`aspect={9/16}`) silently, so MDX has to
+  // pass `aspect="9 / 16"` and have us pipe it through. CSS aspect-
+  // ratio happily accepts both syntaxes.
+  aspect = "16 / 9",
   title = "Embedded video",
 }: {
   src: string;
-  aspect?: number;
+  aspect?: string | number;
   title?: string;
 }) {
   return (

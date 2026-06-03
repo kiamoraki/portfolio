@@ -46,12 +46,8 @@ description: |
   </Grid>
 </Piece>
 
-<Piece id="ac-tiles" tags="activation">
-  <Pair>
-    <Img src="/img/artificial_consciousness/tile-pornj-playa.jpg" alt="Tile — PORNJ" />
-    <Img src="/img/artificial_consciousness/tile-blue-playa.jpg" alt="Tile — Blue" />
-  </Pair>
-</Piece>
+{/* `ac-tiles` removed — the two square playa tiles now flank the
+    Vimeo iframe at the bottom of the page (see `ac-install`). */}
 
 {/* Glamtech logo trio — Pair of (install-2-flip left, install-1 right)
     side-by-side at the standard `--piece-gap` (1.5vw), both uncropped.
@@ -97,6 +93,20 @@ description: |
   </Grid>
 </Piece>
 
+{/* `ac-install` — closing Vimeo iframe flanked by the two square
+    playa tiles (one each side). Renders as a 3-col `Grid`; CSS
+    scoped via `data-piece-id` sets the column ratio to
+    `1 : 1.78 : 1` so the iframe (16:9) and the two square tiles
+    share the same row height. Mobile collapses to a vertical
+    stack (tile, video, tile). */}
 <Piece id="ac-install" tags="activation">
-  <Iframe src="https://player.vimeo.com/video/319065134?autoplay=1&autopause=0&loop=1&title=0&portrait=0&byline=0&muted=true" />
+  <Grid>
+    <Img src="/img/artificial_consciousness/tile-pornj-playa.jpg" alt="Tile — PORNJ" />
+    {/* `aspect="9 / 16"` (string, not `{9/16}` expression) — next-mdx-
+        remote v6 silently drops JSX expression attributes; same gotcha
+        as `tags={[...]}` having to be a comma string. CSS aspect-ratio
+        accepts the string form. */}
+    <Iframe aspect="9 / 16" src="https://player.vimeo.com/video/319065134?autoplay=1&autopause=0&loop=1&title=0&portrait=0&byline=0&muted=true" />
+    <Img src="/img/artificial_consciousness/tile-blue-playa.jpg" alt="Tile — Blue" />
+  </Grid>
 </Piece>

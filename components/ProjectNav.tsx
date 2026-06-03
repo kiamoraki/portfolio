@@ -178,11 +178,14 @@ export function ProjectNav({
           <svg
             className="project-title__glyph"
             viewBox="0 0 24 24"
-            width="18"
-            height="18"
+            /* Bumped from 18×18 + strokeWidth 2 → 22×22 + strokeWidth
+               3 so the caret reads more defined next to the chip's
+               title text on desktop. */
+            width="22"
+            height="22"
             fill="none"
             stroke="currentColor"
-            strokeWidth={2}
+            strokeWidth={3}
             strokeLinecap="round"
             strokeLinejoin="round"
             aria-hidden="true"

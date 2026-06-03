@@ -34,13 +34,20 @@ legacyPath: /mandalas.html
   <Figure src="/img/drawings/20181113-kirby-littledude-04-min.jpg" caption={`Portal — 18" x 18"`} />
 </Row>
 
+{/* These two videos are 640×360 (16:9 landscape) — leave the
+    `<Video>` without an `aspect` prop so the default `.video iframe
+    { aspect-ratio: 16/9 }` CSS rule paints them at their natural
+    landscape shape. The earlier `aspect="1"` forced a square wrapper,
+    which Vimeo's player then letterboxed with big black bars top +
+    bottom. Distinct from the portrait Vimeo on `ac-install` (9:16)
+    — that piece uses the `<Iframe>` primitive with `aspect="9 / 16"`. */}
 <Row>
   <Figure src="/img/drawings/20181113-kirby-littledude-03-min.jpg" caption={`Portal — 18" x 18"`} />
-  <Video src="https://player.vimeo.com/video/311493973?autoplay=1&autopause=0&loop=1&title=0&portrait=0&byline=0" aspect="1" />
+  <Video src="https://player.vimeo.com/video/311493973?autoplay=1&autopause=0&loop=1&title=0&portrait=0&byline=0" />
 </Row>
 
 <Row>
-  <Video src="https://player.vimeo.com/video/311494599?autoplay=1&autopause=0&loop=1&title=0&portrait=0&byline=0" aspect="1" />
+  <Video src="https://player.vimeo.com/video/311494599?autoplay=1&autopause=0&loop=1&title=0&portrait=0&byline=0" />
   <Figure src="/img/drawings/20181113-kirby-littledude-02-min.jpg" caption={`Portal — 18" x 18"`} />
 </Row>
 

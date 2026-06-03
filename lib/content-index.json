@@ -346,7 +346,7 @@
   },
   {
     "projectSlug": "artificial-consciousness",
-    "pieceId": "ac-tiles",
+    "pieceId": "ac-glamtech-trio",
     "tags": [
       "activation"
     ],
@@ -354,7 +354,7 @@
   },
   {
     "projectSlug": "artificial-consciousness",
-    "pieceId": "ac-glamtech-trio",
+    "pieceId": "ac-glamtech-3",
     "tags": [
       "activation"
     ],
@@ -362,7 +362,7 @@
   },
   {
     "projectSlug": "artificial-consciousness",
-    "pieceId": "ac-glamtech-3",
+    "pieceId": "ac-glamtech-4",
     "tags": [
       "activation"
     ],
@@ -370,19 +370,11 @@
   },
   {
     "projectSlug": "artificial-consciousness",
-    "pieceId": "ac-glamtech-4",
-    "tags": [
-      "activation"
-    ],
-    "indexInProject": 7
-  },
-  {
-    "projectSlug": "artificial-consciousness",
     "pieceId": "ac-install",
     "tags": [
       "activation"
     ],
-    "indexInProject": 8
+    "indexInProject": 7
   },
   {
     "projectSlug": "radioactivitea",

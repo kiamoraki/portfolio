@@ -96,13 +96,27 @@ export default async function ProjectPage({
   // inside main to off-white, which overrode the per-slide polarity
   // flip on TOBRIT / AC / Mars etc.
   const ink = theme === "dark" ? "var(--color-light)" : "var(--color-dark)";
+  // Resolve color mode once here so the `--chrome-scrim` variable can
+  // be SSR-rendered onto the body — `<ColorModeBody>` also sets
+  // `body[data-color-mode]` in a client effect, but that runs AFTER
+  // hydration, leaving the chrome chips un-scrim'd until JS catches
+  // up. Inlining the variable bypasses the hydration wait entirely.
+  const resolvedColorMode =
+    project.colorMode ?? (theme === "dark" ? "dark" : "light");
+  // `color-mix` for the light scrim (off-white `--color-light` with
+  // 15% transparency); flat rgba for dark since the dark scrim is
+  // just black with alpha and doesn't need to track a palette token.
+  const chromeScrim =
+    resolvedColorMode === "light"
+      ? "color-mix(in srgb, var(--color-light) 85%, transparent)"
+      : "rgba(0, 0, 0, 0.85)";
 
   return (
     <CarouselStateProvider>
       {bg ? (
-        <style>{`html,body{background:${bg};color:${ink};}`}</style>
+        <style>{`html,body{background:${bg};color:${ink};}body{--chrome-scrim:${chromeScrim};}`}</style>
       ) : (
-        <style>{`html,body{color:${ink};}`}</style>
+        <style>{`html,body{color:${ink};}body{--chrome-scrim:${chromeScrim};}`}</style>
       )}
       <Nav />
       <ProjectNav

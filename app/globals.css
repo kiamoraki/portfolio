@@ -234,6 +234,19 @@ figure.image figcaption {
   /* Rows that contain a video stay horizontal on mobile so the video
      doesn't get sandwiched between giant white-paper paintings.
      !important guards against later media-query overrides on `.row`. */
+  /* Paintings page exception — rows that mix a Figure with a Video
+     dissolve via `display: contents` so the figure and video become
+     direct flex-children of `main` itself, picking up its 1px gap
+     and slotting in at the same vertical rhythm as the standalone
+     third video on the page. Earlier `flex-direction: column !
+     important` left the `.row` as an intermediate flex container with
+     `.row > figure.image { flex: 1 1 0 }` from the base, which
+     padded extra vertical air around the figure. `display: contents`
+     skips that container entirely. */
+  main[data-project-slug="paintings"] .row:has(figure.image):has(.video),
+  main[data-project-slug="paintings"] .row:has(figure.image):has(.video-vertical) {
+    display: contents;
+  }
   .row:has(.video),
   .row:has(.video-vertical) {
     flex-direction: row !important;
@@ -1276,6 +1289,16 @@ html.vt-next::view-transition-new(root) {
     background: #000;
   }
 
+  /* Scale the rendered shape-of-time canvas down ~12% so the sketch
+     reads a touch quieter against the full viewport — the container
+     itself stays 100vw × 100dvh (so the black bg fills the screen),
+     only the canvas bitmap shrinks. Transform-origin centers the
+     scale so the composition stays balanced. */
+  .piece-sketch[data-sketch-id="shape-of-time"] canvas {
+    transform: scale(0.88);
+    transform-origin: center;
+  }
+
   /* emergence (RadialsCanvas) — fills with p.background(255) white */
   .meta-carousel-slide:has([data-slug="emergence"]),
   .meta-project[data-slug="emergence"] {
@@ -1699,7 +1722,9 @@ main.about #about-cv .about-tabs { margin: 0; }
     width: auto;
     align-items: stretch;
     text-align: left;
-    padding: 0.75rem 1rem 1rem 1rem;
+    /* L/R 2rem (was 1rem) so the header text reads with more breathing
+       room from the viewport edge on phones. */
+    padding: 0.75rem 2rem 1rem 2rem;
     min-height: 0;
     justify-content: flex-start;
     left: auto;
@@ -1755,7 +1780,10 @@ main.about #about-cv .about-tabs { margin: 0; }
     border: 0;
     background: transparent;
   }
-  main.about #about-cv { padding: 0 1rem 3rem; margin: 0; }
+  /* L/R 2rem (was 1rem) so the CV / Timeline content reads with more
+     breathing room from the viewport edge on phones — matches the
+     `#about-info` padding above. */
+  main.about #about-cv { padding: 0 2rem 3rem; margin: 0; }
 }
 
 #about-cv {
@@ -3367,7 +3395,16 @@ main[data-project-slug="intergalactic-helm"] .row {
     width: var(--mobile-sidebar-icon-size);
     z-index: 3000;
   }
-  /* Caret toggle — same size as Home/CV chips, sits below CV. */
+  /* Caret toggle — same size as Home/CV chips, sits below CV. The
+     wrapper is positioned `top: calc(... - 2px)` (line ~3364), so the
+     toggle's top edge sits 2px UP into CV's bottom-border row. With
+     `border-top: 2px solid currentColor` here, the toggle's top
+     border overlaps the CV chip's bottom border in the same 2px
+     band — both paint `currentColor` (ink color, polarity-aware) so
+     they read as one shared seam. Was `border-top: 0` before, which
+     relied on the CV chip's bottom edge alone to mark the line; that
+     fell apart once the scrim BG painted right up to the open top
+     and made the toggle look top-borderless on its own. */
   .project-title-toggle {
     appearance: none;
     width: var(--mobile-sidebar-icon-size);
@@ -3377,7 +3414,6 @@ main[data-project-slug="intergalactic-helm"] .row {
     background: transparent;
     color: inherit;
     border: 2px solid currentColor;
-    border-top: 0;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -3914,14 +3950,65 @@ button.project-title {
   }
 }
 
-/* Polarity-aware panel bg — set on the body's `data-color-mode`
-   attribute (applied by `<ColorModeBody>` on the project page).
-   Dark mode → semi-opaque dark scrim; light mode → semi-opaque light. */
-body[data-color-mode="dark"] .project-description-panel {
-  background: rgba(0, 0, 0, 0.85);
+/* Polarity-aware chrome scrim — same semi-opaque panel bg shared by
+   the description dropdown AND every nav-bar chip (Home, CV, Title,
+   PREV/NEXT) so the top bar reads as one translucent layer above
+   the project canvas. Dark slides get a black scrim; light slides
+   derive their scrim from `--color-light` (`#f8f7ff`) via
+   `color-mix`, so the off-white tint of the rest of the palette
+   carries through instead of flat `255,255,255` white.
+
+   Light-slide context is set by EITHER:
+   - `body[data-color-mode="light"]` (project pages, set by
+     `<ColorModeBody>` from the project frontmatter's `colorMode`)
+   - `body.light-slide` (meta-carousel pages, toggled by MetaCarousel
+     when the active slide's slug is in `LIGHT_BG_SLUGS`)
+   Pages without either (homepage, /about, tag-index grids) leave
+   `--chrome-scrim` unset; the fallback `transparent` keeps those
+   chips clear. */
+body[data-color-mode="dark"] {
+  --chrome-scrim: rgba(0, 0, 0, 0.85);
 }
-body[data-color-mode="light"] .project-description-panel {
-  background: rgba(255, 255, 255, 0.85);
+body[data-color-mode="light"],
+body.light-slide {
+  --chrome-scrim: color-mix(in srgb, var(--color-light) 85%, transparent);
+}
+
+/* Apply the scrim to every chrome chip + description panel via the
+   `--chrome-scrim` CSS variable. The variable is set by two paths:
+   - Project pages — SSR-rendered inline `<style>` in app/projects/
+     [slug]/page.tsx writes `body { --chrome-scrim: … }` directly so
+     the value is live BEFORE hydration (no flash of un-scrim'd chrome).
+   - Meta-carousel pages — `body.light-slide` (set by MetaCarousel when
+     the active slide's slug is in LIGHT_BG_SLUGS) and
+     `body[data-color-mode]` (set by `<ColorModeBody>` after mount) both
+     map to the variable via the rules just above. Homepage / /about /
+     tag-index grids leave the variable unset; the `transparent`
+     fallback keeps those chips clear.
+
+   Selectors use parent-class prefixes (`.nav-projects .…`,
+   `.project-mobile-bottom-nav .…`) instead of `body[data-color-mode]`
+   so the cascade doesn't depend on a client-side attribute landing.
+   `:not(.active)` on `.nav-info` and `.nav-main a` keeps the active-
+   state solid magenta (or animated rainbow on mobile) untouched.
+   `background-color` (not the `background` shorthand) keeps the
+   `nav-grid-cycle` animation intact when those chips ARE active. */
+.project-description-panel,
+.meta-carousel-description-panel,
+.nav-projects .project-title,
+.nav-projects .project-title-toggle,
+.nav-projects .project-nav-btn,
+.project-mobile-bottom-nav .project-mobile-bottom-nav-link,
+.nav-info:not(.active),
+.nav-main,
+.meta-carousel .meta-carousel-active-title {
+  background-color: var(--chrome-scrim, transparent);
+  /* `padding-box` keeps the scrim from bleeding through (or
+     anti-aliasing across) the border edge — default `border-box`
+     paints the fill behind the border, which on chips with a
+     translucent fill against a busy canvas leaves the border looking
+     washed-out and fuzzy where the fill peeks through the AA pixels. */
+  background-clip: padding-box;
 }
 
 /* Mobile — tighter description panel padding (`2rem` is too generous
@@ -4282,5 +4369,111 @@ body[data-color-mode="light"] .project-description-panel {
      their cells edge-to-edge instead of letterboxing. */
   .piece[data-piece-id="ac-glamtech-trio"] .piece-layout--pair > img {
     object-fit: cover !important;
+  }
+}
+
+/* AC `ac-install` — closing Vimeo iframe (portrait 9:16, 360×640
+   native) flanked by 2 square playa tiles. Earlier iterations forced
+   the iframe wrapper to 16:9 landscape via the grid cell shape,
+   stretching the portrait video with white air around it. The fix
+   is to let the wrapper ADAPT to the video's natural aspect (set via
+   MDX `<Iframe aspect={9/16} />`) and size the wrapper by HEIGHT
+   instead of cell-width. Tiles flank as squares sized by width;
+   `align-items: center` lets the taller portrait video extend above
+   and below the tile baseline. Mobile collapses to a vertical stack. */
+@media (min-width: 721px) {
+  .piece[data-piece-id="ac-install"] .piece-layout--stack {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: var(--piece-gap, 1.5vw);
+    width: 100%;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  .piece[data-piece-id="ac-install"] .piece-layout--stack > img {
+    /* Square tiles sized as a fraction of viewport width. `flex: 0 0
+       auto` keeps them from being squished by the flex container; the
+       intrinsic 1:1 aspect plus `height: auto` gives the matching
+       square height. `margin: 0` resets the base `.piece-layout--stack
+       img { margin: 0 auto }` rule — in a flex ROW, `margin: auto`
+       absorbs every spare pixel and pushes the items to the container
+       edges, which is exactly the symptom that left ~30vw of dead
+       space between each tile and the video. */
+    width: 25vw;
+    max-width: 540px;
+    height: auto;
+    aspect-ratio: 1;
+    object-fit: cover;
+    flex: 0 0 auto;
+    margin: 0;
+    display: block;
+  }
+  .piece[data-piece-id="ac-install"] .piece-layout--stack > .piece-layout--single {
+    /* Wrapper sized by HEIGHT — width auto-derives from the inline
+       `aspect-ratio: 9/16` set by the Iframe primitive in MDX. So
+       the container adapts to the video's portrait shape (≈ 0.56:1
+       width:height) instead of forcing the video to fit a fixed
+       landscape cell. `min(70vh, 44vw)` keeps the wrapper from
+       dominating tall viewports while ensuring it never overflows
+       the row's horizontal budget after the two flanking tiles. */
+    height: min(70vh, 44vw);
+    width: auto;
+    flex: 0 0 auto;
+    padding: 0;
+  }
+}
+@media (max-width: 720px) {
+  /* Mobile layout:
+       ┌─────────┬─────────┐
+       │ tile-1  │ tile-2  │  ← row 1: two tiles side-by-side
+       ├─────────┴─────────┤
+       │      video        │  ← row 2: portrait video, centered
+       └───────────────────┘
+     DOM order is tile-pornj, video, tile-blue, so the video is the
+     2nd child; explicit grid placement reorders it into row 2 across
+     both columns without touching the MDX. */
+  .piece[data-piece-id="ac-install"] .piece-layout--stack {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: var(--piece-gap, 1.5vw);
+    justify-items: center;
+    align-items: center;
+    width: 100%;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  .piece[data-piece-id="ac-install"] .piece-layout--stack > *:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .piece[data-piece-id="ac-install"] .piece-layout--stack > *:nth-child(2) {
+    /* Video — drops to row 2, spans both columns. */
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .piece[data-piece-id="ac-install"] .piece-layout--stack > *:nth-child(3) {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .piece[data-piece-id="ac-install"] .piece-layout--stack > img {
+    /* Tiles fill their grid cell (≈ half the viewport minus gap)
+       and stay square via the 1:1 aspect. */
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    object-fit: cover;
+    margin: 0;
+    display: block;
+  }
+  .piece[data-piece-id="ac-install"] .piece-layout--stack > .piece-layout--single {
+    /* Portrait video sized by height — width auto-derives from the
+       inline 9:16 aspect set by `<Iframe aspect="9 / 16">`. */
+    height: 60vh;
+    max-height: 540px;
+    width: auto;
+    padding: 0;
   }
 }
