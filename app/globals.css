@@ -2410,14 +2410,14 @@ button.meta-carousel-active-title {
   z-index: 2999;
   box-sizing: border-box;
   overflow: hidden;
-  padding: 0 1rem;
+  padding: 0 2rem;
   background: transparent;
   color: inherit;
   border: 2px solid currentColor;
   border-top: 0;
-  font-family: var(--font-bold);
-  font-size: 14px;
-  line-height: 1.5;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 26px;
   white-space: pre-wrap;
   max-height: 0;
   opacity: 0;
@@ -2427,7 +2427,7 @@ button.meta-carousel-active-title {
 .meta-carousel-description-panel[data-open="true"] {
   max-height: 50vh;
   opacity: 1;
-  padding: 1rem;
+  padding: 2rem;
   overflow-y: auto;
   pointer-events: auto;
 }
@@ -2715,19 +2715,46 @@ body:has(main.about) .project-mobile-bottom-nav {
   padding: 0;
 }
 
-/* Wave + Eternal Return — DESKTOP forces square wrapper so the 3×3
-   cells render as squares (not stretched rectangles in a wide
-   wrapper). Inside the wave-canvas-shell, aspect-ratio: 1 holds the
-   square shape. */
+/* Wave — DESKTOP forces square wrapper so the 3×3 cells render as
+   squares (not stretched rectangles in a wide wrapper). Inside the
+   wave-canvas-shell, aspect-ratio: 1 holds the square shape.
+
+   Side length is `min(100vw, 100dvh - 1rem - 56px)` so the square
+   fits inside the `below-nav` live area (chrome bottom → viewport
+   bottom) — was `min(100vw, 100dvh)` which would have exceeded the
+   `calc(100dvh - 1rem - 56px)` height my below-nav `Hook 2` rule
+   puts on `[data-sketch-id^="wave-"]`, leaving the wrapper a non-
+   square 100vh-wide × 1008-tall on a typical 1920×1080 viewport.
+
+   Eternal-return is NO LONGER bundled in this square rule — in the
+   carousel it now goes full-bleed like emergence (see the separate
+   block below). The standalone `/projects/eternal-return` page
+   keeps the global `height: 90dvh !important` so subsequent pieces
+   (install photos, diagrams) still have room to stack below the
+   toggle sketch. */
 @media (min-width: 721px) {
   .meta-carousel-track > .project-track .piece-sketch[data-sketch-id^="wave-"],
-  .meta-carousel-track > .project-track .piece-sketch[data-sketch-id^="eternal-return"],
-  .project-track .piece-sketch[data-sketch-id^="wave-"],
-  .project-track .piece-sketch[data-sketch-id^="eternal-return"] {
-    width: min(100vw, 100dvh) !important;
-    height: min(100vw, 100dvh) !important;
+  .project-track .piece-sketch[data-sketch-id^="wave-"] {
+    width: min(100vw, 100dvh - 1rem - 56px) !important;
+    height: min(100vw, 100dvh - 1rem - 56px) !important;
     margin: 0 auto;
     align-self: center;
+  }
+
+  /* Eternal-return-toggle carousel slide → full-bleed 100vw × 100dvh
+     to match the emergence layout. Overrides:
+       - the global `height: 90dvh !important` rule at line ~4894
+         (specificity 0,2,0 → mine wins at 0,4,0)
+       - any leftover width: 100% from the .piece-sketch inline style
+     Only applies inside `.meta-carousel-track` so the standalone
+     project page is untouched. */
+  .meta-carousel-track
+    > .project-track
+    .piece-sketch[data-sketch-id="eternal-return-toggle"] {
+    width: 100vw !important;
+    height: 100dvh !important;
+    margin: 0;
+    align-self: stretch;
   }
   .meta-carousel-track > .project-track .piece-sketch[data-sketch-id^="wave-"] .wave-canvas-shell,
   .project-track .piece-sketch[data-sketch-id^="wave-"] .wave-canvas-shell {
@@ -4130,8 +4157,8 @@ button.project-title {
   border: 2px solid currentColor;
   border-top: 0;
   font-family: var(--font-body);
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 16px;
+  line-height: 26px;
   white-space: pre-wrap;
   max-height: 0;
   opacity: 0;
@@ -4229,6 +4256,22 @@ body.light-slide {
   background-clip: padding-box;
 }
 
+/* Animations meta-carousel — drop the chrome scrim from every chip
+   listed above so the chrome reads as pure outlines against the
+   slide bg. Each carousel slide has its own canvas bg painted edge-
+   to-edge (see the per-slide bg block higher up), so a scrim layer
+   on the chrome chips dulls the colour transition between adjacent
+   slides without adding contrast — the bordered outlines alone are
+   enough to read against any canvas bg. Scoped via `:has()` on the
+   body so this only kicks in on the `/projects/animations` route. */
+body:has(main[data-project-slug="animations"]) .nav-main,
+body:has(main[data-project-slug="animations"]) .nav-info:not(.active),
+body:has(main[data-project-slug="animations"]) .nav-projects .project-nav-btn,
+body:has(main[data-project-slug="animations"]) .project-mobile-bottom-nav .project-mobile-bottom-nav-link,
+body:has(main[data-project-slug="animations"]) .meta-carousel .meta-carousel-active-title {
+  background-color: transparent;
+}
+
 /* Mobile — tighter description panel padding (`2rem` is too generous
    on a phone-width viewport, leaves little space for the actual
    text). Same logic as desktop: closed-state L/R padding matches
@@ -4261,7 +4304,7 @@ body.light-slide {
     max-height: 0;
     /* Horizontal padding stays at the open state so the panel doesn't
        collapse horizontally as it opens — only vertical animates. */
-    padding: 0 1rem;
+    padding: 0 2rem;
     cursor: pointer;
     overflow: hidden;
     opacity: 0;
@@ -4269,14 +4312,13 @@ body.light-slide {
   }
   .project-description-panel[data-open="true"] {
     max-height: 60vh;
-    padding: 1rem;
+    padding: 2rem;
     opacity: 1;
   }
-  /* Slightly smaller text + tighter line-height on phone viewports. */
-  .project-description-panel__inner {
-    font-size: 14px;
-    line-height: 22px;
-  }
+  /* Description panel text uses the same 16px / 24px rhythm on
+     mobile as desktop — no per-viewport override here. (Used to
+     drop to 14px / 22px; consolidated with the desktop value per
+     the unified font request.) */
 }
 
 /* Precarity desktop — defensive override pinning the inter-piece
@@ -5209,7 +5251,10 @@ main[data-project-slug="multiverse"] .project-track-content {
    The lissajous-portraits mobile padding-bottom (PREV/NEXT chip
    zone) lives below in its own block — see the comment there. */
 @media (min-width: 721px) {
-  /* Hook 1 — padding-top on the slide track. */
+  /* Hook 1 — padding-top on the slide track. AC videos (ac-video-1,
+     ac-video-2) join the sketch-based slides here so the slide's
+     content area shrinks to the same `100dvh - 1rem - 56px` live
+     area below the navbar. */
   .meta-carousel-track
     > .project-track:has(
       > .project-track-content[data-slug^="lissajous"]
@@ -5227,6 +5272,10 @@ main[data-project-slug="multiverse"] .project-track-content {
   .meta-carousel-track
     > .project-track:has(
       > .project-track-content[data-slug="roses-portraits"]
+    ),
+  .meta-carousel-track
+    > .project-track:has(
+      > .project-track-content[data-slug^="ac-video"]
     ) {
     padding-top: calc(1rem + 56px);
   }
@@ -5250,6 +5299,44 @@ main[data-project-slug="multiverse"] .project-track-content {
     > .project-track
     .piece-sketch[data-sketch-id="roses-portraits"] {
     height: calc(100dvh - 1rem - 56px) !important;
+  }
+
+  /* Hook 2b — AC videos. The `<Video>` primitive emits
+     `.piece-layout--single > video` (not `.piece-sketch`), so the
+     height/centering hook chains down through the layout primitive
+     instead. The `.project-track-content` is set to fill the live
+     area exactly; flex centers the video inside it both axes; the
+     video itself is constrained to `max-width: 100% / max-height:
+     100%` so its intrinsic 16:9 aspect ratio fits inside whichever
+     dimension is the binding constraint at the current viewport. */
+  .meta-carousel-track
+    > .project-track
+    > .project-track-content[data-slug^="ac-video"] {
+    height: calc(100dvh - 1rem - 56px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .meta-carousel-track
+    > .project-track
+    > .project-track-content[data-slug^="ac-video"]
+    .piece-layout--single {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+  .meta-carousel-track
+    > .project-track
+    > .project-track-content[data-slug^="ac-video"]
+    video {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    display: block;
   }
 }
 

@@ -88,9 +88,19 @@ const sketch = (p: any) => {
   };
 
   const dims = (): [number, number] => {
-    const parent = (p.canvas && p.canvas.parentElement) as HTMLElement | null;
-    if (parent && parent.clientWidth > 0 && parent.clientHeight > 0) {
-      return [parent.clientWidth, parent.clientHeight];
+    // Prefer `p._userNode` (set by `new P5(sketch, container)` before
+    // `setup()` runs) so the FIRST `createCanvas(...)` already matches
+    // the wrapper. `p.canvas.parentElement` is only available AFTER the
+    // canvas is mounted, so reading it in setup fell through to the
+    // viewport fallback — making the canvas 100vh tall while the
+    // wrapper is `calc(100dvh - 1rem - 56px)` under `below-nav`, and
+    // clipping the bottom 72px.
+    const node =
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ((p as any)._userNode ||
+        (p.canvas && p.canvas.parentElement)) as HTMLElement | null;
+    if (node && node.clientWidth > 0 && node.clientHeight > 0) {
+      return [node.clientWidth, node.clientHeight];
     }
     return [window.innerWidth, window.innerHeight];
   };

@@ -15,11 +15,14 @@ const RADIUS = 3;
 
 // Grid orientation tracks the viewport aspect so the sketch fills the
 // page edge-to-edge in either direction: a 3 wide × 6 tall portrait
-// grid on phones, a 6 wide × 3 tall landscape grid on desktops. Either
-// orientation gives 18 cells.
+// grid on phones, a 5 wide × 3 tall landscape grid on desktops.
+// (Desktop was 6 × 3 = 18 cells; trimmed to 5 × 3 = 15 cells per request
+// — slightly fewer, slightly larger jellyfish since `ampMax` derives
+// from `min(cellW, cellH)` and the wider cells push that proportionally.
+// Mobile portrait stays at 3 × 6.)
 function gridDims(): [number, number] {
   if (typeof window !== "undefined" && window.innerWidth >= window.innerHeight) {
-    return [6, 3];
+    return [5, 3];
   }
   return [3, 6];
 }
@@ -59,9 +62,23 @@ const sketch = (p: any) => {
   let lissas: Lissa[] = [];
 
   const dims = (): [number, number] => {
-    // Canvas is sized to the live viewport so the 3×6 grid fills the
-    // whole carousel slide on mobile. Falls back to the original
-    // sketch's 452×803 portrait dims for SSR / no-window contexts.
+    // Track the parent (`.piece-sketch` wrapper) so the canvas matches
+    // the visible area exactly. Was reading the live viewport, which
+    // worked when the wrapper was `100dvh` but overshoots the
+    // `calc(100dvh - 1rem - 56px)` wrapper under the `below-nav`
+    // pattern by 72px — the grid bottom row then sits noticeably
+    // closer to the visible bottom edge than the top row is to the
+    // visible top edge. Reading `_userNode.clientWidth/clientHeight`
+    // makes the 3-row grid's cell centres land symmetrically inside
+    // the visible wrapper. Falls back to the original sketch's
+    // 452×803 portrait dims for SSR / no-window contexts.
+    const node =
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ((p as any)._userNode ||
+        (p.canvas && p.canvas.parentElement)) as HTMLElement | null;
+    if (node && node.clientWidth > 0 && node.clientHeight > 0) {
+      return [node.clientWidth, node.clientHeight];
+    }
     if (typeof window !== "undefined") {
       return [window.innerWidth, window.innerHeight];
     }
@@ -226,6 +243,7 @@ type CanvasProps = { isActive?: boolean; inFlow?: boolean };
 
 export function JellyfishGridCanvas({
   isActive = true,
+  inFlow = false,
 }: CanvasProps = {}) {
   const containerRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -282,8 +300,12 @@ export function JellyfishGridCanvas({
     <div
       ref={containerRef}
       style={{
-        width: "100vw",
-        height: "100dvh",
+        // `inFlow` from `Sketch` → match the `.piece-sketch` wrapper
+        // (`calc(100dvh - 1rem - 56px)` under `below-nav`) so the canvas
+        // doesn't overshoot vertically. Falls back to `100vw × 100dvh`
+        // for callers outside the carousel that want full-bleed.
+        width: inFlow ? "100%" : "100vw",
+        height: inFlow ? "100%" : "100dvh",
         background: "#000",
         overflow: "hidden",
       }}

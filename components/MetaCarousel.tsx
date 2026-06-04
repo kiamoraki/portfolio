@@ -226,11 +226,11 @@ export function MetaCarousel({ slides }: Props) {
             <svg
               className="meta-carousel-active-title__glyph"
               viewBox="0 0 24 24"
-              width="14"
-              height="14"
+              width="20"
+              height="20"
               fill="none"
               stroke="currentColor"
-              strokeWidth={2.5}
+              strokeWidth={3.5}
               strokeLinecap="round"
               strokeLinejoin="round"
               aria-hidden="true"
