@@ -98,7 +98,7 @@ export default function AboutPage() {
                 <h3>Teaching</h3>
                 <ul>
                   <li>Professor @ <a href="https://mars.college">Mars College</a></li>
-                  <li>Coach @ Mars Radio Cyber Arts Camp</li>
+                  <li>Coach @ <a href="https://kiamoraki.com/sites/marsradio/">Mars Radio Cyber Arts Camp</a></li>
                   <li>Adobe Suite & Web Design @ <a href="https://thirdward.org">Third Ward</a></li>
                   <li>Web Design & Dev @ <a href="https://codenation.org/">Code Nation</a></li>
                 </ul>
@@ -141,7 +141,7 @@ export default function AboutPage() {
                   <li><a href="https://audiofemme.com">Audiofemme</a></li>
                   <li><a href="https://kiamoraki.com/sites/marsradio/">Mars.Radio</a></li>
                   <li><a href="https://kiamoraki.com/sites/xtian.dev/">Xtian.dev</a></li>
-                  <li><a href="https://kiamoraki.com/sites/eos/eos-demo-site/index.html">EOS.org</a></li>
+                  <li><a href="https://kiamoraki.com/sites/eos/eos-demo-site/index.html">EOS.org</a> (Desktop only)</li>
                 </ul>
               </>
             }

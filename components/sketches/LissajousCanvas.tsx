@@ -132,13 +132,19 @@ export function LissajousCanvas() {
         const buildCurves = () => {
           curves.length = 0;
           const origin = p.createVector(p.width / 2, p.height / 2);
-          // Amp from the live viewport so the curve is sized to what the
-          // user actually sees (–20 = visual margin from the edge).
+          // Amp tracks the live viewport so the curve scales to what the
+          // user actually sees — UNLESS the canvas itself is smaller
+          // than the viewport (this sketch's `dims()` caps at 600), in
+          // which case the canvas half-dim is the hard ceiling. Without
+          // the canvas clamp, amp overflows the 600px square top and
+          // bottom on any viewport >600px tall, vertically cropping the
+          // curve. The `–20` keeps a small visual margin from the edge.
           const viewportMin =
             typeof window !== "undefined"
               ? Math.min(window.innerWidth, window.innerHeight)
               : Math.min(p.width, p.height);
-          const amp = viewportMin / 2 - 20;
+          const canvasMin = Math.min(p.width, p.height);
+          const amp = Math.min(viewportMin, canvasMin) / 2 - 20;
           const gcd = gcdOf(freqA, freqB);
           curves.push(new LissajousCurve(origin, amp, freqA, freqB, gcd));
           curves.push(new LissajousCurve(origin, amp, freqB, freqA, gcd));

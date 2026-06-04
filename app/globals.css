@@ -1237,101 +1237,12 @@ html.vt-next::view-transition-new(root) {
   .meta-project[data-slug="eternal-return"] .er-mobile-canvas--unobserved {
     height: 100vh !important;
   }
-  /* Wave slides keep the original pure-black look. The page bg is
-     #130c12 so we override every layer of the slide that could show
-     warm-dark through: the slide itself (via :has() so we don't have
-     to thread bg colour through MetaCarousel), the section, and the
-     canvas-square wrapper around the centered canvas. */
-  .meta-carousel-slide:has([data-slug^="wave-"]) {
-    background: #000;
-  }
-  .meta-project[data-slug^="wave-"] {
-    background: #000;
-  }
-  /* On mobile the wave grids switch from 3×3 to a 2-wide × 4-tall
-     stack and the canvas resolution matches the viewport exactly.
-     The wrapper fills the full slide so cells stay pixel-perfect
-     square and gaps are evenly distributed by the sketch itself. */
-  .meta-project[data-slug^="wave-"] .meta-carousel-canvas-square {
-    background: #000;
-    width: 100vw;
-    height: 100vh;
-    aspect-ratio: auto;
-  }
-  /* Per-canvas slide bg overrides — every other animation slide gets
-     its slide / section / canvas-square wrapper painted to match the
-     canvas's internal bg, so the area around or behind the canvas
-     blends with the drawing instead of flashing the page's #130c12.
-     Each block triple-scopes via :has(slide) + section + optional
-     canvas-square to cover every layer that could peek through. */
-
-  /* eternal-return — canvas paints #000 */
-  .meta-carousel-slide:has([data-slug="eternal-return"]),
-  .meta-project[data-slug="eternal-return"] {
-    background: #000;
-  }
-
-  /* multiverse — canvas wrapper bg #00001c */
-  .meta-carousel-slide:has([data-slug="multiverse"]),
-  .meta-project[data-slug="multiverse"] {
-    background: #00001c;
-  }
-
-  /* roses-grid + roses-portraits — canvases paint #000d19. They sit
-     inside .meta-carousel-canvas-square (aspect 1) which on portrait
-     leaves vertical gaps — color the wrapper too. */
-  .meta-carousel-slide:has([data-slug^="roses-"]),
-  .meta-project[data-slug^="roses-"] {
-    background: #000d19;
-  }
-  .meta-project[data-slug^="roses-"] .meta-carousel-canvas-square {
-    background: #000d19;
-  }
-  /* roses-grid specifically — the grid sketch adapts its cell sizes
-     to whatever aspect it's rendered in, so override the inner
-     .rose-grid-fullbleed wrapper (which is aspect-ratio: 1 on mobile
-     by default) to fill the full viewport instead of being a square. */
-  .meta-project[data-slug="roses-grid"] .rose-grid-fullbleed {
-    width: 100vw;
-    height: 100vh;
-    aspect-ratio: auto;
-  }
-
-  /* jellyfish-grid — pure black canvas */
-  .meta-carousel-slide:has([data-slug="jellyfish-grid"]),
-  .meta-project[data-slug="jellyfish-grid"] {
-    background: #000;
-  }
-
-  /* lissajous-canvas (the 2019 hidden project, separate from the 2017
-     lissajous slides) — its sketch paints p.background(0,0,0) but the
-     wrapper is a `margin: 2rem 0` flex container, so the slide's
-     warm-dark bg shows around the small black canvas. */
-  .meta-carousel-slide:has([data-slug="lissajous-canvas"]),
-  .meta-project[data-slug="lissajous-canvas"] {
-    background: #000;
-  }
-
-  /* shape-of-time — canvas now paints p.background(0) (black). The
-     project's own page sets bg: "#000" in its frontmatter, but on the
-     meta animations carousel the page bg is #130c12, so override the
-     slide here too for a seamless black behind the canvas. */
-  .meta-carousel-slide:has([data-slug="shape-of-time"]),
-  .meta-project[data-slug="shape-of-time"] {
-    background: #000;
-  }
-
-  /* shape-of-time desktop overrides used to live HERE (inside the
-     `@media (max-width: 720px)` block above), which silently scoped
-     them to mobile and explained why the changes never landed on
-     desktop. Moved out below into their own `@media (min-width:
-     721px)` block. */
-
-  /* emergence (RadialsCanvas) — fills with p.background(255) white */
-  .meta-carousel-slide:has([data-slug="emergence"]),
-  .meta-project[data-slug="emergence"] {
-    background: #fff;
-  }
+  /* Per-slide bg rules used to live HERE inside the mobile-only
+     `@media (max-width: 720px)` block (a remnant of when the meta-
+     carousel only rendered on mobile). The new MetaCarousel renders
+     at all viewports, so the bg rules were moved out of this block
+     to apply universally — see the standalone block below the
+     legacy mobile rules. */
 
   /* On the animations meta page, the roses entry should only show its
      two canvases — strip the photo stack that runs above them on the
@@ -2077,6 +1988,30 @@ main.about #about-cv .about-tabs { margin: 0; }
   box-sizing: border-box;
 }
 
+/* Animations carousel slides hold ONE piece each, so the inter-piece
+   `gap` never renders anyway and the trailing `padding-bottom` only
+   biases the `safe center` centering upward (creates a visible
+   above-center offset for full-viewport canvases). Zero both inside
+   the carousel context so single-piece slides center symmetrically.
+   Standalone project pages — same `.project-track-content` selector,
+   but NOT inside `.meta-carousel-track` — keep their multi-piece
+   gap rhythm. */
+.meta-carousel-track > .project-track > .project-track-content {
+  gap: 0;
+  padding-bottom: 0;
+}
+
+/* Mobile carousel — also zero the `--piece-gap` variable itself so
+   any descendant that reads `var(--piece-gap)` (not just the
+   `gap` / `padding-bottom` zeroed above) collapses to 0 on mobile.
+   Desktop keeps the default `--piece-gap: 1.5vw` so any per-slug
+   rules that scale to it on desktop are untouched. */
+@media (max-width: 720px) {
+  .meta-carousel-track > .project-track > .project-track-content {
+    --piece-gap: 0;
+  }
+}
+
 /* MOBILE — pieces stack at natural height, body scrolls. */
 @media (max-width: 720px) {
   .piece-layout--cover {
@@ -2309,6 +2244,102 @@ main.about #about-cv .about-tabs { margin: 0; }
   box-sizing: border-box;
   background: inherit;
   position: relative;
+}
+
+/* Per-slide background colours for the animations meta carousel.
+   ──────────────────────────────────────────────────────────────────
+   The `<Sketch>` primitive sets `background` as an inline style on
+   the `.piece-sketch` wrapper, so the canvas's own bg is painted
+   inside the wrapper. But each slide (`.meta-carousel-track >
+   .project-track`) is 100dvh tall, and the wrapper inside it is
+   usually 90dvh (per the lissajous/wave/jellyfish/eternal-return
+   piece-sketch height rule) and centered via `safe center`. The
+   leftover slide area (5dvh top, 5dvh bottom — more once a `data-
+   slug`-specific chrome-aware padding kicks in for the lissajous
+   family) inherits the animations page bg `#130c12`, which flashes
+   warm-dark around canvases that paint pure black or pure white.
+
+   Setting the slide bg to match the sketch bg makes the seam
+   invisible. New-structure selectors target `.meta-carousel-track
+   > .project-track:has(> .project-track-content[data-slug="…"])`,
+   replacing the dead `.meta-carousel-slide:has(…)` / `.meta-project
+   […]` selectors (both classes were emitted by the old TagCarousel
+   and never made it into the AnimationsCarousel rewrite, so the
+   legacy bg rules silently went dead).
+
+   NOTE: This block lives OUTSIDE the `@media (max-width: 720px)`
+   block where the legacy versions used to sit — the meta-carousel
+   now renders at all viewports, so the bg overrides need to apply
+   universally (not just mobile). Burying them in the mobile block
+   was the actual regression. */
+
+/* Lissajous family — pieces paint #130c12 (same as page) */
+.meta-carousel-track
+  > .project-track:has(
+    > .project-track-content[data-slug^="lissajous"]
+  ) {
+  background: #130c12;
+}
+
+/* Wave family — pure black */
+.meta-carousel-track
+  > .project-track:has(> .project-track-content[data-slug^="wave-"]) {
+  background: #000;
+}
+
+/* Eternal return (toggle canvas) — pure black */
+.meta-carousel-track
+  > .project-track:has(
+    > .project-track-content[data-slug="eternal-return-toggle"]
+  ) {
+  background: #000;
+}
+
+/* Multiverse — deep blue */
+.meta-carousel-track
+  > .project-track:has(
+    > .project-track-content[data-slug="multiverse"]
+  ) {
+  background: #00001c;
+}
+
+/* Roses family (grid + portraits) — midnight navy */
+.meta-carousel-track
+  > .project-track:has(> .project-track-content[data-slug^="roses-"]) {
+  background: #000d19;
+}
+
+/* Jellyfish — pure black */
+.meta-carousel-track
+  > .project-track:has(
+    > .project-track-content[data-slug="jellyfish-grid"]
+  ) {
+  background: #000;
+}
+
+/* Shape of time — pure black */
+.meta-carousel-track
+  > .project-track:has(
+    > .project-track-content[data-slug="shape-of-time"]
+  ) {
+  background: #000;
+}
+
+/* Emergence (RadialsCanvas) — white (sketch paints `p.background(255)`) */
+.meta-carousel-track
+  > .project-track:has(
+    > .project-track-content[data-slug="emergence"]
+  ) {
+  background: #fff;
+}
+
+/* AC animations (ac-video-1, ac-video-2 — `<Video>` pieces, no
+   Sketch bg) — explicit white per design intent so the video
+   reads against a neutral background instead of the page's warm-
+   dark. */
+.meta-carousel-track
+  > .project-track:has(> .project-track-content[data-slug^="ac-video"]) {
+  background: #fff;
 }
 
 /* Pinned, viewport-fixed title chip for the active slide. Driven by
@@ -2797,13 +2828,32 @@ body:has(main.about) .project-mobile-bottom-nav {
 
 /* Lissajous — first sketch piece is framed at reduced height (80dvh)
    below the navbar; subsequent sketches use the default sketch
-   sizing. */
+   sizing.
+
+   The first piece (lissajous-pair-lines) is vertically CENTERED in
+   the space between the navbar bottom (`1rem + 56px ≈ 72px`) and the
+   viewport bottom. With its 80dvh height, that means its top edge
+   sits at `navbar_h/2 + 10vh`:
+     target = navbar_h + (100vh - navbar_h - 80vh) / 2
+            = navbar_h + (20vh - navbar_h) / 2
+            = navbar_h/2 + 10vh
+   Used as `padding-top` on `.project-track-content` (main has
+   `padding: 0` for `fullbleed: true` lissajous, so the .ptc padding
+   IS the viewport-y offset).
+
+   The first piece also gets an enlarged trailing gap (`margin-bottom:
+   var(--piece-gap)`) on top of the default flex `gap`, so the
+   headliner pair-lines sketch reads as visually separate from the
+   demonstration sketches that follow it. */
 @media (min-width: 721px) {
   .project-track-content[data-slug="lissajous"] {
-    padding-top: calc(1rem + 56px + var(--piece-gap, 1.5vw));
+    padding-top: calc((1rem + 56px) / 2 + 10vh);
   }
   .project-track-content[data-slug="lissajous"] > .piece:first-child:has(.piece-sketch) .piece-sketch {
     height: 80dvh !important;
+  }
+  .project-track-content[data-slug="lissajous"] > .piece:first-child:has(.piece-sketch) {
+    margin-bottom: var(--piece-gap, 1.5vw);
   }
 }
 
@@ -3300,6 +3350,68 @@ main[data-project-slug="paintings"] .row {
    first-paint. */
 @media (min-width: 721px) {
   .project-track-content[data-slug="artificial-consciousness"] {
+    padding-top: calc(1rem + 56px + var(--piece-gap, 1.5vw));
+  }
+}
+
+/* Standardized first-piece clearance — matches Fake Rekordz / AC.
+   ─────────────────────────────────────────────────────────────────
+   Target on desktop: first piece sits at viewport-y of
+   `calc(1rem + 56px + var(--piece-gap))` (~93px on a 1440 viewport).
+   That's the chrome strip (1rem inset + 56px chip) plus one standard
+   inter-piece gap of breathing room.
+
+   The 4 "reference" projects (fake-rekordz, AC, radioactivitea,
+   precarity) all have `fullbleed: true` in frontmatter, which
+   triggers `main.fullbleed { padding: 0 }` and zeros out the default
+   `main { padding: var(--spacing-page) = 60px }`. The 3 projects
+   handled here (mars, paintings, intergalactic-helm) don't have
+   `fullbleed: true`, so without intervention an extra 60px from
+   main's default top padding piles on. Zero it explicitly so they
+   land at the same 93px as the reference projects.
+
+   Three flavors of project need three rules:
+
+   1. v2 + Hero first piece (mars) — zero main's top padding, then
+      add `var(--piece-gap)` on `.project-track-content` to supply
+      the breathing room above the hero (the hero itself already
+      includes `padding-top: calc(1rem + 56px)` for navbar clearance).
+      Total: 0 + 21 + 72 = 93.
+
+   2. v2 + Hero first piece, fullbleed already set (radioactivitea,
+      precarity) — only the .ptc rule applies; main is already 0.
+      Total: 0 + 21 + 72 = 93.
+
+   3. v1 legacy (paintings, intergalactic-helm — no
+      `.project-track-content`, first piece is `<Figure>` or `<Row>`)
+      — replace main's `padding-top` with the full
+      `calc(1rem + 56px + var(--piece-gap))`. Total: 93.
+
+   Mobile: all of these start at y=0 (main padding goes to 0 below
+   720px and the mobile chrome is a vertical icon stack in the top-
+   left corner, not a full bar), so no mobile rule needed. */
+@media (min-width: 721px) {
+  /* Zero main's default 60px top padding for the non-fullbleed
+     projects so they reach the same baseline as the fullbleed
+     reference projects. */
+  main[data-project-slug="mars"],
+  main[data-project-slug="paintings"],
+  main[data-project-slug="intergalactic-helm"] {
+    padding-top: 0;
+  }
+
+  /* v2 Hero-first projects — adds the missing piece-gap above the
+     hero's own navbar clearance. */
+  .project-track-content[data-slug="mars"],
+  .project-track-content[data-slug="radioactivitea"],
+  .project-track-content[data-slug="precarity-a-domestic-tale"] {
+    padding-top: var(--piece-gap, 1.5vw);
+  }
+
+  /* v1 legacy — full clearance on main since there's no
+     `.project-track-content` to delegate to. */
+  main[data-project-slug="paintings"],
+  main[data-project-slug="intergalactic-helm"] {
     padding-top: calc(1rem + 56px + var(--piece-gap, 1.5vw));
   }
 }
@@ -4885,30 +4997,35 @@ main[data-project-slug="multiverse"] .project-track-content {
   gap: 0 !important;
 }
 
-/* shape-of-time desktop framing (re-added per request) — on
-   viewports ≥ 721px the canvas is shifted down by the chrome strip
-   and trimmed so its vertical band starts below the navbar, then
-   scaled to 0.8 and flex-centered. Mobile keeps the full-bleed
-   `100vw × 100dvh` from the block above. Higher specificity than
-   the full-bleed rule (extra `[data-sketch-id="shape-of-time"]`)
-   so this override wins on desktop without touching the other
-   single-sketch projects. */
+/* shape-of-time desktop framing — standalone `/projects/shape-of-time`
+   on viewports ≥ 721px uses the same `below-nav` canvas-fit pattern
+   as the meta-carousel slide (see the consolidated `below-nav` block
+   higher up). The wrapper sits flush against the chrome bottom
+   (`1rem + 56px = 72px`) and fills to the viewport bottom, so the
+   drawing centered in the canvas lands at the visible vertical
+   centre.
+
+   The previous formula used `1rem + var(--spacing-nav-h, 54px) +
+   1rem = 86px` margin-top — a hard-coded extra `1rem` above the
+   chip that pushed the wrapper 16px below the actual chrome bottom
+   (chrome ends at 70px under that math, but the rest of the site
+   treats it as 72px), creating a visible top gap while the wrapper
+   bottom remained flush against the viewport bottom. The drawing
+   inherited the asymmetry as "more gap above than below". */
 @media (min-width: 721px) {
   main[data-project-slug="shape-of-time"]
     .piece-sketch[data-sketch-id="shape-of-time"] {
-    margin-top: calc(1rem + var(--spacing-nav-h, 54px) + 1rem) !important;
-    height: calc(
-      100dvh - 1rem - var(--spacing-nav-h, 54px) - 1rem
-    ) !important;
+    margin-top: calc(1rem + 56px) !important;
+    height: calc(100dvh - 1rem - 56px) !important;
     display: flex !important;
     align-items: center;
     justify-content: center;
   }
-  main[data-project-slug="shape-of-time"]
-    .piece-sketch[data-sketch-id="shape-of-time"] canvas {
-    transform: scale(0.8);
-    transform-origin: center;
-  }
+  /* The `scale(0.8)` on the canvas used to add breathing room around
+     the drawing — that's now baked into the canvas via
+     `AMP_RATIO_X_DESKTOP = AMP_RATIO_Y_DESKTOP = 0.85` (see
+     `ShapeOfTimeCanvas.tsx`). Stacking both would compress the
+     drawing to 68% of canvas size. Dropped. */
 }
 
 /* ──────────────────────────────────────────────────────────────────
@@ -5049,6 +5166,110 @@ main[data-project-slug="multiverse"] .project-track-content {
 }
 
 /* ──────────────────────────────────────────────────────────────────
+   "below-nav" canvas-fit pattern — desktop meta-carousel only.
+
+   Sketches in this set should size their canvas vertically to fit
+   exactly between the bottom of the top navbar (`1rem` inset + `56px`
+   chip = 72px) and the bottom of the viewport. No gaps above or
+   below — the canvas IS the live area.
+
+   In set (desktop carousel):
+     - Lissajous family (pair-lines, full, portraits, unique, grid)
+     - Wave family (wave-1 through wave-6)
+     - jellyfish-grid
+     - shape-of-time
+     - roses-portraits (the second roses slide — roses-grid is NOT
+       in the set, it uses its own grid sizing)
+
+   Two CSS hooks working together:
+
+   1. `.project-track` gets `padding-top: calc(1rem + 56px)` so the
+      slide's content area shrinks to the live area (below navbar
+      → bottom of viewport). The slide's existing `justify-content:
+      safe center` then positions the canvas inside the live area.
+
+   2. `.piece-sketch` gets `height: calc(100dvh - 1rem - 56px)` so
+      the canvas matches the live area exactly. With canvas height
+      == content area height, `safe center` has nothing to distribute
+      → the canvas sits flush against navbar bottom AND viewport
+      bottom simultaneously.
+
+   The global `.piece-sketch[data-sketch-id^="lissajous"|^="wave-"]`
+   rule sets `height: 90dvh !important` for both standalone and
+   carousel contexts; this rule outranks it in the carousel context
+   (more specific via the `.meta-carousel-track > .project-track`
+   ancestor) so standalone routes keep their 90dvh framing.
+
+   eternal-return-toggle is NOT in the set even though it shares the
+   90dvh lissajous/wave height rule — its toggle button affordance
+   needs the bottom-1rem gap to read as floating above the canvas
+   frame instead of overlapping it.
+
+   ── Mobile carry-over ──
+   The lissajous-portraits mobile padding-bottom (PREV/NEXT chip
+   zone) lives below in its own block — see the comment there. */
+@media (min-width: 721px) {
+  /* Hook 1 — padding-top on the slide track. */
+  .meta-carousel-track
+    > .project-track:has(
+      > .project-track-content[data-slug^="lissajous"]
+    ),
+  .meta-carousel-track
+    > .project-track:has(> .project-track-content[data-slug^="wave-"]),
+  .meta-carousel-track
+    > .project-track:has(
+      > .project-track-content[data-slug="jellyfish-grid"]
+    ),
+  .meta-carousel-track
+    > .project-track:has(
+      > .project-track-content[data-slug="shape-of-time"]
+    ),
+  .meta-carousel-track
+    > .project-track:has(
+      > .project-track-content[data-slug="roses-portraits"]
+    ) {
+    padding-top: calc(1rem + 56px);
+  }
+
+  /* Hook 2 — canvas height matches the live area exactly. The
+     `!important` mirrors the global `[data-sketch-id^="lissajous"|
+     ^="wave-"]` rule's `!important` so the two compose correctly. */
+  .meta-carousel-track
+    > .project-track
+    .piece-sketch[data-sketch-id^="lissajous"],
+  .meta-carousel-track
+    > .project-track
+    .piece-sketch[data-sketch-id^="wave-"],
+  .meta-carousel-track
+    > .project-track
+    .piece-sketch[data-sketch-id="jellyfish-grid"],
+  .meta-carousel-track
+    > .project-track
+    .piece-sketch[data-sketch-id="shape-of-time"],
+  .meta-carousel-track
+    > .project-track
+    .piece-sketch[data-sketch-id="roses-portraits"] {
+    height: calc(100dvh - 1rem - 56px) !important;
+  }
+}
+
+/* Mobile carry-over: portraits' PREV/NEXT chip-zone padding-bottom.
+   Kept separate from the desktop block since it's not part of the
+   `below-nav` pattern — it just happens to share the
+   chrome-aware-padding mechanism. */
+@media (max-width: 720px) {
+  .meta-carousel-track
+    > .project-track:has(
+      > .project-track-content[data-slug="lissajous-portraits"]
+    ) {
+    padding-bottom: calc(
+      var(--mobile-sidebar-icon-inset, 1rem) +
+        var(--mobile-sidebar-icon-size, 56px)
+    );
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────
    Shape-of-time refresh chip — circular icon button that bumps the
    canvas's `refreshTick` to re-roll the freqA:freqB pair. Pinned to
    the same row as the chrome PREV/NEXT chips so the affordance reads
@@ -5090,6 +5311,28 @@ main[data-project-slug="multiverse"] .project-track-content {
 .shape-of-time-refresh:focus-visible {
   outline: 2px solid var(--color-light);
   outline-offset: 2px;
+}
+
+/* Portal gating — `ShapeOfTimeWithRefresh` portals the chip to
+   `document.body` so it escapes the meta-carousel's `transform`
+   ancestor (otherwise `position: fixed` would be containing-block-
+   scoped to the multi-slide track and the chip lands off-viewport
+   horizontally). Side effect: the chip is now in `body` for every
+   shape-of-time wrapper instance — including the (real + clone)
+   pair in the meta carousel, AND any other page that happens to
+   mount the wrapper. Default to hidden; only reveal when the page
+   actually displays the shape-of-time sketch:
+     - Standalone page: `main[data-project-slug="shape-of-time"]`
+     - Meta carousel active slide: `body[data-meta-active-slug=
+       "shape-of-time"]` (set by `MetaCarousel`)
+   `:has()` lets the body-level rule reach into the page for the
+   standalone match without threading a class through React. */
+.shape-of-time-refresh {
+  display: none;
+}
+body:has(main[data-project-slug="shape-of-time"]) .shape-of-time-refresh,
+body[data-meta-active-slug="shape-of-time"] .shape-of-time-refresh {
+  display: flex;
 }
 
 /* Mobile — drop down to the bottom PREV/NEXT row and align with it

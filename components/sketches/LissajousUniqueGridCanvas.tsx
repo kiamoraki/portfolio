@@ -196,9 +196,25 @@ const sketch = (p: any) => {
   };
 
   const dims = (): [number, number] => {
-    // Canvas is sized to the viewport — ignores the parent wrapper so the
-    // grid fills the full screen even when rendered inside a carousel
-    // slide that would otherwise constrain it to a square.
+    // Track the parent (`.piece-sketch`) instead of the viewport. The
+    // parent is 90dvh × 100vw on the lissajous routes (per the global
+    // `[data-sketch-id^="lissajous"]` height rule) and uses
+    // `overflow: hidden`. If the canvas is sized to the viewport
+    // (100vh) it overflows by ~10dvh — and `buildCurves()` centers
+    // the grid in `p.height` (the FULL canvas height), so the grid
+    // center lands at viewport-y 50vh while the VISIBLE area is
+    // centered around viewport-y 45vh. Result: visibly larger empty
+    // band at the top of the wrapper than the bottom. Reading the
+    // parent's `clientWidth/clientHeight` (set by `p._userNode` on
+    // the p5 ctor before `setup` runs) so the canvas matches the
+    // visible area and the grid centers symmetrically.
+    const node =
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ((p as any)._userNode ||
+        (p.canvas && p.canvas.parentElement)) as HTMLElement | null;
+    if (node && node.clientWidth > 0 && node.clientHeight > 0) {
+      return [node.clientWidth, node.clientHeight];
+    }
     if (typeof window !== "undefined") {
       return [window.innerWidth, window.innerHeight];
     }
@@ -290,8 +306,16 @@ export function LissajousUniqueGridCanvas({
     <div
       ref={containerRef}
       style={{
-        width: "100vw",
-        height: "100dvh",
+        // `inFlow` from the `Sketch` primitive means the canvas lives
+        // inside `.piece-sketch` (90dvh on desktop, `calc(100svh -
+        // 56px)` on mobile per the lissajous height rule) — fill it
+        // via `100%` instead of escaping to `100vw × 100dvh`, otherwise
+        // the bottom of the canvas falls into the wrapper's
+        // `overflow: hidden` strip and the grid lands biased toward
+        // the bottom of the visible area (= more empty space at the
+        // top than the bottom of the visible canvas).
+        width: inFlow ? "100%" : "100vw",
+        height: inFlow ? "100%" : "100dvh",
         background: "#130c12",
         overflow: "hidden",
       }}

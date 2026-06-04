@@ -11,6 +11,10 @@ import { useEffect, useRef } from "react";
 const PROJECT_BLUE = { r: 42, g: 88, b: 255 };
 const PROJECT_PINK = { r: 255, g: 69, b: 230 };
 const NUM_DOTS = 20;
+// Same breakpoint the global CSS uses to flip lissajous layouts
+// between the desktop and mobile patterns — kept in sync so the
+// JS amp ratio switches at the same width the CSS wrapper does.
+const MOBILE_BREAKPOINT = 720;
 // No hold phase — the animation is continuous interpolation: the moment
 // particles reach the target pair, they immediately begin morphing
 // toward the next pair in the cycle. The motion never settles.
@@ -182,6 +186,18 @@ const sketch = (p: any) => {
   const trailPinkY: number[][] = Array.from({ length: NUM_DOTS }, () => []);
 
   const dims = (): [number, number] => {
+    // Read parent (set by `new P5(sketch, container)` via
+    // `p._userNode`) before the canvas exists so the first
+    // `createCanvas()` already matches the wrapper. Falls back to
+    // `p.canvas.parentElement` once the canvas is mounted, and to
+    // the viewport in the rare case neither is available.
+    const node =
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ((p as any)._userNode ||
+        (p.canvas && p.canvas.parentElement)) as HTMLElement | null;
+    if (node && node.clientWidth > 0 && node.clientHeight > 0) {
+      return [node.clientWidth, node.clientHeight];
+    }
     if (typeof window !== "undefined") {
       return [window.innerWidth, window.innerHeight];
     }
@@ -191,16 +207,27 @@ const sketch = (p: any) => {
   const recomputeSize = () => {
     cx = p.width / 2;
     cy = p.height / 2;
-    // Pull the live viewport dimensions (with a p.width/p.height
-    // fallback for non-window contexts) and size each axis to fill it.
-    // 0.46 of each half-axis leaves ~4% margin at every edge — enough
-    // for the dots not to clip when the curve hits its extremes.
-    const vw =
-      typeof window !== "undefined" ? window.innerWidth : p.width;
-    const vh =
-      typeof window !== "undefined" ? window.innerHeight : p.height;
-    ampX = (vw / 2) * 0.92;
-    ampY = (vh / 2) * 0.92;
+    // Derive amp from the CANVAS, not the viewport — matches the
+    // shape-of-time pattern. Previously this read `window.innerWidth/
+    // innerHeight` and sized each axis to fill the viewport, which
+    // worked when the container was forced to `100vw × 100dvh` but
+    // overflowed the actual 90dvh `.piece-sketch` wrapper, hiding
+    // the bottom of the figure under the wrapper's `overflow: hidden`.
+    // Now that the container respects `inFlow` and the canvas matches
+    // the wrapper, `p.width / p.height` are the correct visible
+    // dimensions.
+    //
+    // The X axis uses a slightly tighter ratio on desktop (0.85 vs
+    // 0.92 mobile) so the curve pulls in from the screen edges
+    // instead of brushing them — the wide landscape viewports made
+    // the asterisk read as too wide relative to its vertical extent.
+    // Same shape-of-time pattern of having a `AMP_RATIO_X_MOBILE` /
+    // desktop split. Mobile keeps the original 0.92 (~4% margin)
+    // since the portrait viewport already constrains the curve
+    // naturally.
+    const isMobile = p.width <= MOBILE_BREAKPOINT;
+    ampX = (p.width / 2) * (isMobile ? 0.92 : 0.85);
+    ampY = (p.height / 2) * 0.92;
   };
 
   p.setup = () => {
@@ -373,6 +400,7 @@ type CanvasProps = { isActive?: boolean; inFlow?: boolean };
 
 export function LissajousPairLinesCanvas({
   isActive = true,
+  inFlow = false,
 }: CanvasProps = {}) {
   const containerRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -413,8 +441,15 @@ export function LissajousPairLinesCanvas({
     <div
       ref={containerRef}
       style={{
-        width: "100vw",
-        height: "100dvh",
+        // `inFlow` from the `Sketch` primitive means the canvas
+        // lives inside `.piece-sketch` (which is 90dvh on desktop,
+        // `calc(100svh - 56px)` on mobile per the global lissajous
+        // sizing rule) — fill it via `100%` instead of escaping to
+        // `100vw × 100dvh`, otherwise the bottom of the canvas falls
+        // into the wrapper's `overflow: hidden` strip and the figure
+        // crops vertically.
+        width: inFlow ? "100%" : "100vw",
+        height: inFlow ? "100%" : "100dvh",
         background: "#130c12",
         overflow: "hidden",
       }}

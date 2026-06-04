@@ -26,6 +26,20 @@ const AMP_RATIO_Y_MOBILE = 0.8;
    `1.0` = match the previous behavior (curve fills full width); `0.9`
    = ~10% narrower (curve sits with ~5% margin on each side). */
 const AMP_RATIO_X_MOBILE = 0.9;
+/* Desktop counterparts — pulls the curve in slightly from BOTH
+   horizontal and vertical canvas edges so the figure has visible
+   margins instead of brushing against them. Previously desktop used
+   no multiplier (axes filled the canvas edge-to-edge), which made
+   the figure feel cramped against the chrome on the `below-nav`
+   canvas-fit layout where the canvas already runs flush against the
+   navbar bottom and viewport bottom.
+     1.0  → fills the canvas exactly (previous behavior)
+     0.85 → ~7.5% margin on each side (current — a small breathing
+            room, identical X and Y so the figure isn't stretched)
+     0.7  → noticeably tighter, almost like the figure is "framed"
+            inside the canvas */
+const AMP_RATIO_X_DESKTOP = 0.85;
+const AMP_RATIO_Y_DESKTOP = 0.85;
 /* Breakpoint matching the rest of the site's `@media (max-width:
    720px)` boundary. */
 const MOBILE_BREAKPOINT = 720;
@@ -199,7 +213,7 @@ const sketch = (p: any) => {
     const widthForX =
       p.width <= MOBILE_BREAKPOINT
         ? p.width * AMP_RATIO_X_MOBILE
-        : p.width;
+        : p.width * AMP_RATIO_X_DESKTOP;
     xScale = ampMax > 0 ? widthForX / 2 / ampMax : 1;
     // yScale: was `(p.height / 2) / ampMax`, which stretched the
     // figure to fill the full viewport height in both axes — fine on
@@ -212,11 +226,13 @@ const sketch = (p: any) => {
     // higher / lower from there to shape the figure. Desktop keeps
     // the original "stretch to fill" behavior.
     const isMobile = p.width <= MOBILE_BREAKPOINT;
-    if (isMobile && ampMax > 0) {
-      const ampMaxY = p.height * AMP_RATIO_Y_MOBILE;
+    if (ampMax > 0) {
+      const ampMaxY = isMobile
+        ? p.height * AMP_RATIO_Y_MOBILE
+        : p.height * AMP_RATIO_Y_DESKTOP;
       yScale = ampMaxY / 2 / ampMax;
     } else {
-      yScale = ampMax > 0 ? p.height / 2 / ampMax : 1;
+      yScale = 1;
     }
 
     const cfg = getConfig();
@@ -305,8 +321,29 @@ const sketch = (p: any) => {
   const desiredCanvasSize = (): [number, number] => {
     const cfg = getConfig();
     if (cfg.square) {
+      // Batch-record / square mode keeps using the viewport min so a
+      // recorder gets a fixed-size square canvas regardless of where
+      // the wrapper happens to sit on the page.
       const s = Math.min(window.innerWidth, window.innerHeight);
       return [s, s];
+    }
+    // Track the PARENT (.piece-sketch wrapper) instead of the viewport.
+    // The wrapper is `calc(100dvh - 1rem - 56px)` on desktop under the
+    // `below-nav` pattern (and on the standalone shape-of-time desktop
+    // route), while the viewport itself is `100dvh`. Sizing the canvas
+    // to the viewport made it overflow the wrapper by `1rem + 56px` at
+    // the bottom; the wrapper's `overflow: hidden` then clipped the
+    // overflow, while the drawing centered in the canvas (cy =
+    // p.height/2) landed 36px below the visible vertical center.
+    // Reading `_userNode.clientWidth/clientHeight` matches the wrapper
+    // exactly so the drawing's center coincides with the visible
+    // wrapper's center.
+    const node =
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ((p as any)._userNode ||
+        (p.canvas && p.canvas.parentElement)) as HTMLElement | null;
+    if (node && node.clientWidth > 0 && node.clientHeight > 0) {
+      return [node.clientWidth, node.clientHeight];
     }
     return [window.innerWidth, window.innerHeight];
   };
@@ -421,13 +458,14 @@ type CanvasProps = {
   square?: boolean;
   autoDensity?: boolean;
   drawing?: boolean;
-  /** Accepted but ignored — the `Sketch` primitive forwards `inFlow`
-   *  defensively to every canvas it wraps so the consumer can position
-   *  itself relative to the page flow vs `position: fixed`. This
-   *  canvas relies on CSS scoped by `.piece-sketch[data-sketch-id=
-   *  "shape-of-time"]` instead, so the flag is a no-op here. Declared
-   *  so the `ShapeOfTimeWithRefresh` wrapper can forward it without
-   *  a TS error. */
+  /** Forwarded by the `Sketch` primitive so the canvas container can
+   *  match the `.piece-sketch` wrapper instead of hardcoding `100dvh`.
+   *  Used in the carousel where the wrapper is `calc(100dvh - 1rem -
+   *  56px)` (the `below-nav` canvas-fit pattern) — without respecting
+   *  `inFlow`, the 100dvh container overflows the wrapper by 72px at
+   *  the bottom (clipped by the wrapper's `overflow: hidden`), and the
+   *  drawing centered in the canvas ends up 36px below the visible
+   *  center. */
   inFlow?: boolean;
 };
 
@@ -439,6 +477,7 @@ export function ShapeOfTimeCanvas({
   square,
   autoDensity,
   drawing,
+  inFlow = false,
 }: CanvasProps = {}) {
   const containerRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -525,8 +564,13 @@ export function ShapeOfTimeCanvas({
     <div
       ref={containerRef}
       style={{
+        // `inFlow` from `Sketch` → match the `.piece-sketch` wrapper
+        // (which is `calc(100dvh - 1rem - 56px)` in the carousel under
+        // the `below-nav` pattern). Falling back to `100dvh` for the
+        // standalone batch-record route where the canvas is the only
+        // thing on the page and should fill the viewport.
         width: "100%",
-        height: "100dvh",
+        height: inFlow ? "100%" : "100dvh",
         background: "#000",
         overflow: "hidden",
         display: square ? "flex" : "block",

@@ -26,7 +26,7 @@ export default function Home() {
             <Link href="/projects/paintings/">paintings</Link>,{" "}
             <Link href="/projects/activations/">activations</Link>, and{" "}
             <Link href="/projects/design/">posters</Link>. <br />
-            If you are looking for my work as a full stack designer and ux engineer, please message me for a portfolio.
+            I freelance as a full stack designer and ux engineer, work samples are located at the bottom of my <Link href="/about">cv</Link>.
           </p>
         </section>
         <ProjectGrid projects={projects} />
