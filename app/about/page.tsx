@@ -89,7 +89,7 @@ export default function AboutPage() {
                 <ul>
                   <li>Digital Creative Director <a target="_blank" rel="noopener noreferrer" href="https://audiofemme.com">Audiofemme</a></li>
                   <li>Office Manager @ HEaT for <a href="https://burningman.org">The Burning Man Project</a></li>
-                  <li>Virutal STEAM startup Co-Founder <a target="_blank" rel="noopener noreferrer" href="https://mars.radio">Mars.Radio</a></li>
+                  <li>Virutal STEAM startup Co-Founder <a target="_blank" rel="noopener noreferrer" href="https://kiamoraki.com/sites/marsradio/">Mars.Radio</a></li>
                   <li>Front End Developer, <a href="https://cgp.com">C&G Partners</a></li>
                   <li>Product Designer, <a href="https://nasdaq.com">Nasdaq</a></li>
                   <li>Graphic Designer, <a href="https://taprootfoundation.org">Taproot Foundation</a></li>
@@ -99,8 +99,8 @@ export default function AboutPage() {
                 <ul>
                   <li>Professor @ <a href="https://mars.college">Mars College</a></li>
                   <li>Coach @ <a href="https://kiamoraki.com/sites/marsradio/">Mars Radio Cyber Arts Camp</a></li>
-                  <li>Adobe Suite & Web Design @ <a href="https://thirdward.org">Third Ward</a></li>
-                  <li>Web Design & Dev @ <a href="https://codenation.org/">Code Nation</a></li>
+                  <li>Adobe Suite & Web Design Instructor @ <a href="https://thirdward.org">Third Ward</a></li>
+                  <li>Web Design & Dev Instructor @ <a href="https://codenation.org/">Code Nation</a></li>
                 </ul>
 
                 <h3>Speaking Engagements</h3>

@@ -685,6 +685,7 @@ main.dark .text { color: var(--color-light); }
   background-color: #b588ff;
   color: var(--color-dark);
 }
+
 @media (max-width: 720px) {
   /* The mobile icon buttons live as a vertical stack of small bordered
      squares in the top-left. INSET + ICON-SIZE keep the layout
@@ -1613,10 +1614,10 @@ html.vt-next::view-transition-new(root) {
   margin: 0 0 20px;
 }
 #about-info ul.socials { display: flex; justify-content: center; gap: 10px; }
-#about-info ul.socials a.icon-standard { font-size: 15px; }
+#about-info ul.socials :is(a, button).icon-standard { font-size: 15px; }
 #about-info ul.socials li { border: 10px solid transparent; transition: border-color 0.2s; }
 #about-info ul.socials li:hover { border-color: var(--color-light); }
-#about-info ul.socials a {
+#about-info ul.socials :is(a, button) {
   color: var(--color-dark);
   background: transparent;
   padding: 80px;
@@ -1625,7 +1626,7 @@ html.vt-next::view-transition-new(root) {
   justify-content: center;
 }
 @media (max-width: 720px) {
-  #about-info ul.socials a { padding: 40px; }
+  #about-info ul.socials :is(a, button) { padding: 40px; }
   #about-info ul.socials li { margin: 0 2px; }
 }
 
@@ -1668,7 +1669,7 @@ main.about #about-info ul.socials {
   padding-left: 40px;
 }
 main.about #about-info ul.socials li { border-width: 4px; }
-main.about #about-info ul.socials a {
+main.about #about-info ul.socials :is(a, button) {
   width: 56px;
   height: 56px;
   padding: 0;
@@ -1720,7 +1721,7 @@ main.about #about-cv .about-tabs { margin: 0; }
     max-width: none;
   }
   main.about #about-info ul.socials li { border-width: 0; margin: 0; }
-  main.about #about-info ul.socials a {
+  main.about #about-info ul.socials :is(a, button) {
     width: var(--spacing-nav-h-mobile);
     height: var(--spacing-nav-h-mobile);
     padding: 0;
@@ -1742,7 +1743,7 @@ main.about #about-cv .about-tabs { margin: 0; }
     padding-top: 1rem;
     z-index: 5000;
   }
-  main.about #about-info ul.socials a {
+  main.about #about-info ul.socials :is(a, button) {
     /* Socials match the bumped chrome-chip size (`--mobile-sidebar-
        icon-size`, 56px) so the rail down the left edge reads as part
        of the same chip family as Home/CV. Was 72×44 from the older
@@ -3975,9 +3976,9 @@ main[data-project-slug="intergalactic-helm"] .row {
     border: 0 !important;
     margin: 0;
   }
-  main.about #about-info ul.socials a,
-  main.about #about-info ul.socials a:link,
-  main.about #about-info ul.socials a:visited {
+  main.about #about-info ul.socials :is(a, button),
+  main.about #about-info ul.socials :is(a, button):link,
+  main.about #about-info ul.socials :is(a, button):visited {
     width: var(--spacing-nav-h-mobile);
     height: var(--spacing-nav-h-mobile);
     box-sizing: border-box;
@@ -4000,9 +4001,17 @@ main[data-project-slug="intergalactic-helm"] .row {
    and left-inset match Home (`--mobile-sidebar-icon-size` square,
    `--mobile-sidebar-icon-inset` left). */
 @media (max-width: 720px) {
+  /* Stack starts BELOW the CV chip (Home is at slot 1, CV at slot 2,
+     so socials begin at slot 3 = `inset + chip * 2 - 2px`). The `-2px`
+     is the shared-border offset — the first social's top sits 2px
+     above the bottom edge of CV so the two `border: 2px solid` lines
+     overlap into a single seam. Was `inset + chip - 2px`, which put
+     the first social on top of the CV chip and made the mail icon
+     look hidden. */
   main.about #about-info ul.socials {
     top: calc(
-      var(--mobile-sidebar-icon-inset) + var(--mobile-sidebar-icon-size) - 2px
+      var(--mobile-sidebar-icon-inset) + var(--mobile-sidebar-icon-size) * 2 -
+        2px
     );
     left: var(--mobile-sidebar-icon-inset);
     width: var(--mobile-sidebar-icon-size);
@@ -4013,9 +4022,9 @@ main[data-project-slug="intergalactic-helm"] .row {
   /* Match Home's chip size (56×56) so the strip reads as uniform.
      Drop the top border so the chip above's bottom edge is the
      shared line. */
-  main.about #about-info ul.socials a,
-  main.about #about-info ul.socials a:link,
-  main.about #about-info ul.socials a:visited {
+  main.about #about-info ul.socials :is(a, button),
+  main.about #about-info ul.socials :is(a, button):link,
+  main.about #about-info ul.socials :is(a, button):visited {
     width: var(--mobile-sidebar-icon-size);
     height: var(--mobile-sidebar-icon-size);
     border-top: 0;

@@ -264,14 +264,20 @@ export function RoseGridCanvas() {
           pointer-events: none;
         }
         @media (max-width: 720px) {
-          .rose-grid-fullbleed {
-            width: 100%;
-            margin-left: 0;
-            margin-right: 0;
-            margin-bottom: 0;
-            height: auto;
-            aspect-ratio: 1;
-          }
+          /* Mobile: fill the full viewport (carousel slide + standalone
+             project page both share this arrangement). Was a square
+             (aspect-ratio: 1) which left empty space below the grid;
+             the user prefers the grid to occupy the whole screen and
+             let subsequent pieces scroll below on the standalone
+             page. */
+            .rose-grid-fullbleed {
+              width: 100%;
+              margin-left: 0;
+              margin-right: 0;
+              margin-bottom: 0;
+              height: 100dvh;
+              aspect-ratio: auto;
+            }
         }
       `}</style>
       <div ref={containerRef} className="rose-grid-fullbleed" />

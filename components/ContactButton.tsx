@@ -21,7 +21,26 @@ export function ContactButton() {
         aria-label="Send Kirby an email via the contact form"
         aria-haspopup="dialog"
       >
-        mail
+        {/* Inline SVG envelope — TWO simple filled shapes: rectangle
+            for the body + triangle for the flap. Both `fill=
+            "currentColor"` to match the visual weight of the other
+            socials rail icons (Patreon, Mixcloud, Substack — all use
+            simple filled paths). Was the compact Material Icons
+            multi-subpath silhouette which the user couldn't see — this
+            split-shape version is more obviously legible. */}
+        <svg
+          viewBox="0 0 24 24"
+          width="20"
+          height="20"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          {/* Classic envelope silhouette — pentagon with a V-valley
+              cut at the top edge (the open flap). Reads unambiguously
+              as a mail icon at small sizes without needing inner
+              detail. */}
+          <polygon points="3,7 12,13 21,7 21,19 3,19" />
+        </svg>
       </button>
       <ContactModal open={open} onClose={() => setOpen(false)} />
     </>
