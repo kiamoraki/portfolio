@@ -18,12 +18,16 @@ description: |
   — Friedrich Nietzsche, The Gay Science §341 (1882)
 ---
 
-<Piece id="eternal-return-unobserved" tags="animations">
-  <Sketch id="eternal-return-unobserved" bg="#000" />
-</Piece>
-
-<Piece id="eternal-return-observed" tags="animations">
-  <Sketch id="eternal-return-observed" bg="#000" />
+{/* Single canvas piece with the closed-eye / open-eye toggle buttons
+    overlaid — tapping each button flips the canvas's internal
+    `triggered` state between the meditative unobserved grid (closed
+    eye) and the observed cell-replacement loop (open eye). Replaces
+    the previous pair of separate `eternal-return-unobserved` and
+    `eternal-return-observed` pieces; both states now live inside the
+    one toggleable sketch via `EternalReturnUnobservedCanvas`'s
+    imperative `setTriggered` ref. */}
+<Piece id="eternal-return-toggle" tags="animations">
+  <Sketch id="eternal-return-toggle" bg="#000" />
 </Piece>
 
 <Piece id="eternal-return-install">

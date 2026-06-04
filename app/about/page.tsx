@@ -1,5 +1,6 @@
 import { Nav } from "@/components/Nav";
 import { AboutTabs } from "@/components/AboutTabs";
+import { ContactButton } from "@/components/ContactButton";
 
 export const metadata = { title: "About — Kirby" };
 
@@ -34,9 +35,13 @@ export default function AboutPage() {
           socials={
             <ul className="socials">
               <li>
-                <a href="mailto:kiamorakirby@gmail.com" className="icon-standard" aria-label="Email">
-                  mail
-                </a>
+                {/* Was a plain `<a href="mailto:...">`. Replaced with
+                    `<ContactButton />` which opens a modal contact form
+                    in-page (form submission flows through Web3Forms).
+                    The button keeps the same `.icon-standard` class so
+                    it slots into the existing `.socials > li` grid
+                    without any visual layout change. */}
+                <ContactButton />
               </li>
               <li>
                 <a target="_blank" rel="noopener noreferrer" href="https://www.patreon.com/cw/kiamora" aria-label="Patreon">
@@ -131,9 +136,12 @@ export default function AboutPage() {
                   <li><strong>2009</strong> BFA Fine Arts & Architecture / Miami University / Oxford / OH</li>
                 </ul>
 
-                <h3>Websites</h3>
+                <h3>Website Design & Builds</h3>
                 <ul>
-                  <li><a href="https://audiofemme.com">Audiofemme</a> / Design & Dev</li>
+                  <li><a href="https://audiofemme.com">Audiofemme</a></li>
+                  <li><a href="https://kiamoraki.com/sites/marsradio/">Mars.Radio</a></li>
+                  <li><a href="https://kiamoraki.com/sites/xtian.dev/">Xtian.dev</a></li>
+                  <li><a href="https://kiamoraki.com/sites/eos/eos-demo-site/index.html">EOS.org</a></li>
                 </ul>
               </>
             }

@@ -75,7 +75,6 @@ export const EternalReturnUnobservedCanvas = forwardRef<
     let p5Instance: import("p5") | null = null;
     let cancelled = false;
     let io: IntersectionObserver | null = null;
-    const scrollState = { lastScrollAt: 0 };
 
     (async () => {
       const p5Mod = await import("p5");
@@ -463,6 +462,16 @@ export const EternalReturnUnobservedCanvas = forwardRef<
           return [p.windowWidth, p.windowHeight];
         };
 
+        // Track the canvas WIDTH at last rebuild. Mobile browsers fire
+        // a window `resize` (and the parent ResizeObserver fires too)
+        // every time the URL bar shows / hides on scroll — that's
+        // purely a HEIGHT change. Without this guard, every URL-bar
+        // transition would `cells.length = 0` and reseed the grid,
+        // visually "resetting" the animation back to the beginning on
+        // every scroll. Only a real WIDTH change (orientation flip,
+        // viewport reflow) triggers the full rebuild now.
+        let prevCanvasW = 0;
+
         p.setup = () => {
           const [cw, ch] = getCanvasDims();
           const c = p.createCanvas(cw, ch);
@@ -474,11 +483,17 @@ export const EternalReturnUnobservedCanvas = forwardRef<
             cell.isFirstLoop = true;
             cells.push(cell);
           }
+          prevCanvasW = cw;
         };
 
         p.windowResized = () => {
           const [cw, ch] = getCanvasDims();
           p.resizeCanvas(cw, ch);
+          // Width unchanged → URL-bar-driven height tick. Just resize
+          // the canvas surface and leave the running cells in place so
+          // the animation keeps going on scroll.
+          if (cw === prevCanvasW) return;
+          prevCanvasW = cw;
           layoutGrid();
           cells.length = 0;
           for (let i = 0; i < origins.length; i++) {
@@ -534,15 +549,13 @@ export const EternalReturnUnobservedCanvas = forwardRef<
             prevTriggered = triggered;
           }
 
-          // `racing` is the "pump pctAdder up to 0.1 for everyone" state used
-          // for carousel-swipe and scroll feedback. We intentionally do NOT
-          // include `triggered` here — the observed state's initial rush is
-          // handled by the boost speedMul below, so once that boost ends the
-          // cells decay back to their slow random pctAdder for a meditative
-          // observed loop instead of staying locked at racing speed.
-          const racing =
-            racingRef.current ||
-            Date.now() - scrollState.lastScrollAt < 80;
+          // `racing` is the "pump pctAdder up to 0.1 for everyone" state.
+          // Was also coupled to a scroll heuristic (`Date.now() -
+          // scrollState.lastScrollAt < 80`) so any scroll within the last
+          // 80ms pulled the cells into a fast pulse — removed per request
+          // ("no effect happens on scroll"). The carousel-swipe path still
+          // toggles it via the exposed `setRacing` ref. */
+          const racing = racingRef.current;
           const targetSpeed: "racing" | "default" = racing ? "racing" : "default";
           if (currentSpeed !== targetSpeed) {
             for (const c of cells) {
@@ -651,32 +664,14 @@ export const EternalReturnUnobservedCanvas = forwardRef<
       }, containerRef.current) as any;
     })();
 
-    const updateObservedLatch = () => {
-      const rows = document.querySelectorAll("main .row");
-      const lastRow = rows[rows.length - 1] as HTMLElement | undefined;
-      if (!lastRow) return;
-      const rect = lastRow.getBoundingClientRect();
-      const vh = window.innerHeight;
-      const rowCenter = (rect.top + rect.bottom) / 2;
-      const viewportCenter = vh / 2;
-      const isCenteredOrAbove = rowCenter <= viewportCenter;
-      if (isCenteredOrAbove && !triggeredRef.current) {
-        triggeredRef.current = true;
-      } else if (!isCenteredOrAbove && triggeredRef.current) {
-        triggeredRef.current = false;
-      }
-    };
-
-    const onScroll = () => {
-      scrollState.lastScrollAt = Date.now();
-      updateObservedLatch();
-    };
-    let initialLatchCheck: ReturnType<typeof setTimeout> | null = null;
-    if (!controlled) {
-      window.addEventListener("scroll", onScroll, { passive: true });
-      window.addEventListener("resize", updateObservedLatch, { passive: true });
-      initialLatchCheck = setTimeout(updateObservedLatch, 200);
-    }
+    /* The standalone eternal-return page used to flip the canvas into
+       "observed" mode once the last `.row` scrolled past viewport
+       center, and to pulse the cells faster while the user scrolled
+       (`onScroll` updated `scrollState.lastScrollAt`). Both effects
+       removed per request — no scroll input should drive any canvas
+       behavior. `controlled` paths (the carousel) keep using the
+       `setRacing` / `setTriggered` refs exposed on the imperative
+       handle, so those remain unaffected. */
 
     // Detect container size changes (e.g. when parent computes inFlow height
     // post-mount) and re-fit the canvas accordingly.
@@ -722,11 +717,6 @@ export const EternalReturnUnobservedCanvas = forwardRef<
       cancelled = true;
       if (resizeObserver) resizeObserver.disconnect();
       io?.disconnect();
-      if (!controlled) {
-        window.removeEventListener("scroll", onScroll);
-        window.removeEventListener("resize", updateObservedLatch);
-        if (initialLatchCheck) clearTimeout(initialLatchCheck);
-      }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (p5Instance as any)?.remove?.();
     };

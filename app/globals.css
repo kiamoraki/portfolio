@@ -109,8 +109,22 @@ html, body {
   min-height: 100%;
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
 }
+/* Was `html, body { overflow-x: hidden }`. On iOS Safari `overflow-x:
+   hidden` on `<html>` makes the html element a scroll container, which
+   breaks `position: fixed` — the chrome chips end up scrolling along
+   with the page instead of staying pinned. Splitting the rule:
+     - `<html>` uses `overflow-x: clip` (Safari 16+, Chrome 90+),
+       which prevents horizontal scrollbars WITHOUT creating a scroll
+       container, so descendants of <html> with `position: fixed` keep
+       working.
+     - `<body>` keeps the legacy `overflow-x: hidden` as a fallback
+       for browsers without `clip` support — fixed positioning on body
+       behaves correctly even when body is a scroll container, because
+       the viewport is still <html>. */
+html { overflow-x: clip; }
+body { overflow-x: hidden; }
+
 body {
   font-family: var(--font-body);
   color: var(--color-dark);
@@ -528,7 +542,7 @@ main.dark .text { color: var(--color-light); }
     left: 0;
     top: var(--spacing-nav-h-mobile);
     right: 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    border-top: 1px solid color-mix(in srgb, var(--color-light) 20%, transparent);
   }
 }
 .nav-projects .project-title {
@@ -677,11 +691,13 @@ main.dark .text { color: var(--color-light); }
      consistent across both the grid and CV/info buttons. */
   :root {
     --mobile-sidebar-icon-inset: 1rem; /* matches .meta-carousel-nav inset */
-    /* Smaller mobile chip — was 56px (matching the bottom PREV/NEXT
-       chips at 56px). Reduced to 44px (the iOS HIG minimum tap
-       target) so the Home + CV vertical stack takes less of the
-       viewport's top-left corner. */
-    --mobile-sidebar-icon-size: 44px;
+    /* Bumped 44 → 56 — the previous 44 (iOS HIG minimum) read as
+       small alongside the title chip's text and the bottom PREV/NEXT
+       chips (both already 56). 56 brings them up to a consistent
+       chrome rhythm and gives a fingertip-friendlier target on the
+       mobile sidebar stack. The CV-page social rail mirrors this
+       size below so the socials sit at the same scale. */
+    --mobile-sidebar-icon-size: 56px;
   }
   .nav-main {
     left: var(--mobile-sidebar-icon-inset);
@@ -995,15 +1011,17 @@ main.dark .text { color: var(--color-light); }
   padding: 4rem 2rem;
   box-sizing: border-box;
 }
-/* Homepage intro paragraph — inherits the body typography (DroidSans
-   14px / line-height 22px / dark color) so it matches the CV section's
-   li items. Only layout properties are set here. */
+/* Homepage intro paragraph — bumped from body-default `14px/22px` up
+   to `16px/24px` so the intro reads as the prominent first-pass copy
+   it is, rather than as standard body text. Color, family, and
+   spacing still cascade from the body so it stays visually consistent
+   with the rest of the page. */
 .index-intro p {
   max-width: 720px;
   text-align: left;
   margin: 0;
-  font-size: inherit;
-  line-height: inherit;
+  font-size: 16px;
+  line-height: 24px;
   letter-spacing: normal;
 }
 .index-intro p a {
@@ -1024,6 +1042,20 @@ main.dark .text { color: var(--color-light); }
      can't drop it. */
   .index-intro {
     padding: 2rem 1.25rem 2rem 88px;
+  }
+}
+
+/* Desktop — the Home + CV chrome chips form a horizontal block at
+   top:1rem left:1rem spanning `2 × --spacing-nav-icon-w` of width
+   (Home + CV side-by-side). Set the intro's `padding-left` to that
+   block's right edge + 1rem breathing room so the paragraph's left
+   edge always begins past the icons, even when the viewport is
+   narrow enough that the centered text would otherwise tuck up
+   under them. The flex container's `justify-content: center` then
+   re-centers the paragraph inside whatever space remains. */
+@media (min-width: 721px) {
+  .index-intro {
+    padding-left: calc(2rem + var(--spacing-nav-icon-w) * 2);
   }
 }
 
@@ -1289,15 +1321,11 @@ html.vt-next::view-transition-new(root) {
     background: #000;
   }
 
-  /* Scale the rendered shape-of-time canvas down ~12% so the sketch
-     reads a touch quieter against the full viewport — the container
-     itself stays 100vw × 100dvh (so the black bg fills the screen),
-     only the canvas bitmap shrinks. Transform-origin centers the
-     scale so the composition stays balanced. */
-  .piece-sketch[data-sketch-id="shape-of-time"] canvas {
-    transform: scale(0.88);
-    transform-origin: center;
-  }
+  /* shape-of-time desktop overrides used to live HERE (inside the
+     `@media (max-width: 720px)` block above), which silently scoped
+     them to mobile and explained why the changes never landed on
+     desktop. Moved out below into their own `@media (min-width:
+     721px)` block. */
 
   /* emergence (RadialsCanvas) — fills with p.background(255) white */
   .meta-carousel-slide:has([data-slug="emergence"]),
@@ -1508,12 +1536,32 @@ html.vt-next::view-transition-new(root) {
     width: 100%;
     box-sizing: border-box;
     position: fixed;
-    bottom: 0;
+    /* Track the iOS Safari / Chrome bottom URL bar via the `dvh` /
+       `vh` delta:
+         - `100vh` = LARGE viewport height (assumes browser chrome
+           hidden — Chrome/Safari treat it as the maximum possible
+           viewport height regardless of current chrome state).
+         - `100dvh` = DYNAMIC viewport height (reflects the CURRENT
+           visible viewport, updating live as the URL bar shows /
+           hides on scroll).
+       So `100vh - 100dvh` equals the URL bar's current height: zero
+       when the bar is hidden, the bar's pixel height when visible.
+       Adding that to `bottom: 0` raises the nav above the bar on load
+       and drops it back to the absolute bottom once the bar slides
+       away on scroll — without any JS. `max()` against the JS-driven
+       `--browser-chrome-bottom-h` variable keeps the
+       `ProjectMobileBottomNav` `visualViewport` listener as a
+       fallback for any browser quirks the dvh math misses. */
+    bottom: max(var(--browser-chrome-bottom-h, 0px), calc(100vh - 100dvh));
     left: 0;
     right: 0;
     z-index: 5000;
     background: transparent;
     border-top: 0;
+    /* No `transition` on `bottom` — dvh changes fire continuously during
+       URL-bar transitions, and animating each tick causes visible
+       jitter. Letting the browser snap to each computed value reads
+       smoothly because the dvh change itself is gradual. */
   }
   .project-mobile-bottom-nav-link,
   .project-mobile-bottom-nav-link:link,
@@ -1600,9 +1648,19 @@ html.vt-next::view-transition-new(root) {
 }
 
 /* ─── About page (animated gradient + x-tile + centered hero) ── */
+/* Both bg layers explicitly size to `100vw × 100vh` instead of
+   `inset: 0`. `inset: 0` on a position-fixed element resolves to
+   the small/dynamic viewport edges in some browsers when the chrome
+   UI is dynamic — which left the gradient clipping on URL-bar shows.
+   `100vh` (and `100vw`) are the LARGE viewport units in modern CSS,
+   so the gradient + x-pattern always cover the maximum viewport
+   area regardless of URL-bar state. */
 #about-bg-gradient {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   z-index: -1;
   background: linear-gradient(181deg, #ffef94, #95e6f9, #c78bfc, #f9a6fc);
   background-size: 800% 800%;
@@ -1610,7 +1668,10 @@ html.vt-next::view-transition-new(root) {
 }
 #about-bg-x {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   background-image: url("/img/x-white.gif");
   background-repeat: repeat;
   opacity: 0.07;
@@ -1643,7 +1704,7 @@ html.vt-next::view-transition-new(root) {
 #about-info ul.socials { display: flex; justify-content: center; gap: 10px; }
 #about-info ul.socials a.icon-standard { font-size: 15px; }
 #about-info ul.socials li { border: 10px solid transparent; transition: border-color 0.2s; }
-#about-info ul.socials li:hover { border-color: white; }
+#about-info ul.socials li:hover { border-color: var(--color-light); }
 #about-info ul.socials a {
   color: var(--color-dark);
   background: transparent;
@@ -1771,8 +1832,12 @@ main.about #about-cv .about-tabs { margin: 0; }
     z-index: 5000;
   }
   main.about #about-info ul.socials a {
-    width: var(--spacing-sidebar-icon-w-mobile);
-    height: var(--spacing-sidebar-mobile);
+    /* Socials match the bumped chrome-chip size (`--mobile-sidebar-
+       icon-size`, 56px) so the rail down the left edge reads as part
+       of the same chip family as Home/CV. Was 72×44 from the older
+       sidebar vars. */
+    width: var(--mobile-sidebar-icon-size);
+    height: var(--mobile-sidebar-icon-size);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1886,7 +1951,7 @@ main.about #about-cv .about-tabs { margin: 0; }
 .tag-chip.active {
   background: var(--color-orchid);
   border-color: var(--color-orchid);
-  color: #fff;
+  color: var(--color-light);
 }
 
 /* ─── About page tabs + timeline ───────────────────────────── */
@@ -2170,10 +2235,16 @@ main.about #about-cv .about-tabs { margin: 0; }
     margin: 0 auto;
     box-sizing: border-box;
   }
-  /* Hero — clears the navbar via padding-top, 80dvh image */
+  /* Hero — clears the navbar via padding-top. Was
+     `calc(1rem + 56px + var(--piece-gap, 1.5vw))` which stacked
+     the nav inset + nav-chip height + a full piece-gap of breathing
+     room (~100px on a 1920 viewport), putting the first image too
+     far below the chrome strip. Dropped the trailing `--piece-gap`
+     so the hero now sits right under the navbar with only the
+     chrome inset (`1rem`) + the chip height (`56px`) above it. */
   .piece-layout--hero {
     width: 100%;
-    padding: calc(1rem + 56px + var(--piece-gap, 1.5vw)) var(--piece-gap, 1.5vw) 0;
+    padding: calc(1rem + 56px) var(--piece-gap, 1.5vw) 0;
     box-sizing: border-box;
   }
   .piece-layout--hero img {
@@ -3388,8 +3459,19 @@ main[data-project-slug="intergalactic-helm"] .row {
      the reveal. */
   .project-title-wrapper {
     position: fixed;
+    /* Was `calc(... - 2px)` — the `-2px` pulled the toggle up into
+       CV's bottom-border row so the toggle's own top border would
+       fuse with CV's bottom into a single shared line. After the
+       toggle dropped its top border (`border-top: 0`), that overlap
+       started painting the toggle's translucent scrim over CV's
+       bottom border, mixing the two colors and making the CV→toggle
+       seam read visibly different from the Home→CV seam. Removing
+       the `-2px` so the toggle box starts cleanly AT CV's bottom
+       edge (just like CV starts at Home's bottom edge) — each seam
+       is now a single 2px line in the chip-above's bottom border,
+       no compositing artifacts. */
     top: calc(
-      var(--mobile-sidebar-icon-inset) + var(--mobile-sidebar-icon-size) * 2 - 2px
+      var(--mobile-sidebar-icon-inset) + var(--mobile-sidebar-icon-size) * 2
     );
     left: var(--mobile-sidebar-icon-inset);
     width: var(--mobile-sidebar-icon-size);
@@ -3414,11 +3496,35 @@ main[data-project-slug="intergalactic-helm"] .row {
     background: transparent;
     color: inherit;
     border: 2px solid currentColor;
+    /* `border-top: 0` so CV's bottom border is the single shared seam
+       line between CV and the toggle. Without this, the toggle's top
+       border overlaps CV's bottom border (the wrapper uses `top:
+       calc(... - 2px)` to fuse them); with both borders eased to 50%
+       opacity by the chrome-chip rule, alpha-blending stacks them to
+       ~75% — visually heavier than every other seam in the chrome.
+       The scrim's `background-clip: padding-box` keeps the scrim
+       from bleeding past where the border would have been. */
+    border-top: 0;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     font: inherit;
+  }
+  /* Open state — inverts the chip so it reads as a pressed-on
+     affordance: solid `--color-light` (our off-white "white") fill,
+     `--color-dark` icon, and a fully-opaque `--color-light` border
+     replacing the eased translucent border. `!important` overrides
+     the chrome-chip easing rule above (`border-color: color-mix(...,
+     transparent)`) and the scrim background. The `__glyph` color
+     flip also has to override `color: inherit` on the button. */
+  .project-title-toggle--open {
+    background-color: var(--color-light) !important;
+    color: var(--color-dark) !important;
+    border-color: var(--color-light) !important;
+  }
+  .project-title-toggle--open .project-title-toggle__glyph {
+    stroke: var(--color-dark);
   }
   /* Caret rotates -90° to point RIGHT in closed state, 90° to point
      LEFT when open (signals "click to close"). */
@@ -4469,11 +4575,541 @@ body.light-slide {
     display: block;
   }
   .piece[data-piece-id="ac-install"] .piece-layout--stack > .piece-layout--single {
-    /* Portrait video sized by height — width auto-derives from the
-       inline 9:16 aspect set by `<Iframe aspect="9 / 16">`. */
-    height: 60vh;
-    max-height: 540px;
-    width: auto;
+    /* Mobile — video fills the FULL viewport width; height auto-
+       derives from the inline 9:16 aspect (so the wrapper renders as
+       a tall portrait rectangle ~178vw tall on phones). Was sized by
+       height (`60vh`, capped at 540px) which left side-margins
+       between the video and the screen edges. */
+    width: 100%;
+    height: auto;
     padding: 0;
+  }
+}
+
+
+/* Ease up on the mobile chip border opacity. Full-opacity
+   `currentColor` borders read as heavy against the busy gradient
+   project pages; `color-mix(in srgb, currentColor 50%, transparent)`
+   gives a 50%-opaque edge that still defines each chip but reads as
+   softer chrome. Active-state borders stay opaque via their existing
+   `!important` rules — `:not(.active)` is mostly for clarity here. */
+@media (max-width: 720px) {
+  :is(
+    .nav-main a:not(.active),
+    .nav-info:not(.active),
+    .project-title-toggle,
+    .project-mobile-bottom-nav-link
+  ) {
+    border-color: color-mix(in srgb, currentColor 50%, transparent);
+  }
+}
+
+/* Ease up on the mobile chip BACKGROUND opacity too. The base
+   `--chrome-scrim` is 85% opaque (`color-mix(... 85%, transparent)`);
+   mixing THAT 60% with `transparent` drops the effective alpha to
+   ~51%, giving the mobile chips a softer translucent fill against
+   the project canvas. Active chips keep their solid magenta /
+   animated rainbow fill — their `background-color` rules either
+   carry `!important` (mobile Home/CV active) or sit at higher
+   specificity than this rule. */
+@media (max-width: 720px) {
+  :is(
+    .nav-main,
+    .nav-info:not(.active),
+    .project-title-toggle,
+    .project-mobile-bottom-nav-link
+  ) {
+    background-color: color-mix(in srgb, var(--chrome-scrim, transparent) 60%, transparent);
+  }
+}
+
+/* Mobile bottom PREV/NEXT — visible chip is 44px, hit area is 56px.
+   The `<button>` keeps its 56px height (the bar's height) but its
+   border/background move to the inner `<span class="…__chip">`. That
+   span renders the 44px-tall pill at the bottom of the button; the
+   top 12px of the button is empty visually but still clickable. CSS
+   custom property `--chip-h` so the chip-height is one place to tune.
+   The shared scrim/border-opacity rules above match `.project-mobile-
+   bottom-nav-link`, so we have to NEUTRALIZE those on the button and
+   re-apply them on `__chip` instead. */
+@media (max-width: 720px) {
+  .project-mobile-bottom-nav {
+    --chip-h: 44px;
+  }
+  /* Button = full hit area; no visible chrome. `!important` beats the
+     mobile-chip border/bg rules earlier in this file. */
+  .project-mobile-bottom-nav-link,
+  a.project-mobile-bottom-nav-link,
+  button.project-mobile-bottom-nav-link,
+  .project-mobile-bottom-nav-link:link,
+  .project-mobile-bottom-nav-link:visited,
+  .project-mobile-bottom-nav-link:hover,
+  .project-mobile-bottom-nav-link:active,
+  .project-mobile-bottom-nav-link:focus,
+  .project-mobile-bottom-nav-link:focus-visible {
+    display: flex;
+    align-items: flex-end;
+    justify-content: stretch;
+    padding: 0;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: 0 !important;
+  }
+  /* Visible chip — sits at the bottom of the button, height = `--chip-h`.
+     Picks up the same scrim + softened border treatment the older
+     bordered-button rule used to carry directly. `pointer-events:
+     none` makes taps fall through to the `<button>` parent. */
+  .project-mobile-bottom-nav-link__chip {
+    width: 100%;
+    height: var(--chip-h);
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: color-mix(
+      in srgb,
+      var(--chrome-scrim, transparent) 60%,
+      transparent
+    );
+    background-clip: padding-box;
+    border: 2px solid color-mix(in srgb, currentColor 50%, transparent);
+    color: inherit;
+    font-family: "Neuropol", var(--font-bold);
+    font-weight: normal;
+    font-size: 12px;
+    line-height: 1;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    pointer-events: none;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Eternal Return — observed / unobserved toggle overlay (revived
+   from the old EternalReturnCarousel commit e78929f). Two pressed-
+   state buttons hover on top of the canvas; tapping each flips the
+   canvas's `triggered` state. Chip styling matches the rest of the
+   site's chrome family (translucent fill, eased border).
+   ────────────────────────────────────────────────────────────────── */
+.eternal-return-toggle {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.eternal-return-toggle__buttons {
+  position: absolute;
+  bottom: clamp(1rem, 4vh, 2.5rem);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.75rem;
+  z-index: 10;
+  pointer-events: auto;
+}
+.eternal-return-toggle__btn {
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 2px solid color-mix(in srgb, var(--color-light) 35%, transparent);
+  background-color: color-mix(in srgb, #000 55%, transparent);
+  color: var(--color-light);
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+  transition: border-color 180ms ease, background-color 180ms ease,
+    color 180ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.eternal-return-toggle__btn:hover {
+  border-color: color-mix(in srgb, var(--color-light) 70%, transparent);
+}
+.eternal-return-toggle__btn--active {
+  border-color: var(--color-light);
+  background-color: color-mix(in srgb, var(--color-light) 18%, transparent);
+}
+.eternal-return-toggle__btn:focus-visible {
+  outline: 2px solid var(--color-light);
+  outline-offset: 2px;
+}
+
+/* Shorter canvas heights for `lissajous*`, `wave-*`, and the
+   `eternal-return-toggle` sketches:
+   - DESKTOP: 90dvh, so the canvas has a 10dvh "frame" at top + bottom
+     that lets the chrome strip + page bg breathe rather than running
+     full-bleed under the navbar.
+   - MOBILE: `calc(100svh - 56px)`. `100svh` is the SMALL viewport
+     (URL-bar-visible) — by sizing off SVH instead of DVH the canvas
+     stays a constant pixel height even as the URL bar shows / hides
+     on scroll. Subtracting the 56px PREV/NEXT chip row anchors its
+     bottom edge right at the top of the bottom nav.
+
+   `!important` everywhere because the `Sketch` primitive sets
+   `height: 100dvh` as an inline style on `.piece-sketch`.
+
+   The eternal-return toggle buttons keep their bottom: 1rem
+   anchor inside the `.eternal-return-toggle` wrapper — that
+   anchor is relative to the (now shorter) canvas wrapper, so the
+   chips sit just inside the canvas's bottom edge, above the
+   PREV/NEXT row. */
+.piece-sketch[data-sketch-id^="lissajous"],
+.piece-sketch[data-sketch-id^="wave-"],
+.piece-sketch[data-sketch-id="eternal-return-toggle"] {
+  height: 90dvh !important;
+}
+@media (max-width: 720px) {
+  .piece-sketch[data-sketch-id^="lissajous"],
+  .piece-sketch[data-sketch-id^="wave-"],
+  .piece-sketch[data-sketch-id="eternal-return-toggle"] {
+    height: calc(100svh - 56px) !important;
+  }
+  .eternal-return-toggle__buttons {
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    height: auto;
+    align-items: stretch;
+    padding-bottom: 0;
+    gap: 0.5rem;
+    z-index: 10;
+  }
+  .eternal-return-toggle__btn {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* Mars desktop image overrides — two per-piece fixes.
+   ───────────────────────────────────────────────────────────────── */
+@media (min-width: 721px) {
+  /* Three mars pieces stacked one after the other — `mars-mural-
+     zenbus` (1440 × 1766), `mars-midterms-poster-all` (463 × 2400),
+     and `mars-yama-ichi-logo-v2` (1292 × 1294) — share a common
+     rendered width. The target is zenbus's natural width at
+     `max-height: 100dvh` (= `100dvh × 1440 / 1766` ≈ 81.5dvh, the
+     value the default Single rule already lands on for that image),
+     forced onto the other two so the trio aligns as a visual block.
+     `max-height: none` lifts the height cap so the tall midterms
+     strip and the near-square yama-ichi don't get re-constrained.
+     The natural cost: midterms-poster-all's height blows up
+     proportionally on the 1:5.18 aspect, but that's the trade for
+     the matched width. */
+  .piece[data-piece-id="mars-mural-zenbus"] .piece-layout--single img,
+  .piece[data-piece-id="mars-midterms-poster-all"] .piece-layout--single img,
+  .piece[data-piece-id="mars-yama-ichi-logo-v2"] .piece-layout--single img {
+    width: calc(100dvh * 1440 / 1766);
+    max-width: 100%;
+    max-height: none;
+    height: auto;
+  }
+
+  /* `mars-sus-coins-poster` Pair — second image (`21-sus-poster.jpg`,
+     290 × 373, tiny) was being `object-fit: cover` upscaled to fill
+     the 60dvh cell, blowing it up roughly 2x and pixelating. Constrain
+     it to natural aspect via `width: auto + max-width: 100% + max-
+     height: 100%`, swap `cover` → `contain`, and align it dead-center
+     in its cell so it reads next to the much larger `21-sus-coins.jpg`
+     (1800 × 2400) without filling the whole side. The first image is
+     untouched and keeps the row's default cover behavior. */
+  .piece[data-piece-id="mars-sus-coins-poster"] .piece-layout--pair > img:nth-of-type(2) {
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    align-self: center;
+    justify-self: center;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Full-bleed single-sketch projects — pages whose MDX is JUST one
+   `<Sketch>` piece and nothing else. The canvas should occupy the
+   entire viewport (both axes) and the page must not scroll, so the
+   sketch reads as the whole "site" while the user is on that
+   project. The body's `overflow: hidden` (scoped via `body:has(main
+   [data-project-slug=…])`) clips any sub-pixel overflow from the
+   chrome chips and the `.shape-of-time-refresh` chip remains
+   `position: fixed` above the canvas.
+
+   Add a project's slug to the selector list below to opt it in.
+   Replaces the older `shape-of-time`-only desktop override that
+   constrained the canvas to a `100dvh - chrome` band — the user
+   later asked for the canvas to fill the viewport without scrolling
+   on every single-sketch project, so the band override was retired.
+   ────────────────────────────────────────────────────────────────── */
+body:has(
+    main[data-project-slug="shape-of-time"],
+    main[data-project-slug="emergence"],
+    main[data-project-slug="jellyfish"],
+    main[data-project-slug="multiverse"]
+  ) {
+  overflow: hidden;
+}
+main[data-project-slug="shape-of-time"],
+main[data-project-slug="emergence"],
+main[data-project-slug="jellyfish"],
+main[data-project-slug="multiverse"] {
+  height: 100dvh;
+  overflow: hidden;
+}
+/* Reset any per-sketch height we set elsewhere (e.g. the `lissajous
+   / wave / eternal-return / shape-of-time` shared `90dvh` rule above)
+   so the canvas in a full-bleed single-sketch context can re-fill the
+   container at `100vw × 100dvh`. The flex centering on the parent
+   keeps the canvas element itself locked to the middle if its
+   intrinsic size ever drifts under the container. */
+main[data-project-slug="shape-of-time"] .piece-sketch,
+main[data-project-slug="emergence"] .piece-sketch,
+main[data-project-slug="jellyfish"] .piece-sketch,
+main[data-project-slug="multiverse"] .piece-sketch {
+  width: 100vw !important;
+  height: 100dvh !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+/* `.project-track-content` adds a `padding-bottom: var(--piece-gap)`
+   below the last piece — fine for multi-piece projects, but here it
+   pushes the canvas wrapper down 1.5vw and triggers vertical scroll.
+   Strip it for the full-bleed routes. */
+main[data-project-slug="shape-of-time"] .project-track-content,
+main[data-project-slug="emergence"] .project-track-content,
+main[data-project-slug="jellyfish"] .project-track-content,
+main[data-project-slug="multiverse"] .project-track-content {
+  padding: 0 !important;
+  gap: 0 !important;
+}
+
+/* shape-of-time desktop framing (re-added per request) — on
+   viewports ≥ 721px the canvas is shifted down by the chrome strip
+   and trimmed so its vertical band starts below the navbar, then
+   scaled to 0.8 and flex-centered. Mobile keeps the full-bleed
+   `100vw × 100dvh` from the block above. Higher specificity than
+   the full-bleed rule (extra `[data-sketch-id="shape-of-time"]`)
+   so this override wins on desktop without touching the other
+   single-sketch projects. */
+@media (min-width: 721px) {
+  main[data-project-slug="shape-of-time"]
+    .piece-sketch[data-sketch-id="shape-of-time"] {
+    margin-top: calc(1rem + var(--spacing-nav-h, 54px) + 1rem) !important;
+    height: calc(
+      100dvh - 1rem - var(--spacing-nav-h, 54px) - 1rem
+    ) !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+  main[data-project-slug="shape-of-time"]
+    .piece-sketch[data-sketch-id="shape-of-time"] canvas {
+    transform: scale(0.8);
+    transform-origin: center;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   ContactModal — in-page email form launched by the mail chip in the
+   /about socials rail. Renders inside a native `<dialog>` element so
+   the backdrop, ESC-to-close, and focus management come for free; the
+   styling below skins it to match the rest of the site's chrome.
+   ────────────────────────────────────────────────────────────────── */
+.contact-modal[open] {
+  /* The container box itself stays transparent; the inner panel
+     carries the visible chrome so the close button can sit outside
+     the panel's border if needed. */
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--color-dark);
+  max-width: min(560px, calc(100vw - 2rem));
+  width: 100%;
+  /* Bring the panel a bit above center so it reads against the
+     fold-line rather than the absolute middle. */
+  margin: max(2rem, 10vh) auto auto;
+}
+.contact-modal::backdrop {
+  background: color-mix(in srgb, #000 50%, transparent);
+  backdrop-filter: blur(2px);
+}
+.contact-modal__inner {
+  position: relative;
+  background: var(--color-light);
+  border: 2px solid var(--color-dark);
+  padding: 2rem 1.5rem 1.5rem;
+  box-sizing: border-box;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.contact-modal__title {
+  margin: 0 0 1rem;
+  font-family: "Neuropol", var(--font-bold);
+  font-weight: normal;
+  font-size: 18px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.contact-modal__close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+.contact-modal__close:hover { color: var(--color-orchid); }
+.contact-modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.contact-modal__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.contact-modal__label {
+  font-family: "Neuropol", var(--font-bold);
+  font-weight: normal;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.contact-modal__field input,
+.contact-modal__field textarea {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 2px solid currentColor;
+  padding: 0.5rem 0.6rem;
+  box-sizing: border-box;
+  width: 100%;
+  resize: vertical;
+}
+.contact-modal__field input:focus,
+.contact-modal__field textarea:focus {
+  outline: 2px solid var(--color-orchid);
+  outline-offset: -2px;
+}
+.contact-modal__submit {
+  align-self: flex-start;
+  margin-top: 0.5rem;
+  font-family: "Neuropol", var(--font-bold);
+  font-weight: normal;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 12px;
+  padding: 0.6rem 1.25rem;
+  background: var(--color-dark);
+  color: var(--color-light);
+  border: 2px solid var(--color-dark);
+  cursor: pointer;
+}
+.contact-modal__submit:hover { background: var(--color-orchid); border-color: var(--color-orchid); }
+.contact-modal__submit:disabled {
+  cursor: progress;
+  opacity: 0.6;
+}
+.contact-modal__success {
+  margin: 0;
+  padding: 0.5rem 0;
+  font-family: "Neuropol", var(--font-bold);
+  font-weight: normal;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 13px;
+}
+.contact-modal__error {
+  margin: 0;
+  color: var(--color-orchid);
+  font-size: 12px;
+}
+
+/* The `<ContactButton>` reuses the existing socials chip rule; just
+   strip the default button user-agent styling so it visually matches
+   the surrounding `<a>` siblings. */
+.contact-trigger {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Shape-of-time refresh chip — circular icon button that bumps the
+   canvas's `refreshTick` to re-roll the freqA:freqB pair. Pinned to
+   the same row as the chrome PREV/NEXT chips so the affordance reads
+   as part of the navigation strip.
+   ────────────────────────────────────────────────────────────────── */
+.shape-of-time-refresh {
+  position: fixed;
+  /* Desktop: pin to the BOTTOM center of the viewport, with a 1rem
+     gap from the edge so the chip floats above the canvas frame.
+     (Was anchored to top:1rem; moved to bottom per request — bottom
+     reads as the natural "skip / next" affordance position, away
+     from the chrome strip at the top.) */
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--chrome-scrim, color-mix(in srgb, #000 55%, transparent));
+  background-clip: padding-box;
+  color: var(--color-light);
+  border: 2px solid color-mix(in srgb, currentColor 50%, transparent);
+  border-radius: 999px;
+  padding: 0;
+  cursor: pointer;
+  z-index: 3002;
+  transition: border-color 180ms ease, background-color 180ms ease,
+    color 180ms ease, transform 180ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.shape-of-time-refresh:hover {
+  border-color: var(--color-light);
+}
+.shape-of-time-refresh:active {
+  transform: translateX(-50%) scale(0.95);
+}
+.shape-of-time-refresh:focus-visible {
+  outline: 2px solid var(--color-light);
+  outline-offset: 2px;
+}
+
+/* Mobile — drop down to the bottom PREV/NEXT row and align with it
+   in the same horizontal row. The bottom nav's final cascaded value
+   for `bottom` is `var(--mobile-sidebar-icon-inset)` (= 1rem) — the
+   later `.project-mobile-bottom-nav` rule from the inset chip
+   redesign wins over the earlier URL-bar-tracking `max(…)` anchor —
+   so the refresh chip uses the same `bottom: 1rem`. Combined with
+   `height: 44px` and the nav's bottom-aligned 44px `__chip`, the
+   refresh circle ends up in the SAME y-range as PREV / NEXT chips
+   instead of floating below them.
+
+   Locked to `44px × 44px` so the chip is a PERFECT circle (was
+   `44 × 56` previously). 44 also matches the visible bottom-nav chip
+   height. */
+@media (max-width: 720px) {
+  .shape-of-time-refresh {
+    top: auto;
+    bottom: var(--mobile-sidebar-icon-inset, 1rem);
+    width: 44px;
+    height: 44px;
   }
 }

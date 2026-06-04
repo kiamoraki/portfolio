@@ -20,7 +20,7 @@ export default function Home() {
       <main className="index">
         <section className="index-intro">
           <p>
-            Hi<br />I&rsquo;m Kirby, an interdisciplinary artist and visual systems thinker. <br />
+            Hi,<br />I&rsquo;m Kirby, an interdisciplinary artist and visual systems thinker. <br />
             I render the invisible, visible through{" "}
             <Link href="/projects/animations/">moving meditations</Link>,{" "}
             <Link href="/projects/paintings/">paintings</Link>,{" "}

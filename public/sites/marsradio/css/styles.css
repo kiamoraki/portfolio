@@ -59,47 +59,47 @@ button {
 @font-face {
   font-family: "ssSocialCircle";
   font-weight: regular;
-  src: url("/fonts/SS-Social-Circle/ss-social-circle.eot?") format("eot"), url("/fonts/SS-Social-Circle/ss-social-circle.ttf") format("truetype"), url('/fonts/SS-Social-Circle/ss-social-circle.svg#str-replace(ssSocialCircle, " ", "_")') format("svg");
+  src: url("/sites/marsradio/fonts/SS-Social-Circle/ss-social-circle.eot?") format("eot"), url("/sites/marsradio/fonts/SS-Social-Circle/ss-social-circle.ttf") format("truetype"), url('/fonts/SS-Social-Circle/ss-social-circle.svg#str-replace(ssSocialCircle, " ", "_")') format("svg");
 }
 @font-face {
   font-family: "ssSocial";
   font-weight: regular;
-  src: url("/fonts/SS-Social/ss-social-regular.eot?") format("eot"), url("/fonts/SS-Social/ss-social-regular.ttf") format("truetype"), url('/fonts/SS-Social/ss-social-regular.svg#str-replace(ssSocial, " ", "_")') format("svg");
+  src: url("/sites/marsradio/fonts/SS-Social/ss-social-regular.eot?") format("eot"), url("/sites/marsradio/fonts/SS-Social/ss-social-regular.ttf") format("truetype"), url('/fonts/SS-Social/ss-social-regular.svg#str-replace(ssSocial, " ", "_")') format("svg");
 }
 @font-face {
   font-family: "ssBlock";
   font-weight: regular;
-  src: url("/fonts/SS-Block/ss-block.eot?") format("eot"), url("/fonts/SS-Block/ss-block.ttf") format("truetype"), url('/fonts/SS-Block/ss-block.svg#str-replace(ssBlock, " ", "_")') format("svg");
+  src: url("/sites/marsradio/fonts/SS-Block/ss-block.eot?") format("eot"), url("/sites/marsradio/fonts/SS-Block/ss-block.ttf") format("truetype"), url('/fonts/SS-Block/ss-block.svg#str-replace(ssBlock, " ", "_")') format("svg");
 }
 @font-face {
   font-family: "sourceSansProLight";
   font-weight: light;
-  src: url("/fonts/Source-Sans-Pro/source-sans-pro-light.eot?") format("eot"), url("/fonts/Source-Sans-Pro/source-sans-pro-light.woff2") format("woff2"), url("/fonts/Source-Sans-Pro/source-sans-pro-light.woff") format("woff"), url("/fonts/Source-Sans-Pro/source-sans-pro-light.ttf") format("truetype"), url('/fonts/Source-Sans-Pro/source-sans-pro-light.svg#str-replace(sourceSansProLight, " ", "_")') format("svg");
+  src: url("/sites/marsradio/fonts/Source-Sans-Pro/source-sans-pro-light.eot?") format("eot"), url("/sites/marsradio/fonts/Source-Sans-Pro/source-sans-pro-light.woff2") format("woff2"), url("/sites/marsradio/fonts/Source-Sans-Pro/source-sans-pro-light.woff") format("woff"), url("/sites/marsradio/fonts/Source-Sans-Pro/source-sans-pro-light.ttf") format("truetype"), url('/fonts/Source-Sans-Pro/source-sans-pro-light.svg#str-replace(sourceSansProLight, " ", "_")') format("svg");
 }
 @font-face {
   font-family: "sourceSansProBold";
   font-weight: light;
-  src: url("/fonts/Source-Sans-Pro/source-sans-pro-bold.eot?") format("eot"), url("/fonts/Source-Sans-Pro/source-sans-pro-bold.woff2") format("woff2"), url("/fonts/Source-Sans-Pro/source-sans-pro-bold.woff") format("woff"), url("/fonts/Source-Sans-Pro/source-sans-pro-bold.ttf") format("truetype"), url('/fonts/Source-Sans-Pro/source-sans-pro-bold.svg#str-replace(sourceSansProBold, " ", "_")') format("svg");
+  src: url("/sites/marsradio/fonts/Source-Sans-Pro/source-sans-pro-bold.eot?") format("eot"), url("/sites/marsradio/fonts/Source-Sans-Pro/source-sans-pro-bold.woff2") format("woff2"), url("/sites/marsradio/fonts/Source-Sans-Pro/source-sans-pro-bold.woff") format("woff"), url("/sites/marsradio/fonts/Source-Sans-Pro/source-sans-pro-bold.ttf") format("truetype"), url('/fonts/Source-Sans-Pro/source-sans-pro-bold.svg#str-replace(sourceSansProBold, " ", "_")') format("svg");
 }
 @font-face {
   font-family: "sourceSansProReg";
   font-weight: regular;
-  src: url("/fonts/Source-Sans-Pro/source-sans-pro-regular.eot?") format("eot"), url("/fonts/Source-Sans-Pro/source-sans-pro-regular.woff2") format("woff2"), url("/fonts/Source-Sans-Pro/source-sans-pro-regular.woff") format("woff"), url("/fonts/Source-Sans-Pro/source-sans-pro-regular.ttf") format("truetype"), url('/fonts/Source-Sans-Pro/source-sans-pro-regular.svg#str-replace(sourceSansProReg, " ", "_")') format("svg");
+  src: url("/sites/marsradio/fonts/Source-Sans-Pro/source-sans-pro-regular.eot?") format("eot"), url("/sites/marsradio/fonts/Source-Sans-Pro/source-sans-pro-regular.woff2") format("woff2"), url("/sites/marsradio/fonts/Source-Sans-Pro/source-sans-pro-regular.woff") format("woff"), url("/sites/marsradio/fonts/Source-Sans-Pro/source-sans-pro-regular.ttf") format("truetype"), url('/fonts/Source-Sans-Pro/source-sans-pro-regular.svg#str-replace(sourceSansProReg, " ", "_")') format("svg");
 }
 @font-face {
   font-family: "alphaHeadline";
   font-weight: regular;
-  src: url("/fonts/AlphaHeadline/alpha-headline-regular.eot?") format("eot"), url("/fonts/AlphaHeadline/alpha-headline-regular.woff2") format("woff2"), url("/fonts/AlphaHeadline/alpha-headline-regular.woff") format("woff"), url("/fonts/AlphaHeadline/alpha-headline-regular.ttf") format("truetype"), url('/fonts/AlphaHeadline/alpha-headline-regular.svg#str-replace(alphaHeadline, " ", "_")') format("svg");
+  src: url("/sites/marsradio/fonts/AlphaHeadline/alpha-headline-regular.eot?") format("eot"), url("/sites/marsradio/fonts/AlphaHeadline/alpha-headline-regular.woff2") format("woff2"), url("/sites/marsradio/fonts/AlphaHeadline/alpha-headline-regular.woff") format("woff"), url("/sites/marsradio/fonts/AlphaHeadline/alpha-headline-regular.ttf") format("truetype"), url('/fonts/AlphaHeadline/alpha-headline-regular.svg#str-replace(alphaHeadline, " ", "_")') format("svg");
 }
 @font-face {
   font-family: "alphaHeadlineBold";
   font-weight: regular;
-  src: url("/fonts/AlphaHeadline/alpha-headline-bold.eot?") format("eot"), url("/fonts/AlphaHeadline/alpha-headline-bold.woff2") format("woff2"), url("/fonts/AlphaHeadline/alpha-headline-bold.woff") format("woff"), url("/fonts/AlphaHeadline/alpha-headline-bold.ttf") format("truetype"), url('/fonts/AlphaHeadline/alpha-headline-bold.svg#str-replace(alphaHeadlineBold, " ", "_")') format("svg");
+  src: url("/sites/marsradio/fonts/AlphaHeadline/alpha-headline-bold.eot?") format("eot"), url("/sites/marsradio/fonts/AlphaHeadline/alpha-headline-bold.woff2") format("woff2"), url("/sites/marsradio/fonts/AlphaHeadline/alpha-headline-bold.woff") format("woff"), url("/sites/marsradio/fonts/AlphaHeadline/alpha-headline-bold.ttf") format("truetype"), url('/fonts/AlphaHeadline/alpha-headline-bold.svg#str-replace(alphaHeadlineBold, " ", "_")') format("svg");
 }
 @font-face {
   font-family: "data";
   font-weight: regular;
-  src: url("/fonts/data_70.ttf") format("truetype"), url('/fonts/data_70.svg#str-replace(data, " ", "_")') format("svg");
+  src: url("/sites/marsradio/fonts/data_70.ttf") format("truetype"), url('/fonts/data_70.svg#str-replace(data, " ", "_")') format("svg");
 }
 .strong {
   font-family: sourceSansProBold;
@@ -668,7 +668,7 @@ a:hover {
 }
 
 #FAQ {
-  background-image: url("/img/texture-plasticbag-blue.jpg");
+  background-image: url("/sites/marsradio/img/texture-plasticbag-blue.jpg");
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;
@@ -1006,7 +1006,7 @@ input:focus ~ .highlight {
   -moz-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
-  background-image: url("/img/texture-stars.jpg");
+  background-image: url("/sites/marsradio/img/texture-stars.jpg");
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;
@@ -1212,7 +1212,7 @@ input:focus ~ .highlight {
 }
 #Splash .splash_intro {
   color: #fff;
-  background-image: url("/img/texture-crystals.jpg");
+  background-image: url("/sites/marsradio/img/texture-crystals.jpg");
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;
@@ -1281,7 +1281,7 @@ input:focus ~ .highlight {
   }
 }
 #Splash .splash_lessons {
-  background-image: url("/img/texture-aluminum-foil.jpg");
+  background-image: url("/sites/marsradio/img/texture-aluminum-foil.jpg");
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;
@@ -1432,7 +1432,7 @@ input:focus ~ .highlight {
   }
 }
 #Splash .splash_becomeamartian {
-  background-image: url("/img/texture-neon.jpg");
+  background-image: url("/sites/marsradio/img/texture-neon.jpg");
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;
@@ -1486,7 +1486,7 @@ input:focus ~ .highlight {
   }
 }
 #Splash .splash_about {
-  background-image: url("/img/texture-mars.jpg");
+  background-image: url("/sites/marsradio/img/texture-mars.jpg");
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;

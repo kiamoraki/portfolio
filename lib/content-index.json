@@ -53,25 +53,13 @@
   },
   {
     "projectSlug": "eternal-return",
-    "pieceId": "eternal-return-unobserved",
+    "pieceId": "eternal-return-toggle",
     "tags": [
       "animations"
     ],
     "indexInProject": 0,
     "sketch": {
-      "id": "eternal-return-unobserved",
-      "bg": "#000"
-    }
-  },
-  {
-    "projectSlug": "eternal-return",
-    "pieceId": "eternal-return-observed",
-    "tags": [
-      "animations"
-    ],
-    "indexInProject": 1,
-    "sketch": {
-      "id": "eternal-return-observed",
+      "id": "eternal-return-toggle",
       "bg": "#000"
     }
   },
@@ -79,25 +67,25 @@
     "projectSlug": "eternal-return",
     "pieceId": "eternal-return-install",
     "tags": [],
-    "indexInProject": 2
+    "indexInProject": 1
   },
   {
     "projectSlug": "eternal-return",
     "pieceId": "eternal-return-diagrams",
     "tags": [],
-    "indexInProject": 3
+    "indexInProject": 2
   },
   {
     "projectSlug": "eternal-return",
     "pieceId": "eternal-return-hardware",
     "tags": [],
-    "indexInProject": 4
+    "indexInProject": 3
   },
   {
     "projectSlug": "eternal-return",
     "pieceId": "eternal-return-transmitter-receiver",
     "tags": [],
-    "indexInProject": 5
+    "indexInProject": 4
   },
   {
     "projectSlug": "jellyfish",

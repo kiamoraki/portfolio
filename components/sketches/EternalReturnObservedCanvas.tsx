@@ -250,17 +250,29 @@ export function EternalReturnObservedCanvas({
           return [p.windowWidth, p.windowHeight];
         };
 
+        // Track the canvas WIDTH at last rebuild. Mobile browsers fire
+        // a `resize` every time the URL bar shows / hides on scroll,
+        // which is a pure HEIGHT change — without this guard,
+        // `populateCells()` would reseed the grid on every scroll
+        // tick and visually "reset" the animation. Only a real WIDTH
+        // change rebuilds now; height-only ticks just resize the
+        // canvas surface and let the running cells continue.
+        let prevCanvasW = 0;
+
         p.setup = () => {
           const [cw, ch] = getDims();
           const c = p.createCanvas(cw, ch);
           c.style("display", "block");
           p.frameRate(29);
           populateCells();
+          prevCanvasW = cw;
         };
 
         p.windowResized = () => {
           const [cw, ch] = getDims();
           p.resizeCanvas(cw, ch);
+          if (cw === prevCanvasW) return;
+          prevCanvasW = cw;
           populateCells();
         };
 

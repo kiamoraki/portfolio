@@ -19,6 +19,7 @@ import type { ComponentType } from "react";
 import type { ColorMode } from "./content-types";
 
 import { ShapeOfTimeCanvas } from "@/components/sketches/ShapeOfTimeCanvas";
+import { ShapeOfTimeWithRefresh } from "@/components/sketches/ShapeOfTimeWithRefresh";
 import { ShapeOfTimeGridCanvas } from "@/components/sketches/ShapeOfTimeGridCanvas";
 import { RadialsCanvas } from "@/components/sketches/RadialsCanvas";
 import { LissajousCanvas } from "@/components/sketches/LissajousCanvas";
@@ -45,6 +46,7 @@ import { RoseGridCanvas } from "@/components/sketches/RoseGridCanvas";
 import { RosePortraitsCanvas } from "@/components/sketches/RosePortraitsCanvas";
 import { EternalReturnObservedCanvas } from "@/components/sketches/EternalReturnObservedCanvas";
 import { EternalReturnUnobservedCanvas } from "@/components/sketches/EternalReturnUnobservedCanvas";
+import { EternalReturnToggleCanvas } from "@/components/sketches/EternalReturnToggleCanvas";
 import { MultiverseCanvas } from "@/components/sketches/MultiverseCanvas";
 import { MirrorCanvas } from "@/components/sketches/MirrorCanvas";
 import { TobritCanvas } from "@/components/sketches/TobritCanvas";
@@ -62,7 +64,11 @@ const C = <T,>(x: T) => x as unknown as ComponentType<Record<string, unknown>>;
 
 export const SKETCHES: Record<string, SketchEntry> = {
   // ─── Animations: shape-of-time ───
-  "shape-of-time": { Component: C(ShapeOfTimeCanvas), bg: "#000" },
+  /* Pointed at the `WithRefresh` wrapper so the page renders the
+     canvas + the refresh chip together. The wrapper still mounts
+     the same `ShapeOfTimeCanvas` underneath; the chip just bumps a
+     `refreshTick` on the canvas's global config to swap pairs. */
+  "shape-of-time": { Component: C(ShapeOfTimeWithRefresh), bg: "#000" },
   "shape-of-time-grid": { Component: C(ShapeOfTimeGridCanvas), bg: "#130c12" },
 
   // ─── Animations: emergence (RadialsCanvas) ───
@@ -113,6 +119,14 @@ export const SKETCHES: Record<string, SketchEntry> = {
   },
   "eternal-return-unobserved": {
     Component: C(EternalReturnUnobservedCanvas),
+    bg: "#000",
+  },
+  /* Revived from the old `EternalReturnCarousel` (commit e78929f) —
+     same `EternalReturnUnobservedCanvas` underneath but wrapped with
+     the closed-eye / open-eye buttons that flip its `triggered` state
+     via the imperative controller ref. */
+  "eternal-return-toggle": {
+    Component: C(EternalReturnToggleCanvas),
     bg: "#000",
   },
   multiverse: { Component: C(MultiverseCanvas), bg: "#00001c" },

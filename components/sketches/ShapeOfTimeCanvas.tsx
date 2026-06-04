@@ -6,6 +6,52 @@ import { useEffect, useRef } from "react";
 const WAVE_PURPLE = { r: 181, g: 136, b: 255 };
 
 const AMP_RATIO = 0.4;
+/* Per-axis vertical amplitude ratio used on mobile so the figure
+   stops stretching tall on portrait phones. On mobile the y axis no
+   longer derives from `min(width, height)` — it derives directly
+   from the viewport HEIGHT, so the vertical curve extent is
+   `p.height * AMP_RATIO_Y_MOBILE` (centered on cy). Tune this to
+   dial the figure's height in/out without touching the horizontal
+   extent:
+
+     0.40 → curve fills ~40% of viewport height (a touch tall on
+            very portrait phones)
+     0.35 → starts feeling balanced against the AMP_RATIO=0.4 width
+     0.30 → noticeably squatter than wide
+*/
+const AMP_RATIO_Y_MOBILE = 0.8;
+/* Horizontal counterpart to `AMP_RATIO_Y_MOBILE` — pulls the curve
+   in a touch from the viewport's left + right edges on mobile so the
+   figure has visible margins instead of brushing the screen edges.
+   `1.0` = match the previous behavior (curve fills full width); `0.9`
+   = ~10% narrower (curve sits with ~5% margin on each side). */
+const AMP_RATIO_X_MOBILE = 0.9;
+/* Breakpoint matching the rest of the site's `@media (max-width:
+   720px)` boundary. */
+const MOBILE_BREAKPOINT = 720;
+/* Multiplier applied to `ampStep` on mobile so the curve gets MORE
+   particles than the desktop default would yield. The vertical
+   stretch from `AMP_RATIO_Y_MOBILE` makes each particle cover ~2x
+   the pixel range it would on desktop; halving the step doubles the
+   particle count to compensate so the curve doesn't read sparse.
+     0.5 → 2× particles (the on-curve dots stay roughly the same
+           visual density as on desktop)
+     0.4 → ~2.5× particles
+     0.3 → ~3.3× particles (heavier perf cost on lower-end phones)
+*/
+const MOBILE_AMP_STEP_FACTOR = 0.5;
+/* Reference period (seconds) at which the current default
+   `AMP_STEP = 0.8` gives a visual density that reads as balanced —
+   corresponds to pairs with gcd = 4 (e.g. `4 : 8` → `theta / ANGLE_
+   ADDER / 24 ≈ 72.7s`). Longer-period pairs draw the same number of
+   particles over a more elaborate curve, so they read SPARSER unless
+   we add more particles. The `densityBoost` below scales `ampStep`
+   inversely with period so any sketch with a period ≥ this reference
+   has its particle count pumped up to match the reference density.
+   Periods SHORTER than the reference are left alone (boost clamps to
+   1) — the curve is already as dense as the reference there. */
+const REF_PERIOD_SEC = 72.7;
+const FRAME_RATE = 24;
 const PARTICLE_DIAMETER = 3;
 const FEEDBACK_ALPHA = 6;
 const AMP_STEP = 0.8;
@@ -34,11 +80,27 @@ function calculateGCD(a: number, b: number): number {
   return x;
 }
 
-const pickFreqPair = (): [number, number] => {
-  let a = MIN_FREQ + Math.floor(Math.random() * (MAX_FREQ - MIN_FREQ + 1));
-  let b = MIN_FREQ + Math.floor(Math.random() * (MAX_FREQ - MIN_FREQ + 1));
-  while (a === b) {
-    a = MIN_FREQ + Math.floor(Math.random() * (MAX_FREQ - MIN_FREQ + 1));
+/**
+ * Roll a random coprime-friendly pair of frequencies for the next
+ * lissajous cycle. Both values land in `[MIN_FREQ, MAX_FREQ]` and are
+ * always distinct.
+ *
+ * @param ascending — when true, also constrains `b > a` so the second
+ *   frequency is always the larger of the pair. Used on mobile, where
+ *   the viewport's portrait aspect makes the `(freqA, freqB)` pairs
+ *   where the SECOND frequency drives the longer axis read more
+ *   naturally (taller figures look intentional rather than cramped).
+ */
+const pickFreqPair = (ascending = false): [number, number] => {
+  const roll = () =>
+    MIN_FREQ + Math.floor(Math.random() * (MAX_FREQ - MIN_FREQ + 1));
+  let a = roll();
+  let b = roll();
+  // Re-roll until the pair is valid: distinct, and (if requested)
+  // b strictly greater than a.
+  while (a === b || (ascending && b <= a)) {
+    a = roll();
+    b = roll();
   }
   return [a, b];
 };
@@ -75,6 +137,11 @@ type GlobalConfig = {
   // actual `p.circle` call, so the feedback rect alone fades the canvas.
   // Defaults to true (= draw) when undefined.
   drawing?: boolean;
+  // Monotonically-increasing counter that signals the canvas to re-roll
+  // its frequency pair NOW (rather than waiting for the macro-loop
+  // boundary). External UI bumps this and the sketch's draw loop
+  // detects the change → `buildParticles()` + background clear.
+  refreshTick?: number;
 };
 declare global {
   // eslint-disable-next-line no-var
@@ -105,6 +172,10 @@ const sketch = (p: any) => {
   let yScale = 1;
   let frameInLoop = 0;
   let lastLoopFrames: number | undefined = undefined;
+  /* Same gating pattern as `lastLoopFrames` but for the
+     `refreshTick` config field — the canvas observes the tick on
+     every draw and re-builds particles whenever it advances. */
+  let lastRefreshTick: number | undefined = undefined;
   // Total length of one freq-pair cycle: CYCLES_BEFORE_FADE inner loops of
   // full visibility + FADE_OUT_LOOPS inner loops to remove particles one
   // at a time. Recomputed in buildParticles.
@@ -119,13 +190,34 @@ const sketch = (p: any) => {
     cy = p.height / 2;
     const size = Math.min(p.width, p.height);
     ampMax = size * AMP_RATIO;
-    // Stretch so the curve extends from edge to edge in BOTH axes:
-    //   x extent = ampMax · xScale = p.width / 2  → xScale = (w/2)/ampMax
-    //   y extent = ampMax · yScale = p.height / 2 → yScale = (h/2)/ampMax
-    // Result: the figure spans the full viewport with no margins on
-    // any side, regardless of viewport aspect ratio.
-    xScale = ampMax > 0 ? p.width / 2 / ampMax : 1;
-    yScale = ampMax > 0 ? p.height / 2 / ampMax : 1;
+    // xScale stretches the curve horizontally. On desktop the curve
+    // spans edge to edge in x (`xScale = (p.width / 2) / ampMax`).
+    // On mobile we multiply through by `AMP_RATIO_X_MOBILE` so the
+    // figure is pulled in slightly from the screen edges instead of
+    // brushing them — same shape, just with a small horizontal
+    // breathing margin.
+    const widthForX =
+      p.width <= MOBILE_BREAKPOINT
+        ? p.width * AMP_RATIO_X_MOBILE
+        : p.width;
+    xScale = ampMax > 0 ? widthForX / 2 / ampMax : 1;
+    // yScale: was `(p.height / 2) / ampMax`, which stretched the
+    // figure to fill the full viewport height in both axes — fine on
+    // landscape viewports but pulled the lissajous TALL on portrait
+    // phones (a 400×800 viewport gave `yScale = 2.5` while
+    // `xScale = 1.25`, so the figure rendered 2x stretched
+    // vertically). On mobile we now derive the vertical pixel extent
+    // directly from the viewport height via `AMP_RATIO_Y_MOBILE` —
+    // setting it equal to `AMP_RATIO` balances the axes; tune
+    // higher / lower from there to shape the figure. Desktop keeps
+    // the original "stretch to fill" behavior.
+    const isMobile = p.width <= MOBILE_BREAKPOINT;
+    if (isMobile && ampMax > 0) {
+      const ampMaxY = p.height * AMP_RATIO_Y_MOBILE;
+      yScale = ampMaxY / 2 / ampMax;
+    } else {
+      yScale = ampMax > 0 ? p.height / 2 / ampMax : 1;
+    }
 
     const cfg = getConfig();
     if (cfg.loopFrames && cfg.loopFrames > 0) {
@@ -135,7 +227,14 @@ const sketch = (p: any) => {
       freqA = cfg.forcedFreqA;
       freqB = cfg.forcedFreqB;
     } else {
-      [freqA, freqB] = pickFreqPair();
+      /* `ascending: isMobile` constrains mobile pairs to ones where the
+         second frequency is larger than the first. The lissajous's
+         second frequency drives the y-axis (via `freqA * particle.angle`
+         in the sin term used for `y`) — pinning b > a so the y-axis
+         carries the more complex frequency makes the figures read as
+         intentionally tall against the portrait viewport, instead of
+         randomly looking cramped when a > b. */
+      [freqA, freqB] = pickFreqPair(isMobile);
     }
     const gcd = calculateGCD(freqA, freqB);
     theta = (2 * Math.PI) / gcd;
@@ -143,9 +242,31 @@ const sketch = (p: any) => {
     // Reference pair is 1:2 (sum = 3); higher-sum ratios get a smaller step
     // so the on-curve dot spacing stays roughly constant.
     const REF_FREQ_SUM = 3;
-    const ampStep = cfg.autoDensity
-      ? (AMP_STEP * REF_FREQ_SUM) / (freqA + freqB)
-      : AMP_STEP;
+    /* `MOBILE_AMP_STEP_FACTOR` densifies the on-curve dots on small
+       viewports to compensate for the larger `yScale` introduced by
+       `AMP_RATIO_Y_MOBILE`. Without it the curve reads visibly
+       sparse on phones because the same particle count is being
+       stretched over ~2× the vertical pixel range.
+       (Reuses the `isMobile` already declared above in the yScale
+       branch so this stays in sync with the yScale calc.) */
+    const baseAmpStep =
+      (cfg.autoDensity
+        ? (AMP_STEP * REF_FREQ_SUM) / (freqA + freqB)
+        : AMP_STEP) * (isMobile ? MOBILE_AMP_STEP_FACTOR : 1);
+
+    /* Period-based density boost. The lissajous period (seconds) is
+       `(theta / angleAdder) / FRAME_RATE`. When `cfg.loopFrames` is
+       set, the angle stepping accelerates and the period becomes
+       `cfg.loopFrames / FRAME_RATE`; otherwise it's the natural
+       `theta / ANGLE_ADDER / FRAME_RATE`. Larger periods get a boost
+       (`< 1`), shorter ones are left alone. */
+    const periodAngleAdder =
+      cfg.loopFrames && cfg.loopFrames > 0
+        ? theta / cfg.loopFrames
+        : ANGLE_ADDER;
+    const periodSec = theta / periodAngleAdder / FRAME_RATE;
+    const densityBoost = Math.min(1, REF_PERIOD_SEC / periodSec);
+    const ampStep = baseAmpStep * densityBoost;
 
     // Phase A: CYCLES_BEFORE_FADE inner loops with everything visible.
     // Phase B: FADE_OUT_LOOPS inner loops where particles are removed one
@@ -215,13 +336,20 @@ const sketch = (p: any) => {
     const loopFrames = cfg.loopFrames;
     const forcedA = cfg.forcedFreqA;
     const forcedB = cfg.forcedFreqB;
+    /* `refreshTick` lets external UI request an immediate re-roll —
+       bumping the tick triggers `buildParticles()` (which picks a
+       new pair via `pickFreqPair`) + a background clear, identical
+       to what would happen at the natural macro-loop boundary. */
+    const refreshTick = cfg.refreshTick;
     if (
       loopFrames !== lastLoopFrames ||
       (forcedA !== undefined && forcedA !== freqA) ||
-      (forcedB !== undefined && forcedB !== freqB)
+      (forcedB !== undefined && forcedB !== freqB) ||
+      (refreshTick !== undefined && refreshTick !== lastRefreshTick)
     ) {
       buildParticles();
       p.background(0);
+      lastRefreshTick = refreshTick;
     }
 
     let angleAdder = ANGLE_ADDER;
@@ -252,6 +380,11 @@ const sketch = (p: any) => {
       p.fill(WAVE_PURPLE.r, WAVE_PURPLE.g, WAVE_PURPLE.b, particle.alpha);
       p.circle(x, y, PARTICLE_DIAMETER);
     }
+
+    /* Bottom-center ratio + period label removed per request — the
+       refresh chip in the chrome (see `ShapeOfTimeWithRefresh.tsx`)
+       takes over as the user-facing affordance for "show me a
+       different pair". */
 
     if (loopFrames && loopFrames > 0) {
       frameInLoop++;
@@ -288,6 +421,14 @@ type CanvasProps = {
   square?: boolean;
   autoDensity?: boolean;
   drawing?: boolean;
+  /** Accepted but ignored — the `Sketch` primitive forwards `inFlow`
+   *  defensively to every canvas it wraps so the consumer can position
+   *  itself relative to the page flow vs `position: fixed`. This
+   *  canvas relies on CSS scoped by `.piece-sketch[data-sketch-id=
+   *  "shape-of-time"]` instead, so the flag is a no-op here. Declared
+   *  so the `ShapeOfTimeWithRefresh` wrapper can forward it without
+   *  a TS error. */
+  inFlow?: boolean;
 };
 
 export function ShapeOfTimeCanvas({

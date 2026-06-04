@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import type { NavigableProject, Project } from "@/lib/projects";
 import { useCarouselState } from "@/components/CarouselState";
 
@@ -36,6 +36,36 @@ export function ProjectMobileBottomNav({
   const router = useRouter();
   const params = useSearchParams();
   const { state: carouselState, controlsRef } = useCarouselState();
+
+  // Track the iOS Safari / Android Chrome bottom URL bar via the
+  // VisualViewport API. When the bar is visible, the visual viewport
+  // is shorter than the layout viewport at the bottom; `bottom: 0` on a
+  // `position: fixed` element lands BEHIND that bar. Writing
+  // `--browser-chrome-bottom-h` onto `<html>` lets the CSS rule for
+  // `.project-mobile-bottom-nav` raise the nav by exactly that much,
+  // and the value updates as the bar shows / hides on scroll.
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.visualViewport) return;
+    const root = document.documentElement;
+    const vv = window.visualViewport;
+    const update = () => {
+      const layoutH = window.innerHeight;
+      // `vv.offsetTop` covers virtual-keyboard offsets; subtracting it
+      // leaves just the chrome bar's height at the bottom.
+      const chromeH = Math.max(0, layoutH - vv.height - vv.offsetTop);
+      root.style.setProperty("--browser-chrome-bottom-h", `${chromeH}px`);
+    };
+    update();
+    vv.addEventListener("resize", update);
+    vv.addEventListener("scroll", update);
+    window.addEventListener("resize", update);
+    return () => {
+      vv.removeEventListener("resize", update);
+      vv.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+      root.style.removeProperty("--browser-chrome-bottom-h");
+    };
+  }, []);
 
   // When a carousel has registered prev/next via
   // `useReportCarouselState` (e.g. on the animations meta page),
@@ -72,13 +102,20 @@ export function ProjectMobileBottomNav({
       className="project-mobile-bottom-nav"
       aria-label={carouselActive ? "Slide navigation" : "Project navigation"}
     >
+      {/* Each PREV / NEXT button is the FULL chrome-bar hit area
+          (56px tall on mobile via CSS), but the visible chip is the
+          inner `__chip` span at 44px — so taps land on the surrounding
+          12px of padding too. This trades a denser-looking chrome
+          rail (44px chip) for an iOS-HIG-friendly hit target (56px).
+          The chip is `pointer-events: none` so clicks always resolve
+          to the `<button>`. */}
       <button
         type="button"
         className="project-mobile-bottom-nav-link project-mobile-bottom-nav-link--slide-prev"
         onClick={handlePrev}
         aria-label={ariaPrev}
       >
-        prev
+        <span className="project-mobile-bottom-nav-link__chip">prev</span>
       </button>
       <button
         type="button"
@@ -86,7 +123,7 @@ export function ProjectMobileBottomNav({
         onClick={handleNext}
         aria-label={ariaNext}
       >
-        next
+        <span className="project-mobile-bottom-nav-link__chip">next</span>
       </button>
     </nav>
   );
