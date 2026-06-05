@@ -67,6 +67,17 @@ export function ProjectNav({
   // frontmatter sets a `description`. Clicking the title chip toggles
   // the panel; clicking outside it closes.
   const [descriptionOpen, setDescriptionOpen] = useState(false);
+
+  // Auto-collapse the title slide-out whenever the user navigates to a
+  // new project OR the meta-carousel paginates to a new slide. Without
+  // this, a meta-page carousel (animations) keeps `descriptionOpen`
+  // sticky across slides since ProjectNav doesn't unmount — the prev
+  // slide's title text stays inflated over the new slide. Watching
+  // both `slug` (real route changes) and `activeSlide?.slug` (carousel
+  // page changes) covers both navigation paths in one effect.
+  useEffect(() => {
+    setDescriptionOpen(false);
+  }, [slug, activeSlide?.slug]);
   // On meta-carousel pages, `MetaCarousel` pushes `{title, description}`
   // of the active slide into `CarouselStateContext`; prefer those over
   // the meta project's static title/description so the slide-out chip

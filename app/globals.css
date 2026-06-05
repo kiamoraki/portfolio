@@ -781,6 +781,18 @@ main.dark .text { color: var(--color-light); }
     background: transparent !important;
     border: 0 !important;
   }
+  /* Mobile /about — extend the body's `--color-light` background to
+     the LARGEST possible viewport (`100lvh`) so when Chrome's URL
+     bar slides up on scroll, the newly-revealed strip at the bottom
+     is still painted with the page colour. `100lvh` = largest
+     viewport state (URL bar hidden); using it as `min-height` means
+     the body is always tall enough to cover that maximum, so the
+     bg never falls short of the visible area. Scoped to `/about`
+     because project pages set their own body bg via inline `<style>`
+     and have a separate URL-bar-tracking strategy. */
+  body:has(main.about) {
+    min-height: 100lvh;
+  }
 }
 @media (min-width: 721px) and (max-width: 900px) {
   .nav-main { left: 12px; }
@@ -919,9 +931,17 @@ main.dark .text { color: var(--color-light); }
 }
 .nav-main a:hover::before,
 .nav-main a.active::before,
+.nav-main a:active::before,
 .nav-info:hover::before,
 .nav-info.active::before,
-.project-nav-btn:hover::before {
+.nav-info:active::before,
+.project-nav-btn:hover::before,
+.project-nav-btn:active::before {
+  /* `:active` fires during a press (mouse or touch). On mobile this
+     gives the user immediate rainbow feedback the moment they tap
+     prev/next/Home/CV — useful because touch doesn't reliably fire
+     `:hover` and the SPA navigation that follows can take a frame
+     or two to land. */
   opacity: 1;
 }
 /* Block the generic `a:hover { color: var(--color-orchid) }` rule
@@ -2775,10 +2795,22 @@ button.meta-carousel-active-title {
 
   /* Mobile bottom PREV/NEXT chips — matches the meta-carousel chip
      family. Container is pointer-events: none; chips re-enable
-     pointer-events. */
+     pointer-events.
+
+     `bottom` tracks the iOS Safari / Chrome Android URL bar via the
+     `dvh / vh` delta (plus a JS-driven fallback). `100vh - 100dvh`
+     resolves to the current URL bar height (0 when hidden, the bar's
+     pixel height when visible). Wrapping that in `max()` with the
+     `--browser-chrome-bottom-h` JS variable picks whichever metric
+     is fresher; adding `1rem` keeps a small breathing-room inset.
+     On scroll, as the URL bar slides away, `100vh - 100dvh` → 0 and
+     the nav scoots DOWN to fill the newly-revealed bottom strip,
+     same `1rem` from the visible viewport bottom. */
   .project-mobile-bottom-nav {
     position: fixed;
-    bottom: 1rem;
+    bottom: calc(
+      max(var(--browser-chrome-bottom-h, 0px), 100vh - 100dvh) + 1rem
+    );
     left: 0;
     right: 0;
     padding: 0 1rem;
@@ -3455,13 +3487,17 @@ body:has(main.about) .project-mobile-bottom-nav {
      `.project-title-toggle` reference bumps to 0,3,0 and wins
      without needing `!important`.
 
-     Open state restores the TOP border at full opacity — closed
-     state uses `border-top: 0` (line 3387) so CV's bottom edge
-     alone marks the seam; once the chip lights up as a pressed-on
-     affordance, the full 4-sided outline reads as a self-contained
-     "active" chip rather than a tab continuing from CV above. */
+     Borders go to full-opacity `currentColor` on L/R/B; `border-top
+     stays 0` so the open chip merges seamlessly with CV's bottom
+     edge above. Re-adding a 2px top border here would stack on top
+     of CV's 2px bottom border (the wrapper sits FLUSH at CV's
+     bottom edge, not overlapping it) and read as a doubled 4px
+     seam — the "gap" you're seeing between CV and the open
+     toggle. Dropping `border-top` lets CV's bottom edge be the
+     single shared seam, same as the closed state. */
   .project-title-toggle.project-title-toggle.project-title-toggle--open {
     border: 2px solid currentColor;
+    border-top: 0;
   }
   /* Caret rotates -90° to point RIGHT in closed state, 90° to point
      LEFT when open (signals "click to close"). */
@@ -4028,6 +4064,22 @@ body.light-slide {
      mobile as desktop — no per-viewport override here. (Used to
      drop to 14px / 22px; consolidated with the desktop value per
      the unified font request.) */
+
+  /* On mobile light-bg pages, force the open title chip + the
+     description panel to share a single OPAQUE off-white fill
+     (`--color-light`) instead of the translucent `--chrome-scrim`.
+     The scrim is `color-mix(--color-light 85%, transparent)`; the
+     title and panel each show whatever's behind THEM through that
+     15% transparency, and since the project canvas differs at the
+     two y-positions, the visible colour differs too. Going opaque
+     locks both chips to the same flat tone so the open title +
+     panel read as one continuous box. Scoped to `light` mode only
+     — dark pages keep the translucent black scrim look. */
+  body[data-color-mode="light"] .nav-projects .project-title--open,
+  body[data-color-mode="light"] .project-description-panel {
+    background-color: var(--color-light);
+    background-clip: border-box;
+  }
 }
 
 /* Precarity desktop — defensive override pinning the inter-piece
