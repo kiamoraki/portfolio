@@ -4353,6 +4353,43 @@ body.light-slide {
     letter-spacing: 0.06em;
     text-transform: uppercase;
     pointer-events: none;
+    /* `position: relative` + `isolation: isolate` open a stacking
+       context so the `::before` rainbow overlay below can sit
+       behind the chip's "prev"/"next" label without bleeding into
+       the page. */
+    position: relative;
+    isolation: isolate;
+  }
+  /* Tap-feedback rainbow overlay — same `::before` pattern as the
+     desktop chrome chips, but driven by the PARENT `<button>`'s
+     `:active` (the chip has `pointer-events: none`, so it never
+     gets `:hover` / `:active` itself). `var(--rainbow-now)` is
+     updated every animation frame by `NavClient`'s rAF loop, so
+     the colour matches every other rainbow chip on the page at
+     the moment of the press. Gives the user instant visual
+     confirmation that the tap landed while the SPA navigation
+     spins up. */
+  .project-mobile-bottom-nav-link__chip::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-color: var(--rainbow-now, #ff1fe0);
+    opacity: 0;
+    transition: opacity 120ms ease-out;
+    pointer-events: none;
+  }
+  .project-mobile-bottom-nav-link:active .project-mobile-bottom-nav-link__chip::before,
+  .project-mobile-bottom-nav-link[data-pressed="true"] .project-mobile-bottom-nav-link__chip::before {
+    opacity: 1;
+    /* Drop the fade-in transition during the press so the rainbow
+       lands instantly — feedback should feel immediate, not eased.
+       `data-pressed` is the JS-driven backup for iOS Safari, which
+       doesn't reliably fire `:active` on touch unless a touchstart
+       listener is registered. The attribute holds for 280ms in JS
+       so the user sees confirmation even after the finger lifts
+       and during the SPA navigation that follows. */
+    transition: none;
   }
 }
 

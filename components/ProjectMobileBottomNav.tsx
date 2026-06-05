@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { NavigableProject, Project } from "@/lib/projects";
 import { useCarouselState } from "@/components/CarouselState";
 
@@ -89,11 +89,26 @@ export function ProjectMobileBottomNav({
     return neighborsFromList(filtered, slug, { prev, next });
   }, [tag, slug, prev, next, navigableProjects]);
 
+  // Tap-feedback flash. iOS Safari is unreliable about firing `:active`
+  // on `<button>` for touch events, so we shadow the CSS pseudo with a
+  // JS-driven `data-pressed` attribute that lights up the chip
+  // immediately on the press and stays lit for 280ms — long enough for
+  // the rainbow to register before SPA navigation completes. Tracked
+  // per-button so the user can rapid-fire prev / next and see each
+  // press confirmed.
+  const [pressed, setPressed] = useState<"prev" | "next" | null>(null);
+  const flash = (which: "prev" | "next") => {
+    setPressed(which);
+    window.setTimeout(() => setPressed((p) => (p === which ? null : p)), 280);
+  };
+
   const handlePrev = () => {
+    flash("prev");
     if (carouselActive) controlsRef.current?.prev();
     else router.push(`/projects/${activePrev.slug}${suffix}`);
   };
   const handleNext = () => {
+    flash("next");
     if (carouselActive) controlsRef.current?.next();
     else router.push(`/projects/${activeNext.slug}${suffix}`);
   };
@@ -122,6 +137,7 @@ export function ProjectMobileBottomNav({
         className="project-mobile-bottom-nav-link project-mobile-bottom-nav-link--slide-prev"
         onClick={handlePrev}
         aria-label={ariaPrev}
+        data-pressed={pressed === "prev" ? "true" : undefined}
       >
         <span className="project-mobile-bottom-nav-link__chip">prev</span>
       </button>
@@ -130,6 +146,7 @@ export function ProjectMobileBottomNav({
         className="project-mobile-bottom-nav-link project-mobile-bottom-nav-link--slide-next"
         onClick={handleNext}
         aria-label={ariaNext}
+        data-pressed={pressed === "next" ? "true" : undefined}
       >
         <span className="project-mobile-bottom-nav-link__chip">next</span>
       </button>
