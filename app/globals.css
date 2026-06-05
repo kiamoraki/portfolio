@@ -2796,11 +2796,19 @@ body:has(main.about) .project-mobile-bottom-nav {
     height: 100% !important;
     aspect-ratio: 1;
   }
-  /* Jellyfish — 3×6 cell grid wants the full wide viewport */
+  /* Jellyfish — uses the `below-nav` pattern (height matches the
+     live area under the navbar) on both carousel and standalone.
+     Was `height: 100dvh` (full viewport including under the chrome);
+     now `calc(100dvh - 1rem - 56px)` so the canvas's 3-row cell
+     grid centres vertically in the visible area without the top
+     row tucking under the navbar. The carousel below-nav `Hook 2`
+     rule lower in the file already targets the carousel side via
+     the same height; keeping that consistent here so standalone
+     and carousel render identically. */
   .meta-carousel-track > .project-track .piece-sketch[data-sketch-id="jellyfish-grid"],
   .project-track .piece-sketch[data-sketch-id="jellyfish-grid"] {
     width: 100vw !important;
-    height: 100dvh !important;
+    height: calc(100dvh - 1rem - 56px) !important;
     margin: 0;
   }
   .meta-carousel-track > .project-track .piece-sketch[data-sketch-id="jellyfish-grid"] .wave-canvas-shell,
@@ -3288,6 +3296,28 @@ body:has(main.about) .project-mobile-bottom-nav {
   }
 }
 
+/* tobrit-vessel row — taller cells on desktop so the three images
+   read as PORTRAIT-oriented (instead of the base `.piece-layout--
+   pair`'s `60dvh × 3-cells` which gives near-square cells on a 1920
+   viewport). 80dvh × 33vw per cell ≈ 1:1.35 portrait. The base
+   `object-fit: cover` on the `img` inside keeps all three at the
+   same height, cropping wider source images horizontally to fit the
+   narrower-than-tall cell. */
+@media (min-width: 721px) {
+  .piece[data-piece-id="tobrit-vessel"] .piece-layout--pair {
+    height: 80dvh;
+  }
+  /* tobrit-build 2×2 — square cells on desktop. Base
+     `.piece-layout--grid-2x2` is `80dvh × 100%` (landscape cells
+     ~960×432 on a 1920 viewport); switching the GRID aspect-ratio
+     to 1/1 makes each cell square too (cell-aspect = grid-aspect
+     in a 2×2 layout). */
+  .piece[data-piece-id="tobrit-build"] .piece-layout--grid-2x2 {
+    height: auto;
+    aspect-ratio: 1 / 1;
+  }
+}
+
 /* Dojo per-piece backdrops — each illustration plate is a solid color
    that we sampled from the image edges; the matching color is
    painted on the `.piece` section so it extends past the contained
@@ -3566,23 +3596,20 @@ main[data-project-slug="intergalactic-helm"] .row {
   }
 }
 
-/* Eternal Return — `eternal-return-diagrams` 2x2 grid. The base
-   desktop rule is `80dvh × 100%` which makes cells ~50vw × 40dvh
-   (aspect ~2.22 on a 1920×1080 viewport) — visually rectangular,
-   so the four mixed-aspect diagrams (1.19 colorboard, three 1.41
-   diagrams) read at inconsistent crop ratios. Make the grid square
-   overall via `aspect-ratio: 1 / 1` so each cell becomes square too;
-   all four cover-fit images then render at uniform cell size with
-   their full vertical content visible (horizontal crop only). On
+/* Eternal Return — `eternal-return-diagrams` 2x2 grid on desktop.
+   Grid aspect-ratio is `16 / 9` so each cell (cell-aspect = grid-
+   aspect in a 2×2 layout) becomes landscape, matching the diagrams'
+   landscape orientation. Was `1 / 1` (square cells), which clipped
+   the wider diagrams horizontally with `object-fit: cover`. On
    mobile the base `aspect-ratio: 1/1` per-image rule already covers
-   this; we only adjust the gap there. */
+   the per-cell aspect; we only adjust the gap there. */
 .project-track-content[data-slug="eternal-return"] .piece-layout--grid-2x2 {
   gap: var(--piece-gap, 1.5vw);
 }
 @media (min-width: 721px) {
   .project-track-content[data-slug="eternal-return"] .piece-layout--grid-2x2 {
     height: auto;
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 16 / 9;
   }
 }
 
@@ -5318,7 +5345,14 @@ main[data-project-slug="multiverse"] .project-track-content {
   .meta-carousel-track
     > .project-track:has(
       > .project-track-content[data-slug^="ac-video"]
-    ) {
+    ),
+  /* Standalone /projects/jellyfish — same below-nav padding-top on
+     the project track so the canvas sits below the chrome instead
+     of tucking under it. data-slug here is the project slug, not the
+     sketch id (carousel uses sketch id). */
+  .project-track:has(
+    > .project-track-content[data-slug="jellyfish"]
+  ) {
     padding-top: calc(1rem + 56px);
   }
 
