@@ -41,23 +41,23 @@ export default function RootLayout({
             on the first viewport of any page and load on demand. */}
         <link
           rel="preload"
-          href="/fonts/DroidSans.ttf"
+          href="/fonts/DroidSans.woff2"
           as="font"
-          type="font/ttf"
+          type="font/woff2"
           crossOrigin="anonymous"
         />
         <link
           rel="preload"
-          href="/fonts/DroidSans-Bold.ttf"
+          href="/fonts/DroidSans-Bold.woff2"
           as="font"
-          type="font/ttf"
+          type="font/woff2"
           crossOrigin="anonymous"
         />
         <link
           rel="preload"
-          href="/fonts/neuropol.otf"
+          href="/fonts/neuropol.woff2"
           as="font"
-          type="font/otf"
+          type="font/woff2"
           crossOrigin="anonymous"
         />
       </head>

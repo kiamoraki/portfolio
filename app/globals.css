@@ -40,64 +40,37 @@
 }
 
 /* ─── Fonts (preserve original face set) ────────────────────── */
+/* Live fonts — body + chrome only. All TTF/OTF source files converted
+   to subset woff2 via `pyftsubset --flavor=woff2 --unicodes=...`:
+     - DroidSans: 186KB ttf → 23KB woff2 (Latin Basic + Supplement +
+       common punctuation)
+     - DroidSans-Bold: 190KB → 24KB
+     - Neuropol (chrome / heading): 84KB → 14KB (Latin Basic +
+       Supplement only — Neuropol only renders short strings)
+   Net font payload: ~460KB → ~61KB (87% reduction). woff2 is
+   supported in every browser ≥ Safari 11 / Chrome 36 / Firefox 39,
+   no fallback needed.
+
+   Removed (dead — declared but never referenced anywhere): Azonix,
+   Taurus, NauSea, Square, MonumentValley, SSStandard, SSSocial.
+   The `.icon-standard` / `.icon-social` class consumers (Home chip,
+   ContactButton) all use inline SVG glyphs now, so the icon-font
+   declarations became no-ops. */
 @font-face {
   font-family: "DroidSans";
-  src: url("/fonts/DroidSans.ttf") format("truetype");
+  src: url("/fonts/DroidSans.woff2") format("woff2");
   font-weight: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "DroidSansBold";
-  src: url("/fonts/DroidSans-Bold.ttf") format("truetype");
-  font-weight: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "SSStandard";
-  src: url("/fonts/SS-Standard/ss-standard.ttf") format("truetype");
-  font-weight: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "SSSocial";
-  src: url("/fonts/SS-Social/ss-social-regular.ttf") format("truetype");
-  font-weight: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Azonix";
-  src: url("/fonts/Azonix.otf") format("opentype");
-  font-weight: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Taurus";
-  src: url("/fonts/Taurus-Mono-Outline-Bold.otf") format("opentype");
-  font-weight: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "NauSea";
-  src: url("/fonts/Nau%20Sea.otf") format("opentype");
-  font-weight: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Square";
-  src: url("/fonts/Square.ttf") format("truetype");
-  font-weight: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "MonumentValley";
-  src: url("/fonts/MonumentValley.otf") format("opentype"),
-       url("/fonts/MonumentValley.ttf") format("truetype");
+  src: url("/fonts/DroidSans-Bold.woff2") format("woff2");
   font-weight: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Neuropol";
-  src: url("/fonts/neuropol.otf") format("opentype");
+  src: url("/fonts/neuropol.woff2") format("woff2");
   font-weight: normal;
   font-display: swap;
 }
