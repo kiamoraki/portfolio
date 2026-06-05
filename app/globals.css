@@ -230,10 +230,6 @@ figure.image figcaption {
      `.row > figure.image { flex: 1 1 0 }` from the base, which
      padded extra vertical air around the figure. `display: contents`
      skips that container entirely. */
-  main[data-project-slug="paintings"] .row:has(figure.image):has(.video),
-  main[data-project-slug="paintings"] .row:has(figure.image):has(.video-vertical) {
-    display: contents;
-  }
   .row:has(.video),
   .row:has(.video-vertical) {
     flex-direction: row !important;
@@ -1210,19 +1206,12 @@ html.vt-next::view-transition-new(root) {
   /* On meta pages, the eternal-return entry should only show its
      canvas — strip the install photo + diagram grids that accompany
      it on the project's own page. */
-  .meta-project[data-slug="eternal-return"] .er-mobile-image,
-  .meta-project[data-slug="eternal-return"] .er-mobile-grid {
-    display: none;
-  }
   /* And blow the canvas up to fill the viewport instead of the fixed
      4-col × 7-row height the project page uses. The canvas itself
      reads its container dimensions to redo its grid, so just enlarging
      this wrapper is enough — !important is the only reliable way to
      beat the inline height the EternalReturnCarousel computes for
      mobile. */
-  .meta-project[data-slug="eternal-return"] .er-mobile-canvas--unobserved {
-    height: 100vh !important;
-  }
   /* Per-slide bg rules used to live HERE inside the mobile-only
      `@media (max-width: 720px)` block (a remnant of when the meta-
      carousel only rendered on mobile). The new MetaCarousel renders
@@ -1233,9 +1222,6 @@ html.vt-next::view-transition-new(root) {
   /* On the animations meta page, the roses entry should only show its
      two canvases — strip the photo stack that runs above them on the
      project's own page. */
-  .meta-project[data-slug="roses"] .project-mobile-stack {
-    display: none;
-  }
   /* main has `align-items: center`, which collapses each meta-project
      section to its intrinsic width when no explicit width is set —
      leaving inner `width: 100%` elements (canvases, image stacks)
@@ -2288,73 +2274,25 @@ main.about #about-cv .about-tabs { margin: 0; }
    was the actual regression. */
 
 /* Lissajous family — pieces paint #130c12 (same as page) */
-.meta-carousel-track
-  > .project-track:has(
-    > .project-track-content[data-slug^="lissajous"]
-  ) {
-  background: #130c12;
-}
 
 /* Wave family — pure black */
-.meta-carousel-track
-  > .project-track:has(> .project-track-content[data-slug^="wave-"]) {
-  background: #000;
-}
 
 /* Eternal return (toggle canvas) — pure black */
-.meta-carousel-track
-  > .project-track:has(
-    > .project-track-content[data-slug="eternal-return-toggle"]
-  ) {
-  background: #000;
-}
 
 /* Multiverse — deep blue */
-.meta-carousel-track
-  > .project-track:has(
-    > .project-track-content[data-slug="multiverse"]
-  ) {
-  background: #00001c;
-}
 
 /* Roses family (grid + portraits) — midnight navy */
-.meta-carousel-track
-  > .project-track:has(> .project-track-content[data-slug^="roses-"]) {
-  background: #000d19;
-}
 
 /* Jellyfish — pure black */
-.meta-carousel-track
-  > .project-track:has(
-    > .project-track-content[data-slug="jellyfish-grid"]
-  ) {
-  background: #000;
-}
 
 /* Shape of time — pure black */
-.meta-carousel-track
-  > .project-track:has(
-    > .project-track-content[data-slug="shape-of-time"]
-  ) {
-  background: #000;
-}
 
 /* Emergence (RadialsCanvas) — white (sketch paints `p.background(255)`) */
-.meta-carousel-track
-  > .project-track:has(
-    > .project-track-content[data-slug="emergence"]
-  ) {
-  background: #fff;
-}
 
 /* AC animations (ac-video-1, ac-video-2 — `<Video>` pieces, no
    Sketch bg) — explicit white per design intent so the video
    reads against a neutral background instead of the page's warm-
    dark. */
-.meta-carousel-track
-  > .project-track:has(> .project-track-content[data-slug^="ac-video"]) {
-  background: #fff;
-}
 
 /* Pinned, viewport-fixed title chip for the active slide. Driven by
    the active slide's data-title; renders as a clickable <button> when
@@ -2481,7 +2419,7 @@ button.meta-carousel-active-title {
    chips; desktop = single top row Home·CV·Title·PREV·NEXT.
    Theming: every chip uses `color: inherit` + `border: 2px solid
    currentColor`, so polarity tracks body color set per-page via the
-   inline <style> block in app/projects/[slug]/page.tsx.
+   inline \3c style> block in app/projects/[slug]/page.tsx.
    ────────────────────────────────────────────────────────────────── */
 
 /* Desktop sidebar chrome: Home + CV side-by-side. All four chrome
@@ -2835,9 +2773,6 @@ body:has(main.about) .project-mobile-bottom-nav {
 /* TOBRIT — light-themed project (white bg, dark text). The piece
    styling specifics (sketch image at 70%, etc.) are minor polish and
    can be reapplied later as needed. */
-.project-track-content[data-slug="tobrit"] {
-  background: transparent;
-}
 
 /* Fake Rekordz mobile — stack each Pair's covers vertically instead
    of side-by-side. Posters are detailed and read better full-width
@@ -2845,12 +2780,6 @@ body:has(main.about) .project-mobile-bottom-nav {
    `.piece-layout--pair` (2-col grid + 1px gap) with a 1-col grid +
    `--piece-gap` between the two covers; the inter-piece gap stays
    the same. */
-@media (max-width: 720px) {
-  .project-track-content[data-slug="fake-rekordz"] .piece-layout--pair {
-    grid-template-columns: 1fr;
-    gap: var(--piece-gap, 1.5vw);
-  }
-}
 
 /* Fake Rekordz — first piece is a Pair (record covers), not a Hero,
    so it needs explicit padding-top to clear the navbar. Posters
@@ -2863,22 +2792,6 @@ body:has(main.about) .project-mobile-bottom-nav {
    so the tall spaceout/bbbiennale pair doesn't overflow. The
    default `.project-track-content` `gap: 1.5vw` then shows as the
    single, consistent inter-piece rhythm. */
-@media (min-width: 721px) {
-  .project-track-content[data-slug="fake-rekordz"] {
-    padding-top: calc(1rem + 56px + var(--piece-gap, 1.5vw));
-  }
-  .project-track-content[data-slug="fake-rekordz"] .piece-layout--pair {
-    height: auto;
-  }
-  .project-track-content[data-slug="fake-rekordz"] .piece-layout--pair img {
-    width: auto !important;
-    height: auto !important;
-    max-width: 100% !important;
-    max-height: 90dvh !important;
-    object-fit: contain !important;
-    place-self: center;
-  }
-}
 
 /* Lissajous — first sketch piece is framed at reduced height (80dvh)
    below the navbar; subsequent sketches use the default sketch
@@ -2899,17 +2812,6 @@ body:has(main.about) .project-mobile-bottom-nav {
    var(--piece-gap)`) on top of the default flex `gap`, so the
    headliner pair-lines sketch reads as visually separate from the
    demonstration sketches that follow it. */
-@media (min-width: 721px) {
-  .project-track-content[data-slug="lissajous"] {
-    padding-top: calc((1rem + 56px) / 2 + 10vh);
-  }
-  .project-track-content[data-slug="lissajous"] > .piece:first-child:has(.piece-sketch) .piece-sketch {
-    height: 80dvh !important;
-  }
-  .project-track-content[data-slug="lissajous"] > .piece:first-child:has(.piece-sketch) {
-    margin-bottom: var(--piece-gap, 1.5vw);
-  }
-}
 
 /* ──────────────────────────────────────────────────────────────────
    MOON RAVES — each piece is one viewport-tall "slide" matching the
@@ -2932,173 +2834,29 @@ body:has(main.about) .project-mobile-bottom-nav {
 @media (min-width: 721px) {
   /* Each moon-raves piece is one viewport-tall section. The padding
      leaves a slim breathing edge against the viewport borders. */
-  .project-track-content[data-slug="moon-raves"] > .piece {
-    width: 100vw;
-    height: 100dvh;
-    padding: 0;
-    box-sizing: border-box;
-    overflow: hidden;
-  }
 
   /* Slide 1 — moon-raves-zeva-live: VideoTopLeft 3×3 grid.
        row1: [video][video][img2 zeva-live-1]
        row2: [video][video][img3 zeva-live-2]
        row3: [img0 zeva-snays-3][img1 zeva-snays-2][img4 zeva-live-3] */
-  .piece[data-piece-id="moon-raves-zeva-live"] .piece-video-top-left {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(3, 1fr);
-    gap: var(--piece-gap, 1.5vw);
-    width: 100%;
-    height: 100%;
-  }
-  .piece[data-piece-id="moon-raves-zeva-live"] .piece-video-top-left__video {
-    grid-column: 1 / span 2;
-    grid-row: 1 / span 2;
-    overflow: hidden;
-    min-width: 0;
-    min-height: 0;
-  }
-  .piece[data-piece-id="moon-raves-zeva-live"] .piece-video-top-left > img:nth-of-type(1) {
-    grid-column: 1; grid-row: 3;
-  }
-  .piece[data-piece-id="moon-raves-zeva-live"] .piece-video-top-left > img:nth-of-type(2) {
-    grid-column: 2; grid-row: 3;
-  }
-  .piece[data-piece-id="moon-raves-zeva-live"] .piece-video-top-left > img:nth-of-type(3) {
-    grid-column: 3; grid-row: 1;
-  }
-  .piece[data-piece-id="moon-raves-zeva-live"] .piece-video-top-left > img:nth-of-type(4) {
-    grid-column: 3; grid-row: 2;
-  }
-  .piece[data-piece-id="moon-raves-zeva-live"] .piece-video-top-left > img:nth-of-type(5) {
-    grid-column: 3; grid-row: 3;
-  }
-  .piece[data-piece-id="moon-raves-zeva-live"] .piece-video-top-left > img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    min-width: 0;
-    min-height: 0;
-  }
 
   /* Slide 2 — moon-raves-nico-alejandro: StackPairSide 3 cols × 2 rows.
        row1: [nico][alejandro tall][joaquin tall]
        row2: [adam] [alejandro    ][joaquin    ] */
-  .piece[data-piece-id="moon-raves-nico-alejandro"] .piece-layout--stack {
-    display: grid !important;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: 1fr 1fr;
-    gap: var(--piece-gap, 1.5vw);
-    width: 100%;
-    height: 100%;
-    padding: 0;
-  }
-  .piece[data-piece-id="moon-raves-nico-alejandro"] .piece-layout--stack > img:nth-of-type(1) {
-    grid-column: 1; grid-row: 1;
-  }
-  .piece[data-piece-id="moon-raves-nico-alejandro"] .piece-layout--stack > img:nth-of-type(2) {
-    grid-column: 2; grid-row: 1 / span 2;
-  }
-  .piece[data-piece-id="moon-raves-nico-alejandro"] .piece-layout--stack > img:nth-of-type(3) {
-    grid-column: 3; grid-row: 1 / span 2;
-  }
-  .piece[data-piece-id="moon-raves-nico-alejandro"] .piece-layout--stack > img:nth-of-type(4) {
-    grid-column: 1; grid-row: 2;
-  }
-  .piece[data-piece-id="moon-raves-nico-alejandro"] .piece-layout--stack > img {
-    width: 100%; height: 100%; object-fit: cover; display: block;
-    min-width: 0; min-height: 0;
-  }
 
   /* Slide 3 — moon-raves-cody-karo: simple 2-col row, full viewport */
-  .piece[data-piece-id="moon-raves-cody-karo"] .piece-layout--pair {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--piece-gap, 1.5vw);
-    width: 100%;
-    height: 100% !important;
-    padding: 0 !important;
-  }
-  .piece[data-piece-id="moon-raves-cody-karo"] .piece-layout--pair img {
-    width: 100%; height: 100%; object-fit: cover; display: block;
-    min-width: 0; min-height: 0;
-  }
 
   /* Slide 4 — moon-raves-laz-mason: Stack3PairSide 3 cols × 3 rows.
        col1 spans rows1-3: laz-1
        col2 row1: mason, row2: spanky, row3: laz-sub
        col3 spans rows1-3: laz-2 */
-  .piece[data-piece-id="moon-raves-laz-mason"] .piece-layout--stack {
-    display: grid !important;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(3, 1fr);
-    gap: var(--piece-gap, 1.5vw);
-    width: 100%;
-    height: 100%;
-    padding: 0;
-  }
-  .piece[data-piece-id="moon-raves-laz-mason"] .piece-layout--stack > img:nth-of-type(1) {
-    grid-column: 1; grid-row: 1 / span 3;
-  }
-  .piece[data-piece-id="moon-raves-laz-mason"] .piece-layout--stack > img:nth-of-type(2) {
-    grid-column: 3; grid-row: 1 / span 3;
-  }
-  .piece[data-piece-id="moon-raves-laz-mason"] .piece-layout--stack > img:nth-of-type(3) {
-    grid-column: 2; grid-row: 1;
-  }
-  .piece[data-piece-id="moon-raves-laz-mason"] .piece-layout--stack > img:nth-of-type(4) {
-    grid-column: 2; grid-row: 2;
-  }
-  .piece[data-piece-id="moon-raves-laz-mason"] .piece-layout--stack > img:nth-of-type(5) {
-    grid-column: 2; grid-row: 3;
-  }
-  .piece[data-piece-id="moon-raves-laz-mason"] .piece-layout--stack > img {
-    width: 100%; height: 100%; object-fit: cover; display: block;
-    min-width: 0; min-height: 0;
-  }
 
   /* Slide 5 — moon-raves-dauwke: 2-col × 2-row.
        col1 row1: dauwke-2 (img:nth-of-type(1))
        col1 row2: dauwke-1 (img:nth-of-type(2))
        col2 spans rows1-2: dauwke-3 (img:nth-of-type(3), full-height) */
-  .piece[data-piece-id="moon-raves-dauwke"] .piece-layout--stack {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    gap: var(--piece-gap, 1.5vw);
-    width: 100%;
-    height: 100%;
-    padding: 0;
-  }
-  .piece[data-piece-id="moon-raves-dauwke"] .piece-layout--stack > img:nth-of-type(1) {
-    grid-column: 1; grid-row: 1;
-  }
-  .piece[data-piece-id="moon-raves-dauwke"] .piece-layout--stack > img:nth-of-type(2) {
-    grid-column: 1; grid-row: 2;
-  }
-  .piece[data-piece-id="moon-raves-dauwke"] .piece-layout--stack > img:nth-of-type(3) {
-    grid-column: 2; grid-row: 1 / span 2;
-  }
-  .piece[data-piece-id="moon-raves-dauwke"] .piece-layout--stack > img {
-    width: 100%; height: 100%; object-fit: cover; display: block;
-    min-width: 0; min-height: 0;
-  }
 
   /* Slide 6 — moon-raves-quad-seva: RowCover, 3 images full viewport */
-  .piece[data-piece-id="moon-raves-quad-seva"] .piece-layout--pair {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--piece-gap, 1.5vw);
-    width: 100%;
-    height: 100% !important;
-    padding: 0 !important;
-  }
-  .piece[data-piece-id="moon-raves-quad-seva"] .piece-layout--pair img {
-    width: 100%; height: 100%; object-fit: cover; display: block;
-    min-width: 0; min-height: 0;
-  }
 
   /* Slide 7 — moon-raves-quad: Single image. Collapse the piece to
      the image's natural aspect (100vw × auto) instead of stretching
@@ -3106,68 +2864,15 @@ body:has(main.about) .project-mobile-bottom-nav {
      dead vertical space above + below. The inter-piece flex `gap`
      on `.project-track-content` keeps the 1.5vw separation from
      neighbors. */
-  .project-track-content[data-slug="moon-raves"] > .piece[data-piece-id="moon-raves-quad"] {
-    height: auto;
-  }
-  .piece[data-piece-id="moon-raves-quad"] .piece-layout--single {
-    padding: 0 !important;
-    width: 100%;
-    display: block;
-  }
-  .piece[data-piece-id="moon-raves-quad"] .piece-layout--single img {
-    width: 100%;
-    height: auto;
-    max-width: 100%;
-    display: block;
-  }
 
   /* Slide 8 — moon-raves-portraits-2x2: 2×2 grid, cover-fit, full viewport */
-  .piece[data-piece-id="moon-raves-portraits-2x2"] .piece-layout--grid-2x2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    gap: var(--piece-gap, 1.5vw);
-    width: 100%;
-    height: 100% !important;
-    padding: 0 !important;
-  }
-  .piece[data-piece-id="moon-raves-portraits-2x2"] .piece-layout--grid-2x2 img {
-    width: 100%; height: 100%; object-fit: cover; display: block;
-    min-width: 0; min-height: 0;
-  }
 
   /* Slide 9 — moon-raves-me: Row of 3 cover-fit */
-  .piece[data-piece-id="moon-raves-me"] .piece-layout--pair {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--piece-gap, 1.5vw);
-    width: 100%;
-    height: 100% !important;
-    padding: 0 !important;
-  }
-  .piece[data-piece-id="moon-raves-me"] .piece-layout--pair img {
-    width: 100%; height: 100%; object-fit: cover; display: block;
-    min-width: 0; min-height: 0;
-  }
 
   /* Slide 10 — moon-raves-beach: Single image. Same natural-aspect
      treatment as moon-raves-quad — collapse the piece to the
      image's height so a landscape beach photo doesn't sit in a
      100dvh slot with empty vertical space. */
-  .project-track-content[data-slug="moon-raves"] > .piece[data-piece-id="moon-raves-beach"] {
-    height: auto;
-  }
-  .piece[data-piece-id="moon-raves-beach"] .piece-layout--single {
-    padding: 0 !important;
-    width: 100%;
-    display: block;
-  }
-  .piece[data-piece-id="moon-raves-beach"] .piece-layout--single img {
-    width: 100%;
-    height: auto;
-    max-width: 100%;
-    display: block;
-  }
 }
 
 /* ──────────────────────────────────────────────────────────────────
@@ -3188,20 +2893,10 @@ body:has(main.about) .project-mobile-bottom-nav {
      overrides the z-index to drop it BELOW the page content, and
      lifts the project-track-content into its own stacking context
      ABOVE the canvas. */
-  body:has(main[data-project-slug="tobrit"]) #TOBRIT_Canvas {
-    z-index: 1 !important;
-  }
-  body:has(main[data-project-slug="tobrit"]) .project-track-content[data-slug="tobrit"] {
-    position: relative;
-    z-index: 2;
-  }
 }
 @media (max-width: 720px) {
   /* Animation ON TOP of images on mobile. Restore the high z-index
      so the falling faces overlay the photo stack. */
-  body:has(main[data-project-slug="tobrit"]) #TOBRIT_Canvas {
-    z-index: 100 !important;
-  }
 }
 
 /* tobrit-sketch Pair — uncropped images centered vertically.
@@ -3214,18 +2909,6 @@ body:has(main.about) .project-mobile-bottom-nav {
    applies on both desktop and mobile (mobile keeps its base 2-col
    `.piece-layout--pair` grid; we just swap the image fit from the
    default cover-crop to contain). */
-.piece[data-piece-id="tobrit-sketch"] .piece-layout--pair {
-  align-items: center;
-}
-.piece[data-piece-id="tobrit-sketch"] .piece-layout--pair img {
-  width: auto !important;
-  height: auto !important;
-  max-width: 100% !important;
-  max-height: 100% !important;
-  object-fit: contain !important;
-  align-self: center;
-  justify-self: center;
-}
 
 /* Pattern — last two pieces before a credits piece render at 100%
    width with natural aspect (no cropping). Uses `:has()` to match
@@ -3236,23 +2919,6 @@ body:has(main.about) .project-mobile-bottom-nav {
    when authored as `<Cover>`); the closing moments of the project
    become uncropped full-width images instead of a cropped hero
    slot. Universal — applies on both desktop and mobile. */
-.piece:has(+ .piece[data-piece-id$="-credits"]) .piece-layout,
-.piece:has(+ .piece + .piece[data-piece-id$="-credits"]) .piece-layout,
-.piece:has(+ .piece[data-piece-id$="-credits"]) .piece-layout--cover,
-.piece:has(+ .piece + .piece[data-piece-id$="-credits"]) .piece-layout--cover {
-  width: 100vw !important;
-  height: auto !important;
-  overflow: visible;
-}
-.piece:has(+ .piece[data-piece-id$="-credits"]) .piece-layout > img,
-.piece:has(+ .piece + .piece[data-piece-id$="-credits"]) .piece-layout > img,
-.piece:has(+ .piece[data-piece-id$="-credits"]) .piece-layout--cover > img,
-.piece:has(+ .piece + .piece[data-piece-id$="-credits"]) .piece-layout--cover > img {
-  width: 100% !important;
-  height: auto !important;
-  object-fit: contain !important;
-  display: block;
-}
 
 /* tobrit-vessel on mobile — the Row has `hideOnMobile` on the middle
    image (maruquevedo-2), so the mobile filter leaves a 2-col pair of
@@ -3261,25 +2927,12 @@ body:has(main.about) .project-mobile-bottom-nav {
    (`height: auto`) renders them at mismatched heights. Lock both to
    a shared `40vh` height with `object-fit: cover` so the row reads
    as a balanced strip — same treatment desktop pairs use at 60dvh. */
-@media (max-width: 720px) {
-  .piece[data-piece-id="tobrit-vessel"] .piece-layout--pair img {
-    width: 100%;
-    height: 40vh;
-    object-fit: cover;
-  }
-}
 
 /* tobrit-vessel pair + tobrit-build 2×2 grid — match the inter-image
    gap on mobile to the page's `--piece-gap` (1.5vw) so the rhythm
    between images inside a piece reads as the same rhythm between
    pieces (which use the `gap` on `.project-track-content`).
    Overrides the base mobile pair/grid rules' tight 1px gap. */
-@media (max-width: 720px) {
-  .piece[data-piece-id="tobrit-vessel"] .piece-layout--pair,
-  .piece[data-piece-id="tobrit-build"] .piece-layout--grid-2x2 {
-    gap: var(--piece-gap, 1.5vw);
-  }
-}
 
 /* tobrit-vessel row — taller cells on desktop so the three images
    read as PORTRAIT-oriented (instead of the base `.piece-layout--
@@ -3289,18 +2942,11 @@ body:has(main.about) .project-mobile-bottom-nav {
    same height, cropping wider source images horizontally to fit the
    narrower-than-tall cell. */
 @media (min-width: 721px) {
-  .piece[data-piece-id="tobrit-vessel"] .piece-layout--pair {
-    height: 80dvh;
-  }
   /* tobrit-build 2×2 — square cells on desktop. Base
      `.piece-layout--grid-2x2` is `80dvh × 100%` (landscape cells
      ~960×432 on a 1920 viewport); switching the GRID aspect-ratio
      to 1/1 makes each cell square too (cell-aspect = grid-aspect
      in a 2×2 layout). */
-  .piece[data-piece-id="tobrit-build"] .piece-layout--grid-2x2 {
-    height: auto;
-    aspect-ratio: 1 / 1;
-  }
 }
 
 /* Dojo per-piece backdrops — each illustration plate is a solid color
@@ -3325,20 +2971,11 @@ body:has(main.about) .project-mobile-bottom-nav {
    embedded ICC profile and the user's display calibration). Snake +
    tiger keep the raw edge-pixel sample since those already read
    correctly against the rendered images. */
-main[data-project-slug="dojo"] .piece[data-piece-id="dojo-dragon"]  { background: #ffc1fe; }
-main[data-project-slug="dojo"] .piece[data-piece-id="dojo-leopard"] { background: #8abbff; }
-main[data-project-slug="dojo"] .piece[data-piece-id="dojo-snake"]   { background: #dbf852; }
-main[data-project-slug="dojo"] .piece[data-piece-id="dojo-tiger"]   { background: #fffc3f; }
-main[data-project-slug="dojo"] .piece[data-piece-id="dojo-crane"]   { background: #b78a00; }
 
 /* Dojo — collapse the inter-piece gutter so the colored plates stack
    edge-to-edge as one continuous strip. Overrides the default
    `.project-track-content` `gap: var(--piece-gap)` + matching
    `padding-bottom` that show white between pieces elsewhere. */
-main[data-project-slug="dojo"] .project-track-content {
-  gap: 0;
-  padding-bottom: 0;
-}
 
 /* Paintings — v1 format (`<Figure>` / `<Row>` legacy primitives, not
    v2 `<Piece>`) — bring its inter-image rhythm in line with the v2
@@ -3349,25 +2986,11 @@ main[data-project-slug="dojo"] .project-track-content {
    the inter-figure rhythm plus the same gap inside rows. Video-row
    mobile overrides (`!important`) still win — videos stay tightly
    paired with their sibling figure as intended. */
-main[data-project-slug="paintings"] {
-  --piece-gap: 1.5vw;
-  gap: var(--piece-gap);
-}
-main[data-project-slug="paintings"] figure.image,
-main[data-project-slug="paintings"] .row {
-  margin: 0;
-}
-main[data-project-slug="paintings"] .row {
-  gap: var(--piece-gap);
-}
 
 /* AC `ac-tiles` — pornj-playa + blue-playa Pair, both square, both
    uncropped. Base `.piece-layout--pair` forces `object-fit: cover`
    which slices the tile imagery; override to contain so the full
    square reads. */
-.piece[data-piece-id="ac-tiles"] .piece-layout--pair img {
-  object-fit: contain !important;
-}
 
 /* AC `ac-glamtech-trio` — layered composition: a Pair of
    (glamtech-install-2-flip left, glamtech-install-1 right) sits
@@ -3378,26 +3001,6 @@ main[data-project-slug="paintings"] .row {
    with sane min/max so it stays legible on phones and doesn't
    dominate on widescreens. The base pair forces 60dvh + cover;
    both are overridden so the photos render at natural aspect. */
-.piece[data-piece-id="ac-glamtech-trio"] {
-  position: relative;
-}
-.piece[data-piece-id="ac-glamtech-trio"] .piece-layout--pair img {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: contain !important;
-}
-.piece[data-piece-id="ac-glamtech-trio"] .ac-glamtech-logo-overlay {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 18vw;
-  min-width: 120px;
-  max-width: 240px;
-  height: auto;
-  transform: translate(-50%, -50%);
-  z-index: 2;
-  pointer-events: none;
-}
 
 /* AC `ac-video-1` + `ac-video-2` — top-of-page animation pair. The
    previous rule sized each video to its own natural aspect (width:
@@ -3409,26 +3012,12 @@ main[data-project-slug="paintings"] .row {
    doesn't fit, so the two element boxes read as the same-width
    strips regardless of clip aspect. Mobile is unconstrained (uses
    the primitive's default `width: 100%; height: auto`). */
-@media (min-width: 721px) {
-  .piece[data-piece-id="ac-video-1"] .piece-layout--single video,
-  .piece[data-piece-id="ac-video-2"] .piece-layout--single video {
-    width: 100% !important;
-    height: auto !important;
-    max-height: 90dvh !important;
-    margin: 0 !important;
-  }
-}
 
 /* AC desktop — first piece is `ac-video-1` (an animation), so the
    page needs the same top-padding nudge as Fake Rekordz / Lissajous
    to clear the fixed top nav (1rem inset + 56px nav + 1.5vw gap).
    Without it, the video's top edge tucks under the chrome on
    first-paint. */
-@media (min-width: 721px) {
-  .project-track-content[data-slug="artificial-consciousness"] {
-    padding-top: calc(1rem + 56px + var(--piece-gap, 1.5vw));
-  }
-}
 
 /* Standardized first-piece clearance — matches Fake Rekordz / AC.
    ─────────────────────────────────────────────────────────────────
@@ -3470,26 +3059,12 @@ main[data-project-slug="paintings"] .row {
   /* Zero main's default 60px top padding for the non-fullbleed
      projects so they reach the same baseline as the fullbleed
      reference projects. */
-  main[data-project-slug="mars"],
-  main[data-project-slug="paintings"],
-  main[data-project-slug="intergalactic-helm"] {
-    padding-top: 0;
-  }
 
   /* v2 Hero-first projects — adds the missing piece-gap above the
      hero's own navbar clearance. */
-  .project-track-content[data-slug="mars"],
-  .project-track-content[data-slug="radioactivitea"],
-  .project-track-content[data-slug="precarity-a-domestic-tale"] {
-    padding-top: var(--piece-gap, 1.5vw);
-  }
 
   /* v1 legacy — full clearance on main since there's no
      `.project-track-content` to delegate to. */
-  main[data-project-slug="paintings"],
-  main[data-project-slug="intergalactic-helm"] {
-    padding-top: calc(1rem + 56px + var(--piece-gap, 1.5vw));
-  }
 }
 
 /* Intergalactic Helm — same v1 → standard-gap treatment as Paintings
@@ -3499,17 +3074,6 @@ main[data-project-slug="paintings"] .row {
    `main { gap: 1px } / row { gap: 1px }` (mobile) for a single
    `gap: var(--piece-gap)` (1.5vw) rhythm on the flex `main` parent
    plus the same gap between row children. */
-main[data-project-slug="intergalactic-helm"] {
-  --piece-gap: 1.5vw;
-  gap: var(--piece-gap);
-}
-main[data-project-slug="intergalactic-helm"] figure.image,
-main[data-project-slug="intergalactic-helm"] .row {
-  margin: 0;
-}
-main[data-project-slug="intergalactic-helm"] .row {
-  gap: var(--piece-gap);
-}
 
 /* Intergalactic Helm — images in a row float toward the centre. With
    `object-fit: contain` + `max-height: 90vh`, portrait images render
@@ -3521,14 +3085,6 @@ main[data-project-slug="intergalactic-helm"] .row {
    rows) keep the default centred object-position. Desktop only —
    mobile collapses rows to a vertical stack where each image already
    fills the row width. */
-@media (min-width: 721px) {
-  main[data-project-slug="intergalactic-helm"] .row > figure.image:first-child img {
-    object-position: 100% 50%;
-  }
-  main[data-project-slug="intergalactic-helm"] .row > figure.image:last-child img {
-    object-position: 0% 50%;
-  }
-}
 
 /* RadioactiviTEA grid — all four images are square (1024² / 720²),
    but the base `.piece-layout--grid-2x2` is `80dvh` tall × `100%`
@@ -3537,12 +3093,6 @@ main[data-project-slug="intergalactic-helm"] .row {
    top + bottom of each square image. Override the grid to be square
    overall via `aspect-ratio: 1 / 1` so each cell is square too,
    matching the images perfectly — no vertical crop. */
-@media (min-width: 721px) {
-  .project-track-content[data-slug="radioactivitea"] .piece-layout--grid-2x2 {
-    height: auto;
-    aspect-ratio: 1 / 1;
-  }
-}
 
 /* Precarity `precarity-09-11` — the only Pair on this page with
    portrait images (-09 + -11 are both ~2:3 aspect). The base
@@ -3556,11 +3106,6 @@ main[data-project-slug="intergalactic-helm"] .row {
    Removing the `contain` override lets the images cover their
    cell fully with `100% height × 100% width`, no internal padding,
    so the inter-piece gap reads consistently.) */
-@media (min-width: 721px) {
-  .project-track-content[data-slug="precarity-a-domestic-tale"] .piece[data-piece-id="precarity-09-11"] .piece-layout--pair {
-    height: 100dvh;
-  }
-}
 
 /* Precarity desktop — Pair images align toward the centre of the
    page: the first cell's image shifts to its right edge (object-
@@ -3572,14 +3117,6 @@ main[data-project-slug="intergalactic-helm"] .row {
    pairs the image fills its cell with little/no air, so the shift
    is effectively a no-op (controls which side of the slight overflow
    gets cropped, not the visible position). */
-@media (min-width: 721px) {
-  .project-track-content[data-slug="precarity-a-domestic-tale"] .piece-layout--pair > img:first-of-type {
-    object-position: 100% 50%;
-  }
-  .project-track-content[data-slug="precarity-a-domestic-tale"] .piece-layout--pair > img:last-of-type {
-    object-position: 0% 50%;
-  }
-}
 
 /* Eternal Return — `eternal-return-diagrams` 2x2 grid on desktop.
    Grid aspect-ratio is `16 / 9` so each cell (cell-aspect = grid-
@@ -3588,15 +3125,6 @@ main[data-project-slug="intergalactic-helm"] .row {
    the wider diagrams horizontally with `object-fit: cover`. On
    mobile the base `aspect-ratio: 1/1` per-image rule already covers
    the per-cell aspect; we only adjust the gap there. */
-.project-track-content[data-slug="eternal-return"] .piece-layout--grid-2x2 {
-  gap: var(--piece-gap, 1.5vw);
-}
-@media (min-width: 721px) {
-  .project-track-content[data-slug="eternal-return"] .piece-layout--grid-2x2 {
-    height: auto;
-    aspect-ratio: 16 / 9;
-  }
-}
 
 /* ──────────────────────────────────────────────────────────────────
    Mobile chrome — restructured to mirror the desktop continuous
@@ -3872,11 +3400,6 @@ main[data-project-slug="intergalactic-helm"] .row {
    layout--pair` rule's 1px gap by default; align to the standard
    `--piece-gap` (1.5vw) so the inter-image rhythm matches the
    inter-piece rhythm elsewhere on the page. */
-@media (max-width: 720px) {
-  .project-track-content[data-slug="precarity-a-domestic-tale"] .piece-layout--pair {
-    gap: var(--piece-gap, 1.5vw);
-  }
-}
 
 /* Moon Raves `moon-raves-zeva-live` mobile — the desktop CSS defines
    the VideoTopLeft as a 3×3 grid with the iframe at top-left 2x2,
@@ -3889,12 +3412,6 @@ main[data-project-slug="intergalactic-helm"] .row {
    sit side-by-side as a pair, and images 3–5 (live-1/2/3) each
    span both cols full-width below. */
 @media (max-width: 720px) {
-  .piece[data-piece-id="moon-raves-zeva-live"] .piece-video-top-left {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--piece-gap, 1.5vw);
-    width: 100%;
-  }
   /* Visual order on mobile (rows decoupled from DOM order via explicit
      `grid-row`):
        row 1: live-3 (5th `<img>`) — full width
@@ -3902,37 +3419,6 @@ main[data-project-slug="intergalactic-helm"] .row {
        row 3: live-2 — full width
        row 4: video iframe — full width 16:9
        row 5: snays-3 + snays-2 pair — moved BELOW the video. */
-  .piece[data-piece-id="moon-raves-zeva-live"] .piece-video-top-left__video {
-    grid-column: 1 / -1;
-    grid-row: 4;
-    width: 100%;
-    aspect-ratio: 16 / 9;
-  }
-  .piece[data-piece-id="moon-raves-zeva-live"] .piece-video-top-left > img:nth-of-type(1) {
-    grid-column: 1;
-    grid-row: 5;
-  }
-  .piece[data-piece-id="moon-raves-zeva-live"] .piece-video-top-left > img:nth-of-type(2) {
-    grid-column: 2;
-    grid-row: 5;
-  }
-  .piece[data-piece-id="moon-raves-zeva-live"] .piece-video-top-left > img:nth-of-type(3) {
-    grid-column: 1 / -1;
-    grid-row: 2;
-  }
-  .piece[data-piece-id="moon-raves-zeva-live"] .piece-video-top-left > img:nth-of-type(4) {
-    grid-column: 1 / -1;
-    grid-row: 3;
-  }
-  .piece[data-piece-id="moon-raves-zeva-live"] .piece-video-top-left > img:nth-of-type(5) {
-    grid-column: 1 / -1;
-    grid-row: 1;
-  }
-  .piece[data-piece-id="moon-raves-zeva-live"] .piece-video-top-left > img {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
 }
 
 /* Moon Raves `moon-raves-laz-mason` mobile — Stack3PairSide renders
@@ -3941,79 +3427,18 @@ main[data-project-slug="intergalactic-helm"] .row {
    (same 3:4 aspect, so natural heights match) sit side-by-side as a
    pair on the first row, then mason / spanky / laz-sub each span
    full width below. */
-@media (max-width: 720px) {
-  .piece[data-piece-id="moon-raves-laz-mason"] .piece-layout--stack {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--piece-gap, 1.5vw);
-    width: 100%;
-  }
-  .piece[data-piece-id="moon-raves-laz-mason"] .piece-layout--stack > img:nth-of-type(1) {
-    grid-column: 1;
-  }
-  .piece[data-piece-id="moon-raves-laz-mason"] .piece-layout--stack > img:nth-of-type(2) {
-    grid-column: 2;
-  }
-  .piece[data-piece-id="moon-raves-laz-mason"] .piece-layout--stack > img:nth-of-type(n+3) {
-    grid-column: 1 / -1;
-  }
-  .piece[data-piece-id="moon-raves-laz-mason"] .piece-layout--stack > img {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-}
 
 /* Moon Raves mobile — standardize the inter-image gap to
    `--piece-gap (1.5vw)` across every piece layout, overriding the
    base mobile rules' 1px gap on `.piece-layout--pair`,
    `.piece-layout--grid-2x2`, and `.piece-layout--stack`. Matches
    the inter-piece rhythm on `.project-track-content`. */
-@media (max-width: 720px) {
-  .project-track-content[data-slug="moon-raves"] .piece-layout--pair,
-  .project-track-content[data-slug="moon-raves"] .piece-layout--grid-2x2,
-  .project-track-content[data-slug="moon-raves"] .piece-layout--stack {
-    gap: var(--piece-gap, 1.5vw);
-  }
-}
 
 /* Moon Raves `moon-raves-nico-alejandro` mobile — StackPairSide
    renders as `.piece-layout--stack` (vertical column by default).
    Override with a 2-col grid so images 2 + 3 (alejandro + joaquin)
    sit side-by-side as a pair on row 2; nico (img 1) and adam (img 4)
    each span both columns full-width on rows 1 and 3. */
-@media (max-width: 720px) {
-  .piece[data-piece-id="moon-raves-nico-alejandro"] .piece-layout--stack {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--piece-gap, 1.5vw);
-    width: 100%;
-  }
-  .piece[data-piece-id="moon-raves-nico-alejandro"] .piece-layout--stack > img:nth-of-type(1) {
-    grid-column: 1 / -1;
-  }
-  .piece[data-piece-id="moon-raves-nico-alejandro"] .piece-layout--stack > img:nth-of-type(2) {
-    grid-column: 1;
-    /* `height: 100%` (with `object-fit: cover` below) makes alejandro
-       match joaquin's height when their natural aspects differ —
-       otherwise the pair reads uneven with one shorter than the
-       other. The grid row sizes to the taller of the two, alejandro
-       stretches to fill, cover-crops any horizontal overflow. */
-    height: 100%;
-    object-fit: cover;
-  }
-  .piece[data-piece-id="moon-raves-nico-alejandro"] .piece-layout--stack > img:nth-of-type(3) {
-    grid-column: 2;
-  }
-  .piece[data-piece-id="moon-raves-nico-alejandro"] .piece-layout--stack > img:nth-of-type(4) {
-    grid-column: 1 / -1;
-  }
-  .piece[data-piece-id="moon-raves-nico-alejandro"] .piece-layout--stack > img {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-}
 
 /* CV mobile — restore the bordered-square chip look on the Home icon
    and apply the same treatment to each social icon. The earlier rule
@@ -4289,7 +3714,7 @@ body.light-slide {
 
 /* Apply the scrim to every chrome chip + description panel via the
    `--chrome-scrim` CSS variable. The variable is set by two paths:
-   - Project pages — SSR-rendered inline `<style>` in app/projects/
+   - Project pages — SSR-rendered inline `\3c style>` in app/projects/
      [slug]/page.tsx writes `body { --chrome-scrim: … }` directly so
      the value is live BEFORE hydration (no flash of un-scrim'd chrome).
    - Meta-carousel pages — `body.light-slide` (set by MetaCarousel when
@@ -4341,23 +3766,6 @@ body.light-slide {
 
    Currently opted in: animations (meta-carousel), shape-of-time,
    multiverse, wave, lissajous. */
-body:is(
-    :has(main[data-project-slug="animations"]),
-    :has(main[data-project-slug="shape-of-time"]),
-    :has(main[data-project-slug="multiverse"]),
-    :has(main[data-project-slug="wave"]),
-    :has(main[data-project-slug="lissajous"])
-  )
-  :is(
-    .nav-main,
-    .nav-info:not(.active),
-    .nav-projects .project-nav-btn,
-    .nav-projects .project-title,
-    .project-mobile-bottom-nav .project-mobile-bottom-nav-link,
-    .meta-carousel .meta-carousel-active-title
-  ) {
-  background-color: transparent;
-}
 
 /* Mobile — tighter description panel padding (`2rem` is too generous
    on a phone-width viewport, leaves little space for the actual
@@ -4421,17 +3829,6 @@ body:is(
    is adding height — most likely the Hero's `padding-bottom: 0`
    not actually being respected, or the pair piece-layout adding
    extra vertical space. This force-zero clears anything stray. */
-@media (min-width: 721px) {
-  .project-track-content[data-slug="precarity-a-domestic-tale"] {
-    gap: var(--piece-gap, 1.5vw);
-  }
-  .project-track-content[data-slug="precarity-a-domestic-tale"] > .piece,
-  .project-track-content[data-slug="precarity-a-domestic-tale"] > .piece .piece-layout--hero,
-  .project-track-content[data-slug="precarity-a-domestic-tale"] > .piece .piece-layout--pair {
-    margin-bottom: 0;
-    padding-bottom: 0;
-  }
-}
 
 /* Lissajous mobile — scale down the first sketch (`lissajous-pair-
    lines`) so it doesn't dominate the viewport. `transform: scale()`
@@ -4439,12 +3836,6 @@ body:is(
    internal sizing (which is bound to `window.innerWidth/Height` in
    the sketch JS) — the layout slot stays the full viewport, so the
    sketch sits centered with breathing room around it. */
-@media (max-width: 720px) {
-  .project-track-content[data-slug="lissajous"] > .piece:first-child:has(.piece-sketch) .piece-sketch {
-    transform: scale(0.9);
-    transform-origin: center center;
-  }
-}
 
 /* Desktop chrome — the `.project-title-toggle` button is mobile-only.
    Hide it on desktop where the title chip sits in the chrome strip
@@ -4462,12 +3853,6 @@ body:is(
    matches it to the taller siblings (day + quad-3); cover-crops any
    horizontal overflow if the aspect doesn't fit. Same trick used on
    `moon-raves-nico-alejandro`. */
-@media (max-width: 720px) {
-  .piece[data-piece-id="moon-raves-quad-seva"] .piece-layout--pair > img:nth-of-type(2) {
-    height: 100%;
-    object-fit: cover;
-  }
-}
 
 /* Active Home + CV buttons on mobile — force the chip outline to
    stay black even when the active background (rainbow gif for CV,
@@ -4526,31 +3911,11 @@ body:is(
    rows on mobile. Images render uncropped at natural 1:1 aspect via
    `width: 100%; height: auto` — no `object-fit: cover` because the
    user wants the tile artwork shown untruncated. */
-.piece[data-piece-id="ac-oc-tiles"] .piece-layout--stack {
-  display: grid;
-  gap: var(--piece-gap, 1.5vw);
-  width: 100%;
-}
-.piece[data-piece-id="ac-oc-tiles"] .piece-layout--stack > img {
-  width: 100%;
-  height: auto;
-  display: block;
-}
 @media (min-width: 721px) {
   /* Desktop — single row of 6. */
-  .piece[data-piece-id="ac-oc-tiles"] .piece-layout--stack {
-    grid-template-columns: repeat(6, 1fr);
-    grid-template-rows: auto;
-    padding: 0 var(--piece-gap, 1.5vw);
-    box-sizing: border-box;
-  }
 }
 @media (max-width: 720px) {
   /* Mobile — 2 rows of 3. */
-  .piece[data-piece-id="ac-oc-tiles"] .piece-layout--stack {
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(2, auto);
-  }
 }
 
 /* AC mobile — standardize the inter-image gap inside any Pair/Grid
@@ -4560,12 +3925,6 @@ body:is(
    inter-image rhythm matches the inter-piece rhythm elsewhere on
    the page. The `ac-oc-tiles` Grid already uses `--piece-gap` via
    its own scoped rule. */
-@media (max-width: 720px) {
-  main[data-project-slug="artificial-consciousness"] .piece-layout--pair,
-  main[data-project-slug="artificial-consciousness"] .piece-layout--grid-2x2 {
-    gap: var(--piece-gap, 1.5vw);
-  }
-}
 
 /* AC glamtech-install-3 + 4 — each piece is a 3-col grid:
    [tile stack] [main image] [tile stack]. Main image spans both
@@ -4576,66 +3935,18 @@ body:is(
    crop, no stretch). install-3 is square (aspect 1.0 → ratio 1:2:1);
    install-4 is 4:3 (aspect 1.333 → ratio 1 : 2.666 : 1). */
 @media (min-width: 721px) {
-  .piece[data-piece-id="ac-glamtech-3"] .piece-layout--stack,
-  .piece[data-piece-id="ac-glamtech-4"] .piece-layout--stack {
-    display: grid;
-    grid-template-rows: 1fr 1fr;
-    gap: var(--piece-gap, 1.5vw);
-    width: 100%;
-    padding: 0 var(--piece-gap, 1.5vw);
-    box-sizing: border-box;
-  }
   /* Both main install images now share ~1.33 aspect (install-3 was
      re-cropped to match install-4), so the same `1 : 2.666 : 1`
      column ratio works for both — tile cells stay square at the
      natural row height and the main image renders unstretched. */
-  .piece[data-piece-id="ac-glamtech-3"] .piece-layout--stack,
-  .piece[data-piece-id="ac-glamtech-4"] .piece-layout--stack {
-    grid-template-columns: 1fr 2.666fr 1fr;
-  }
-  .piece[data-piece-id="ac-glamtech-3"] .piece-layout--stack > img,
-  .piece[data-piece-id="ac-glamtech-4"] .piece-layout--stack > img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    display: block;
-    min-width: 0;
-    min-height: 0;
-  }
   /* Main image — 1st child, spans column 2 and both rows.
      `object-fit: cover` (overriding the base `contain` on `> img`
      above) so the main image fills the cell edge-to-edge without
      letterbox bars; tiles stay `contain` to keep them uncropped. */
-  .piece[data-piece-id="ac-glamtech-3"] .piece-layout--stack > img:nth-of-type(1),
-  .piece[data-piece-id="ac-glamtech-4"] .piece-layout--stack > img:nth-of-type(1) {
-    grid-column: 2;
-    grid-row: 1 / 3;
-    object-fit: cover;
-  }
   /* Tile 1 — left col, row 1. */
-  .piece[data-piece-id="ac-glamtech-3"] .piece-layout--stack > img:nth-of-type(2),
-  .piece[data-piece-id="ac-glamtech-4"] .piece-layout--stack > img:nth-of-type(2) {
-    grid-column: 1;
-    grid-row: 1;
-  }
   /* Tile 2 — left col, row 2. */
-  .piece[data-piece-id="ac-glamtech-3"] .piece-layout--stack > img:nth-of-type(3),
-  .piece[data-piece-id="ac-glamtech-4"] .piece-layout--stack > img:nth-of-type(3) {
-    grid-column: 1;
-    grid-row: 2;
-  }
   /* Tile 3 — right col, row 1. */
-  .piece[data-piece-id="ac-glamtech-3"] .piece-layout--stack > img:nth-of-type(4),
-  .piece[data-piece-id="ac-glamtech-4"] .piece-layout--stack > img:nth-of-type(4) {
-    grid-column: 3;
-    grid-row: 1;
-  }
   /* Tile 4 — right col, row 2. */
-  .piece[data-piece-id="ac-glamtech-3"] .piece-layout--stack > img:nth-of-type(5),
-  .piece[data-piece-id="ac-glamtech-4"] .piece-layout--stack > img:nth-of-type(5) {
-    grid-column: 3;
-    grid-row: 2;
-  }
 }
 
 /* Mobile — flanking-tiles layout collapses to a 4-column grid: main
@@ -4643,47 +3954,8 @@ body:is(
    tiles sit in a single row of 4 below. The side-flank desktop
    arrangement gets too cramped on phone-width viewports. */
 @media (max-width: 720px) {
-  .piece[data-piece-id="ac-glamtech-3"] .piece-layout--stack,
-  .piece[data-piece-id="ac-glamtech-4"] .piece-layout--stack {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: auto auto;
-    gap: var(--piece-gap, 1.5vw);
-    width: 100%;
-  }
   /* Main image — full width on row 1 */
-  .piece[data-piece-id="ac-glamtech-3"] .piece-layout--stack > img:nth-of-type(1),
-  .piece[data-piece-id="ac-glamtech-4"] .piece-layout--stack > img:nth-of-type(1) {
-    grid-column: 1 / -1;
-    grid-row: 1;
-  }
   /* Tiles 1-4 — sit in their natural DOM order across row 2 */
-  .piece[data-piece-id="ac-glamtech-3"] .piece-layout--stack > img:nth-of-type(2),
-  .piece[data-piece-id="ac-glamtech-4"] .piece-layout--stack > img:nth-of-type(2) {
-    grid-column: 1;
-    grid-row: 2;
-  }
-  .piece[data-piece-id="ac-glamtech-3"] .piece-layout--stack > img:nth-of-type(3),
-  .piece[data-piece-id="ac-glamtech-4"] .piece-layout--stack > img:nth-of-type(3) {
-    grid-column: 2;
-    grid-row: 2;
-  }
-  .piece[data-piece-id="ac-glamtech-3"] .piece-layout--stack > img:nth-of-type(4),
-  .piece[data-piece-id="ac-glamtech-4"] .piece-layout--stack > img:nth-of-type(4) {
-    grid-column: 3;
-    grid-row: 2;
-  }
-  .piece[data-piece-id="ac-glamtech-3"] .piece-layout--stack > img:nth-of-type(5),
-  .piece[data-piece-id="ac-glamtech-4"] .piece-layout--stack > img:nth-of-type(5) {
-    grid-column: 4;
-    grid-row: 2;
-  }
-  .piece[data-piece-id="ac-glamtech-3"] .piece-layout--stack > img,
-  .piece[data-piece-id="ac-glamtech-4"] .piece-layout--stack > img {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
 }
 
 /* AC desktop — push the `ac-interference` image (`Single` layout) and
@@ -4698,29 +3970,9 @@ body:is(
    letterbox bars while `install-2-flip` keeps its contained
    treatment. */
 @media (min-width: 721px) {
-  .piece[data-piece-id="ac-interference"] .piece-layout--single {
-    padding: 0;
-  }
-  .piece[data-piece-id="ac-interference"] .piece-layout--single img {
-    /* Natural-aspect rendering up to `max-height: 90dvh` and the row's
-       100% max-width. `width: auto + max-width: 100%` lets the image
-       shrink when `max-height` kicks in instead of stretching; `margin:
-       0 auto` + `display: block` centers it horizontally inside the
-       full-width layout slot. */
-    width: auto;
-    max-width: 100%;
-    height: auto;
-    max-height: 90dvh;
-    margin: 0 auto;
-    display: block;
-    object-fit: contain;
-  }
   /* Both trio pair images cover — was a 2nd-image-only override;
      unified so install-2-flip (1st) AND install-1 (2nd) both fill
      their cells edge-to-edge instead of letterboxing. */
-  .piece[data-piece-id="ac-glamtech-trio"] .piece-layout--pair > img {
-    object-fit: cover !important;
-  }
 }
 
 /* AC `ac-install` — closing Vimeo iframe (portrait 9:16, 360×640
@@ -4732,49 +3984,6 @@ body:is(
    instead of cell-width. Tiles flank as squares sized by width;
    `align-items: center` lets the taller portrait video extend above
    and below the tile baseline. Mobile collapses to a vertical stack. */
-@media (min-width: 721px) {
-  .piece[data-piece-id="ac-install"] .piece-layout--stack {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: var(--piece-gap, 1.5vw);
-    width: 100%;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  .piece[data-piece-id="ac-install"] .piece-layout--stack > img {
-    /* Square tiles sized as a fraction of viewport width. `flex: 0 0
-       auto` keeps them from being squished by the flex container; the
-       intrinsic 1:1 aspect plus `height: auto` gives the matching
-       square height. `margin: 0` resets the base `.piece-layout--stack
-       img { margin: 0 auto }` rule — in a flex ROW, `margin: auto`
-       absorbs every spare pixel and pushes the items to the container
-       edges, which is exactly the symptom that left ~30vw of dead
-       space between each tile and the video. */
-    width: 25vw;
-    max-width: 540px;
-    height: auto;
-    aspect-ratio: 1;
-    object-fit: cover;
-    flex: 0 0 auto;
-    margin: 0;
-    display: block;
-  }
-  .piece[data-piece-id="ac-install"] .piece-layout--stack > .piece-layout--single {
-    /* Wrapper sized by HEIGHT — width auto-derives from the inline
-       `aspect-ratio: 9/16` set by the Iframe primitive in MDX. So
-       the container adapts to the video's portrait shape (≈ 0.56:1
-       width:height) instead of forcing the video to fit a fixed
-       landscape cell. `min(70vh, 44vw)` keeps the wrapper from
-       dominating tall viewports while ensuring it never overflows
-       the row's horizontal budget after the two flanking tiles. */
-    height: min(70vh, 44vw);
-    width: auto;
-    flex: 0 0 auto;
-    padding: 0;
-  }
-}
 @media (max-width: 720px) {
   /* Mobile layout:
        ┌─────────┬─────────┐
@@ -4785,50 +3994,6 @@ body:is(
      DOM order is tile-pornj, video, tile-blue, so the video is the
      2nd child; explicit grid placement reorders it into row 2 across
      both columns without touching the MDX. */
-  .piece[data-piece-id="ac-install"] .piece-layout--stack {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto;
-    gap: var(--piece-gap, 1.5vw);
-    justify-items: center;
-    align-items: center;
-    width: 100%;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  .piece[data-piece-id="ac-install"] .piece-layout--stack > *:nth-child(1) {
-    grid-column: 1;
-    grid-row: 1;
-  }
-  .piece[data-piece-id="ac-install"] .piece-layout--stack > *:nth-child(2) {
-    /* Video — drops to row 2, spans both columns. */
-    grid-column: 1 / -1;
-    grid-row: 2;
-  }
-  .piece[data-piece-id="ac-install"] .piece-layout--stack > *:nth-child(3) {
-    grid-column: 2;
-    grid-row: 1;
-  }
-  .piece[data-piece-id="ac-install"] .piece-layout--stack > img {
-    /* Tiles fill their grid cell (≈ half the viewport minus gap)
-       and stay square via the 1:1 aspect. */
-    width: 100%;
-    height: auto;
-    aspect-ratio: 1;
-    object-fit: cover;
-    margin: 0;
-    display: block;
-  }
-  .piece[data-piece-id="ac-install"] .piece-layout--stack > .piece-layout--single {
-    /* Mobile — video fills the FULL viewport width; height auto-
-       derives from the inline 9:16 aspect (so the wrapper renders as
-       a tall portrait rectangle ~178vw tall on phones). Was sized by
-       height (`60vh`, capped at 540px) which left side-margins
-       between the video and the screen edges. */
-    width: 100%;
-    height: auto;
-    padding: 0;
-  }
 }
 
 
@@ -5042,14 +4207,6 @@ body:is(
      The natural cost: midterms-poster-all's height blows up
      proportionally on the 1:5.18 aspect, but that's the trade for
      the matched width. */
-  .piece[data-piece-id="mars-mural-zenbus"] .piece-layout--single img,
-  .piece[data-piece-id="mars-midterms-poster-all"] .piece-layout--single img,
-  .piece[data-piece-id="mars-yama-ichi-logo-v2"] .piece-layout--single img {
-    width: calc(100dvh * 1440 / 1766);
-    max-width: 100%;
-    max-height: none;
-    height: auto;
-  }
 
   /* `mars-sus-coins-poster` Pair — second image (`21-sus-poster.jpg`,
      290 × 373, tiny) was being `object-fit: cover` upscaled to fill
@@ -5059,15 +4216,6 @@ body:is(
      in its cell so it reads next to the much larger `21-sus-coins.jpg`
      (1800 × 2400) without filling the whole side. The first image is
      untouched and keeps the row's default cover behavior. */
-  .piece[data-piece-id="mars-sus-coins-poster"] .piece-layout--pair > img:nth-of-type(2) {
-    width: auto;
-    height: auto;
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-    align-self: center;
-    justify-self: center;
-  }
 }
 
 /* ──────────────────────────────────────────────────────────────────
@@ -5086,49 +4234,16 @@ body:is(
    later asked for the canvas to fill the viewport without scrolling
    on every single-sketch project, so the band override was retired.
    ────────────────────────────────────────────────────────────────── */
-body:has(
-    main[data-project-slug="shape-of-time"],
-    main[data-project-slug="emergence"],
-    main[data-project-slug="jellyfish"],
-    main[data-project-slug="multiverse"]
-  ) {
-  overflow: hidden;
-}
-main[data-project-slug="shape-of-time"],
-main[data-project-slug="emergence"],
-main[data-project-slug="jellyfish"],
-main[data-project-slug="multiverse"] {
-  height: 100dvh;
-  overflow: hidden;
-}
 /* Reset any per-sketch height we set elsewhere (e.g. the `lissajous
    / wave / eternal-return / shape-of-time` shared `90dvh` rule above)
    so the canvas in a full-bleed single-sketch context can re-fill the
    container at `100vw × 100dvh`. The flex centering on the parent
    keeps the canvas element itself locked to the middle if its
    intrinsic size ever drifts under the container. */
-main[data-project-slug="shape-of-time"] .piece-sketch,
-main[data-project-slug="emergence"] .piece-sketch,
-main[data-project-slug="jellyfish"] .piece-sketch,
-main[data-project-slug="multiverse"] .piece-sketch {
-  width: 100vw !important;
-  height: 100dvh !important;
-  margin: 0 !important;
-  display: flex !important;
-  align-items: center;
-  justify-content: center;
-}
 /* `.project-track-content` adds a `padding-bottom: var(--piece-gap)`
    below the last piece — fine for multi-piece projects, but here it
    pushes the canvas wrapper down 1.5vw and triggers vertical scroll.
    Strip it for the full-bleed routes. */
-main[data-project-slug="shape-of-time"] .project-track-content,
-main[data-project-slug="emergence"] .project-track-content,
-main[data-project-slug="jellyfish"] .project-track-content,
-main[data-project-slug="multiverse"] .project-track-content {
-  padding: 0 !important;
-  gap: 0 !important;
-}
 
 /* shape-of-time desktop framing — standalone `/projects/shape-of-time`
    on viewports ≥ 721px uses the same `below-nav` canvas-fit pattern
@@ -5146,14 +4261,6 @@ main[data-project-slug="multiverse"] .project-track-content {
    bottom remained flush against the viewport bottom. The drawing
    inherited the asymmetry as "more gap above than below". */
 @media (min-width: 721px) {
-  main[data-project-slug="shape-of-time"]
-    .piece-sketch[data-sketch-id="shape-of-time"] {
-    margin-top: calc(1rem + 56px) !important;
-    height: calc(100dvh - 1rem - 56px) !important;
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-  }
   /* The `scale(0.8)` on the canvas used to add breathing room around
      the drawing — that's now baked into the canvas via
      `AMP_RATIO_X_DESKTOP = AMP_RATIO_Y_DESKTOP = 0.85` (see
@@ -5346,40 +4453,6 @@ main[data-project-slug="multiverse"] .project-track-content {
      ac-video-2) join the sketch-based slides here so the slide's
      content area shrinks to the same `100dvh - 1rem - 56px` live
      area below the navbar. */
-  .meta-carousel-track
-    > .project-track:has(
-      > .project-track-content[data-slug^="lissajous"]
-    ),
-  .meta-carousel-track
-    > .project-track:has(> .project-track-content[data-slug^="wave-"]),
-  .meta-carousel-track
-    > .project-track:has(
-      > .project-track-content[data-slug="jellyfish-grid"]
-    ),
-  .meta-carousel-track
-    > .project-track:has(
-      > .project-track-content[data-slug="shape-of-time"]
-    ),
-  .meta-carousel-track
-    > .project-track:has(
-      > .project-track-content[data-slug="roses-portraits"]
-    ),
-  .meta-carousel-track
-    > .project-track:has(
-      > .project-track-content[data-slug^="ac-video"]
-    ),
-  /* Standalone /projects/jellyfish + /projects/wave — same below-nav
-     padding-top on the project track so the canvas sits below the
-     chrome instead of tucking under it. data-slug here is the
-     project slug, not the sketch id (carousel uses sketch id). */
-  .project-track:has(
-    > .project-track-content[data-slug="jellyfish"]
-  ),
-  .project-track:has(
-    > .project-track-content[data-slug="wave"]
-  ) {
-    padding-top: calc(1rem + 56px);
-  }
 
   /* Hook 2 — canvas height matches the live area exactly. The
      `!important` mirrors the global `[data-sketch-id^="lissajous"|
@@ -5410,52 +4483,12 @@ main[data-project-slug="multiverse"] .project-track-content {
      video itself is constrained to `max-width: 100% / max-height:
      100%` so its intrinsic 16:9 aspect ratio fits inside whichever
      dimension is the binding constraint at the current viewport. */
-  .meta-carousel-track
-    > .project-track
-    > .project-track-content[data-slug^="ac-video"] {
-    height: calc(100dvh - 1rem - 56px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .meta-carousel-track
-    > .project-track
-    > .project-track-content[data-slug^="ac-video"]
-    .piece-layout--single {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-  }
-  .meta-carousel-track
-    > .project-track
-    > .project-track-content[data-slug^="ac-video"]
-    video {
-    max-width: 100%;
-    max-height: 100%;
-    width: auto;
-    height: auto;
-    display: block;
-  }
 }
 
 /* Mobile carry-over: portraits' PREV/NEXT chip-zone padding-bottom.
    Kept separate from the desktop block since it's not part of the
    `below-nav` pattern — it just happens to share the
    chrome-aware-padding mechanism. */
-@media (max-width: 720px) {
-  .meta-carousel-track
-    > .project-track:has(
-      > .project-track-content[data-slug="lissajous-portraits"]
-    ) {
-    padding-bottom: calc(
-      var(--mobile-sidebar-icon-inset, 1rem) +
-        var(--mobile-sidebar-icon-size, 56px)
-    );
-  }
-}
 
 /* ──────────────────────────────────────────────────────────────────
    Shape-of-time refresh chip — circular icon button that bumps the
@@ -5517,10 +4550,6 @@ main[data-project-slug="multiverse"] .project-track-content {
    standalone match without threading a class through React. */
 .shape-of-time-refresh {
   display: none;
-}
-body:has(main[data-project-slug="shape-of-time"]) .shape-of-time-refresh,
-body[data-meta-active-slug="shape-of-time"] .shape-of-time-refresh {
-  display: flex;
 }
 
 /* Mobile — drop down to the bottom PREV/NEXT row and align with it

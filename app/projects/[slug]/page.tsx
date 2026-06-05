@@ -1,6 +1,11 @@
 import { Suspense } from "react";
 import { notFound, redirect } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
+// Per-project CSS rules extracted from globals.css by
+// `scripts/split-project-css.mjs`. Imported only on this route so
+// other pages (homepage, /about, /projects/animations meta page)
+// skip the chunk — saves ~33KB of CSS off those routes.
+import "@/app/project-page.css";
 import { Nav } from "@/components/Nav";
 import { ProjectNav } from "@/components/ProjectNav";
 import { ProjectMobileBottomNav } from "@/components/ProjectMobileBottomNav";
