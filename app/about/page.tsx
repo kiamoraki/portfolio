@@ -87,12 +87,12 @@ export default function AboutPage() {
               <>
                 <h3>Experience</h3>
                 <ul>
-                  <li>Digital Creative Director <a target="_blank" rel="noopener noreferrer" href="https://audiofemme.com">Audiofemme</a></li>
+                  <li>Digital Creative Director @ <a target="_blank" rel="noopener noreferrer" href="https://audiofemme.com">Audiofemme</a></li>
                   <li>Office Manager @ HEaT for <a href="https://burningman.org">The Burning Man Project</a></li>
                   <li>Virutal STEAM startup Co-Founder <a target="_blank" rel="noopener noreferrer" href="https://kiamoraki.com/sites/marsradio/">Mars.Radio</a></li>
-                  <li>Front End Developer, <a href="https://cgp.com">C&G Partners</a></li>
-                  <li>Product Designer, <a href="https://nasdaq.com">Nasdaq</a></li>
-                  <li>Graphic Designer, <a href="https://taprootfoundation.org">Taproot Foundation</a></li>
+                  <li>Front End Developer / <a href="https://cgp.com">C&G Partners</a></li>
+                  <li>Product Designer / <a href="https://nasdaq.com">Nasdaq</a></li>
+                  <li>Graphic Designer / <a href="https://taprootfoundation.org">Taproot Foundation</a></li>
                 </ul>
 
                 <h3>Teaching</h3>

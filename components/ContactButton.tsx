@@ -32,14 +32,37 @@ export function ContactButton() {
           viewBox="0 0 24 24"
           width="20"
           height="20"
-          fill="currentColor"
           aria-hidden="true"
         >
-          {/* Classic envelope silhouette — pentagon with a V-valley
-              cut at the top edge (the open flap). Reads unambiguously
-              as a mail icon at small sizes without needing inner
-              detail. */}
-          <polygon points="3,7 12,13 21,7 21,19 3,19" />
+          {/* Reference: rounded-rectangle envelope body + V-flap cut
+              all the way through (showing whatever bg is behind the
+              icon, not a hard-coded white line). Achieved with an SVG
+              mask — the rect is the visible body, masked by a full-
+              white square with the V drawn in BLACK on top of it; in
+              SVG mask space, white = visible / black = transparent, so
+              the V carves through the rect leaving real transparency
+              where the line is. Single static `mask` id is safe since
+              there's only one ContactButton mounted at a time. */}
+          <mask id="ck-envelope-mask">
+            <rect width="24" height="24" fill="white" />
+            <path
+              d="M3 7 L12 15 L21 7"
+              fill="none"
+              stroke="black"
+              strokeWidth={2.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </mask>
+          <rect
+            x="2"
+            y="5"
+            width="20"
+            height="14"
+            rx="2"
+            fill="currentColor"
+            mask="url(#ck-envelope-mask)"
+          />
         </svg>
       </button>
       <ContactModal open={open} onClose={() => setOpen(false)} />
