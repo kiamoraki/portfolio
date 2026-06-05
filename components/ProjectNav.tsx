@@ -73,11 +73,12 @@ export function ProjectNav({
   // this, a meta-page carousel (animations) keeps `descriptionOpen`
   // sticky across slides since ProjectNav doesn't unmount — the prev
   // slide's title text stays inflated over the new slide. Watching
-  // both `slug` (real route changes) and `activeSlide?.slug` (carousel
-  // page changes) covers both navigation paths in one effect.
+  // both `slug` (real route changes) and `activeSlide?.title` (carousel
+  // page changes — `activeSlide` exposes title/description, not slug)
+  // covers both navigation paths in one effect.
   useEffect(() => {
     setDescriptionOpen(false);
-  }, [slug, activeSlide?.slug]);
+  }, [slug, activeSlide?.title]);
   // On meta-carousel pages, `MetaCarousel` pushes `{title, description}`
   // of the active slide into `CarouselStateContext`; prefer those over
   // the meta project's static title/description so the slide-out chip
