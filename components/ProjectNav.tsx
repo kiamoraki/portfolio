@@ -96,6 +96,12 @@ export function ProjectNav({
     return neighborsFromList(filtered, slug, { prev, next });
   }, [tag, slug, prev, next, navigableProjects]);
 
+  // Rainbow wall-clock sync — handled centrally by `NavClient`'s
+  // effect (sets `--rainbow-delay` on `document.documentElement` on
+  // every page mount). The chip `::before` overlays inherit the
+  // value via CSS variable cascade. No per-component setup needed
+  // here.
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       // When a carousel is active, swallow ArrowUp/Down (carousel keys

@@ -1,0 +1,170 @@
+.encode-sans-condensed-thin {
+    font-family: "Encode Sans Condensed", sans-serif;
+    font-weight: 100;
+    font-style: normal;
+}
+
+.encode-sans-condensed-extralight {
+    font-family: "Encode Sans Condensed", sans-serif;
+    font-weight: 200;
+    font-style: normal;
+}
+
+.encode-sans-condensed-light {
+    font-family: "Encode Sans Condensed", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+}
+
+.encode-sans-condensed-regular {
+    font-family: "Encode Sans Condensed", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.encode-sans-condensed-medium {
+    font-family: "Encode Sans Condensed", sans-serif;
+    font-weight: 500;
+    font-style: normal;
+}
+
+.encode-sans-condensed-semibold {
+    font-family: "Encode Sans Condensed", sans-serif;
+    font-weight: 600;
+    font-style: normal;
+}
+
+.encode-sans-condensed-bold {
+    font-family: "Encode Sans Condensed", sans-serif;
+    font-weight: 700;
+    font-style: normal;
+}
+
+.encode-sans-condensed-extrabold {
+    font-family: "Encode Sans Condensed", sans-serif;
+    font-weight: 800;
+    font-style: normal;
+}
+
+.encode-sans-condensed-black {
+    font-family: "Encode Sans Condensed", sans-serif;
+    font-weight: 900;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Whoa';
+    src: url('fonts/Whoa.woff2') format('woff2'), url('fonts/Whoa.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+h1,
+h2 {
+    font-family: "Whoa";
+}
+
+h3,
+p,
+li,
+a {
+    font-family: "Encode Sans Condensed";
+}
+
+h1,
+h2,
+h3 {
+    text-align: center;
+    font-weight: normal;
+}
+
+h1 {
+    font-size: 88px;
+    margin: 0 0 20px;
+    text-shadow: 2px 2px 2px #94d1ff;
+    @include phone {
+        font-size: 44px;
+        text-shadow: 1px 1px 2px #94d1ff;
+    }
+}
+
+h2 {
+    font-size: 60px;
+    letter-spacing: .25em;
+    margin: 0 0 20px;
+    letter-spacing: .1em;
+    @include phone {
+        font-size: 33px;
+    }
+}
+
+li {
+    max-width: 1000px;
+    line-height: 32px;
+    font-size: 26px;
+    margin-bottom: 6px;
+}
+
+p,
+a {
+    max-width: 700px;
+    line-height: 30px;
+    font-size: 20px;
+}
+
+p {
+    margin: 0;
+}
+
+date {
+    font-weight: 800;
+    text-transform: uppercase;
+    font-family: "Encode Sans Condensed";
+    font-size: 28px;
+    margin-bottom: 12px;
+}
+
+p a,
+li a {
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: bold;
+    color: $royalblue;
+    text-decoration: none;
+    border-bottom: 2px solid $royalblue;
+    &:hover {
+        color: darken($royalblue, 5%);
+    }
+}
+
+.button {
+    background-color: #daff94;
+    font-family: whoa;
+    color: $dpblue;
+    text-shadow: -1px -1px 1px #ff9155;
+    letter-spacing: .03em;
+    line-height: 46px;
+    margin: 0;
+    font-size: 36px;
+    padding: 20px 40px;
+    margin-top: 20px;
+    box-shadow: 10px 10px 0 0 $dpblue;
+    transition: all .5s ease;
+    border-radius: 3px;
+    &:hover {
+        box-shadow: 1px 1px 0 0 $dpblue;
+    }
+    @include phone {
+        display: inline-block;
+        width: 100%;
+        font-size: 28px;
+        line-height: 36px;
+        width: 100%;
+        text-align: left;
+        padding: 0;
+        span {
+            padding-left: 10px;
+        }
+    }
+}

@@ -1,0 +1,80 @@
+.intro {
+    @include flexbox();
+    @include flex-direction(column);
+    @include align-items(center);
+    width: 100%;
+}
+
+.schedule {
+    @include flexbox();
+    @include flex-direction(column);
+    @include align-items(center);
+    background-color: #94d1ff;
+    li {
+        @include flexbox();
+        @include flex-direction(column);
+        @include align-items(center);
+        background-color: #94d1ff;
+        width: 100%;
+        max-width: 100%;
+        padding: 0 !important; //reset
+        date {
+            width: 100%;
+            text-align: center;
+            background-color: #000a29;
+            padding: 20px 0;
+            color: #94d1ff;
+            font-size: 44px;
+            margin: 0;
+            text-shadow: -1px -1px 1px #559eff;
+            @include phone {
+                @include flex-direction(row);
+                width: 100%;
+                line-height: 36px;
+                margin: 0;
+                padding: 20px 15px;
+                font-size: 28px;
+            }
+        }
+        .light,
+        .dark {
+            max-width: 888px;
+            padding: 20px 0;
+        }
+        a {
+            border-bottom: 2px solid #000a29;
+            font-size: 16px;
+            color: #000a29;
+            margin-top: 10px;
+            display: inline-block;
+            transition: all .5s ease;
+            &:hover {
+                background-color: #000a29;
+                color: #94d1ff;
+            }
+        }
+        strong {
+            font-family: whoa;
+            color: $dpblue;
+            text-shadow: -1px -1px 1px #559eff;
+            letter-spacing: .03em;
+            background-color: transparent;
+            line-height: 46px;
+            margin: 0;
+            font-size: 36px;
+            padding: 0 40px 0 0;
+            @include phone {
+                display: inline-block;
+                width: 100%;
+                font-size: 28px;
+                line-height: 36px;
+                width: 100%;
+                text-align: left;
+                padding: 0;
+                span {
+                    padding-left: 10px;
+                }
+            }
+        }
+    }
+}

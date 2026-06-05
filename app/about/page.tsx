@@ -128,12 +128,13 @@ export default function AboutPage() {
 
                 <h3>Study</h3>
                 <ul>
-                  <li><strong>2025</strong> 200hr Yoga Teacher Training / Triguna Yoga School / Rishikesh / India</li>
-                  <li><strong>2025</strong> 10 Day Vipassana Meditation Workshop / North Fork / CA</li>
-                  <li><strong>2025</strong> 15hr Breathwork Coach Training Yoga Body</li>
-                  <li><strong>2013-18</strong> School of Practical Philosophy / NYC</li>
-                  <li><strong>2012</strong>MFA Design & Technology / Parsons The New School for Design / NYC</li>
-                  <li><strong>2009</strong> BFA Fine Arts & Architecture / Miami University / Oxford / OH</li>
+                  <li><strong>2026</strong> Levels I & II: Four and Six-Fold Patterns / <a href="https://deenarts.org">Deen Arts Foundation</a></li>
+                  <li><strong>2025</strong> 200hr Yoga Teacher Training / <a href="https://trigunayoga.com">Triguna Yoga School</a> / Rishikesh / India</li>
+                  <li><strong>2025</strong> 10 Day <a href="https://www.dhamma.org/en-us/meditation-courses/vipassana-meditation-course/">Vipassana Meditation Workshop</a> / North Fork / CA</li>
+                  <li><strong>2025</strong> 15hr Breathwork Coach Training <a href="https://yogabody.com">Yoga Body</a></li>
+                  <li><strong>2013-18</strong> <a href="https://schoolofpracticalphilosophy.org">School of Practical Philosophy</a> / NYC</li>
+                  <li><strong>2012</strong>MFA Design & Technology / <a href="https://parsons.edu">Parsons The New School for Design</a> / NYC</li>
+                  <li><strong>2009</strong> BFA Fine Arts & Architecture / <a href="https://miamioh.edu">Miami University</a> / Oxford / OH</li>
                 </ul>
 
                 <h3>Website Design & Builds</h3>
@@ -143,6 +144,7 @@ export default function AboutPage() {
                   <li><a href="https://kiamoraki.com/sites/xtian.dev/">Xtian.dev</a></li>
                   <li><a href="https://kiamoraki.com/sites/eos/eos-demo-site/index.html">EOS.org</a> (Desktop only)</li>
                   <li><a href="https://neptune.kiamoraki.com">Neptune</a></li>
+                  <li><a href="https://kiamoraki.com/sites/slabz/">Slabz</a></li>
                 </ul>
               </>
             }

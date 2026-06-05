@@ -252,6 +252,18 @@
   .piece[data-piece-id="moon-raves-quad-seva"] .piece-layout--pair {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
+    /* `grid-template-rows: 1fr` forces the single grid row to fill
+       the parent's full height instead of sizing to the cells'
+       intrinsic content. Without it, `grid-auto-rows: auto` lets
+       each cell size to its img's natural aspect at the 1fr column
+       width — making quad-seva-night (slightly wider aspect than
+       the flanking portraits) render proportionally shorter. With
+       `1fr`, all three cells are the row's full height; `object-fit:
+       cover` on the img then crops uniformly. The 100% pairs with
+       the parent `.piece`'s `height: 100dvh` (set by the moon-raves
+       per-piece rule higher up), so the row fills the slide cleanly
+       — no 40dvh gap below like the earlier 60dvh attempt left. */
+    grid-template-rows: 1fr;
     gap: var(--piece-gap, 1.5vw);
     width: 100%;
     height: 100% !important;
@@ -399,6 +411,19 @@ main[data-project-slug="paintings"] .row {
 }
 main[data-project-slug="paintings"] .row {
   gap: var(--piece-gap);
+}
+/* Equal-height pair — the row containing energyskeleton-2 +
+   rainbowroad-vertical has two slightly-different intrinsic image
+   aspects, so the default `height: auto` + `object-fit: contain`
+   leaves the wider image rendering shorter than the taller one
+   inside their equal-height figure containers. `:has()` targets that
+   specific row via the image src, then forces both imgs to fill
+   their figure height with `object-fit: cover` (same treatment the
+   `.row.equal-heights` class above provides, but applied here
+   without needing to thread an MDX class through). */
+main[data-project-slug="paintings"] .row:has(img[src*="energyskeleton-2"]) > figure.image img {
+  height: 100%;
+  object-fit: cover;
 }
 .piece[data-piece-id="ac-tiles"] .piece-layout--pair img {
   object-fit: contain !important;

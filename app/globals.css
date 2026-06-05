@@ -737,9 +737,12 @@ main.dark .text { color: var(--color-light); }
     display: flex !important;
     /* No `!important` on background so the keyframe animation can
        drive it — `!important` would beat animation values in the
-       cascade. */
+       cascade. `var(--rainbow-delay)` (set on `documentElement` by
+       NavClient's effect) phase-locks this animation with every
+       other rainbow chip on the page (top-bar hover, socials,
+       contact-form focus, project-title-toggle--open, etc). */
     background-color: #ff1fe0;
-    animation: nav-grid-cycle 12s linear infinite;
+    animation: nav-grid-cycle 12s var(--rainbow-delay, 0s) linear infinite;
     color: var(--color-dark) !important;
     border-right: 2px solid var(--color-dark) !important;
     border-bottom: 2px solid var(--color-dark) !important;
@@ -748,25 +751,12 @@ main.dark .text { color: var(--color-light); }
     border-right-color: var(--color-light) !important;
     border-bottom-color: var(--color-light) !important;
   }
-  /* Whole-icon color cycle through the radials palette. Each stop holds
-     a single solid color; the browser linear-interpolates between stops
-     so the icon reads as one uniform color smoothly morphing through
-     the array. Renamed from nav-grid-rainbow to bust Turbopack's cached
-     @keyframes definition. */
-  @keyframes nav-grid-cycle {
-    0%       { background: #ff1fe0; }
-    9.0909%  { background: #e01fff; }
-    18.1818% { background: #a23eff; }
-    27.2727% { background: #45d9ff; }
-    36.3636% { background: #45ffa2; }
-    45.4545% { background: #83ff64; }
-    54.5454% { background: #c1ffa2; }
-    63.6363% { background: #e0ffa2; }
-    72.7272% { background: #ffff45; }
-    81.8181% { background: #ffd945; }
-    90.9090% { background: #ffba45; }
-    100%     { background: #ff1fe0; }
-  }
+  /* Whole-icon color cycle through the radials palette — definition
+     moved OUT of this `@media (max-width: 720px)` block to the top
+     level (see immediately after the @media closes). When nested
+     inside a media query, Turbopack scoped the @keyframes to the
+     mobile breakpoint, so `.project-nav-btn:hover` (desktop) couldn't
+     find the animation by name. */
   /* Header text font — Neuropol for the prose-y labels, but NOT for
      .nav-main a (which renders the "grid" icon glyph via SSStandard). */
   .nav-info,
@@ -797,6 +787,50 @@ main.dark .text { color: var(--color-light); }
   .nav-info { left: 12px; }
 }
 
+/* Whole-chip color cycle through the radials palette — used by
+   `.nav-info.active`, `.nav-main a.active`, `.project-nav-btn:hover`,
+   and `.project-title-toggle--open`. Defined at the TOP LEVEL (was
+   nested in `@media (max-width: 720px)`, which Turbopack scoped to
+   the mobile breakpoint and left desktop consumers unable to resolve
+   the animation name). Each stop holds a single solid colour; the
+   browser linear-interpolates between stops so the chip reads as one
+   uniform colour smoothly morphing through the array. */
+@keyframes nav-grid-cycle {
+  0%       { background: #ff1fe0; }
+  9.0909%  { background: #e01fff; }
+  18.1818% { background: #a23eff; }
+  27.2727% { background: #45d9ff; }
+  36.3636% { background: #45ffa2; }
+  45.4545% { background: #83ff64; }
+  54.5454% { background: #c1ffa2; }
+  63.6363% { background: #e0ffa2; }
+  72.7272% { background: #ffff45; }
+  81.8181% { background: #ffd945; }
+  90.9090% { background: #ffba45; }
+  100%     { background: #ff1fe0; }
+}
+
+/* Parallel palette cycle that animates `border-color` instead of
+   `background` — for elements where the rainbow should READ as a
+   bordered outline rather than a filled chip (the contact-modal
+   inputs on focus, for example). Same 12-stop palette and 12s loop
+   as `nav-grid-cycle` so any phase variable (`--rainbow-delay`) the
+   two share stays in sync visually. */
+@keyframes nav-grid-cycle-border {
+  0%       { border-color: #ff1fe0; }
+  9.0909%  { border-color: #e01fff; }
+  18.1818% { border-color: #a23eff; }
+  27.2727% { border-color: #45d9ff; }
+  36.3636% { border-color: #45ffa2; }
+  45.4545% { border-color: #83ff64; }
+  54.5454% { border-color: #c1ffa2; }
+  63.6363% { border-color: #e0ffa2; }
+  72.7272% { border-color: #ffff45; }
+  81.8181% { border-color: #ffd945; }
+  90.9090% { border-color: #ffba45; }
+  100%     { border-color: #ff1fe0; }
+}
+
 .nav-site-title {
   display: inline-flex;
   align-items: center;
@@ -825,16 +859,111 @@ main.dark .text { color: var(--color-light); }
 .dark.nav-main .nav-site-title { color: var(--color-light); }
 .dark.nav-main a.active { background-color: #b588ff; color: var(--color-dark); }
 
-/* Hover: icon turns lavender on grid + flower buttons */
+/* Rainbow chip-hover via absolutely-positioned `::before` overlay
+   on each top-bar chip family (Home, CV, prev/next).
+
+   Three properties solve at once:
+     1. The animation lives ON the pseudo and runs CONTINUOUSLY
+        regardless of hover, so the rainbow phase advances even
+        when no one's pointing at the chip. When hover does land,
+        the revealed colour is whatever wall-clock phase happens to
+        be current — no "starts from frame 0 every time" rebound.
+     2. Toggling visibility is opacity 0 → 1 on hover, so the
+        chip's OUTER element (border, currentColor, host bg) is
+        never touched by hover — the border stays at whatever the
+        chrome-chip rule resolved it to (e.g. 50% currentColor).
+        Earlier `:hover` rules that flipped `color` or
+        `background-color` on the host were shifting the border via
+        the chrome-chip `color-mix(currentColor 50%)` resolution.
+     3. Wall-clock sync via `--rainbow-delay` (set inline on each
+        host at mount by ProjectNav/NavClient effects) so all
+        mounted instances share the same wall-clock-driven phase —
+        rapid-click navigations through projects stay synced
+        instead of restarting per page.
+
+   `isolation: isolate` on the host opens a stacking context so the
+   `z-index: -1` on the pseudo only goes BEHIND the host's text /
+   glyph, not behind the page itself. The pseudo lays on top of the
+   host's own bg (chrome-scrim) but underneath the text. */
+.nav-main a,
+.nav-info,
+.project-nav-btn {
+  /* `isolation: isolate` opens a stacking context so the ::before's
+     `z-index: -1` only goes behind THIS chip's content, not behind
+     page-level paint. */
+  isolation: isolate;
+}
+/* `position: relative` only on chips that aren't already positioned.
+   `.nav-info` is `position: fixed` from its base rule; overriding it
+   to `relative` here would knock it out of fixed-positioning and
+   break its desktop top/left placement (which would manifest as a
+   border-shift on hover or other visual oddities). Same-specificity
+   selectors lose to source order — earlier I had `.nav-info` in this
+   list and the `position: relative` was clobbering its `fixed`. */
+.nav-main a,
+.project-nav-btn {
+  position: relative;
+}
+.nav-main a::before,
+.nav-info::before,
+.project-nav-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-color: #ff1fe0;
+  animation: nav-grid-cycle 12s var(--rainbow-delay, 0s) linear infinite;
+  opacity: 0;
+  transition: opacity 180ms ease-out;
+  pointer-events: none;
+}
+.nav-main a:hover::before,
+.nav-main a.active::before,
+.nav-info:hover::before,
+.nav-info.active::before,
+.project-nav-btn:hover::before {
+  opacity: 1;
+}
+/* Block the generic `a:hover { color: var(--color-orchid) }` rule
+   from shifting these chips' `currentColor` on hover. The chip
+   borders are `border: 2px solid currentColor`, so any color change
+   on the host cascades into the border. The label / SVG colour
+   overrides below target child elements only, so the host's
+   currentColor must be pinned independently. `color: inherit` keeps
+   each chip at whatever its non-hover cascade resolved to. */
 .nav-main a:hover,
-.dark.nav-main a:hover,
 .nav-info:hover,
-.nav-info.dark:hover { color: #b588ff; }
-/* When already on the active page, keep dark icon on lavender bg even on hover */
-.nav-main a.active:hover,
-.dark.nav-main a.active:hover,
-.nav-info.active:hover,
-.nav-info.dark.active:hover { color: var(--color-dark); }
+.project-nav-btn:hover {
+  color: inherit;
+}
+/* Active state — same rainbow ::before mechanism as hover, so the
+   active chip and any hovered chip phase-lock automatically via the
+   shared `--rainbow-delay` variable. If you're on /about (CV is
+   active showing rainbow) and you hover Home, both rainbows are in
+   the same wall-clock phase. The host's solid `.active` background
+   (`background-color: #b588ff`) sits BENEATH the ::before in the
+   isolated stacking context, so the rainbow rect covers it once
+   opacity flips to 1. */
+/* CV "CV" label — lock the text color to `--color-dark` on hover or
+   when active so it reads consistently against every stop of the
+   rainbow palette the ::before overlay reveals. Targeting the label
+   child rather than `.nav-info` itself keeps currentColor on the
+   parent unchanged, so the chrome-chip `border-color: color-mix(...
+   currentColor...)` rule doesn't shift the border. */
+.nav-info:hover .nav-info-label,
+.nav-info.active .nav-info-label {
+  color: var(--color-dark);
+}
+/* Home icon — flip the SVG glyph's stroke to dark on hover + active
+   for legibility against the rainbow palette. Targeting the child
+   `svg` (not the anchor itself) keeps the anchor's `currentColor`
+   stable, so the chip's `border: 2px solid currentColor` is never
+   touched. Same pattern as the `.nav-info-label` colour override. */
+.nav-main a:hover svg,
+.nav-main a.active svg {
+  color: var(--color-dark);
+  stroke: var(--color-dark);
+}
 
 /* ─── Project grid ──────────────────────────────────────────── */
 #project-list {
@@ -988,6 +1117,11 @@ main.dark .text { color: var(--color-light); }
 .index-intro {
   width: 100%;
   display: flex;
+  /* `flex-direction: column` so each `<p>` child stacks vertically.
+     Earlier the intro was one `<p>` with `<br>`s; the user split it
+     into separate `<p>` elements, which default flex-row would lay
+     side-by-side. */
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 4rem 2rem;
@@ -997,14 +1131,26 @@ main.dark .text { color: var(--color-light); }
    to `16px/24px` so the intro reads as the prominent first-pass copy
    it is, rather than as standard body text. Color, family, and
    spacing still cascade from the body so it stays visually consistent
-   with the rest of the page. */
+   with the rest of the page.
+
+   Each `<p>` sits on its own line with a small bottom margin so the
+   paragraphs read as discrete thoughts. `:last-child` drops the
+   trailing margin so the gap to the project grid below stays
+   controlled by the section's `padding`. Width set to 720px so the
+   left edge of every paragraph aligns (with flex `align-items:
+   center` the paragraphs would otherwise centre individually based
+   on their own length, leaving a ragged left edge). */
 .index-intro p {
+  width: 100%;
   max-width: 720px;
   text-align: left;
-  margin: 0;
+  margin: 0 0 1rem;
   font-size: 16px;
   line-height: 24px;
   letter-spacing: normal;
+}
+.index-intro p:last-child {
+  margin-bottom: 0;
 }
 .index-intro p a {
   color: inherit;
@@ -1663,6 +1809,40 @@ main.about #about-info ul.socials :is(a, button) {
      version. */
   box-sizing: border-box;
   border: 2px solid currentColor;
+}
+
+/* Socials chips share the same rainbow `::before` overlay hover
+   pattern the top-bar chrome uses (Home / CV / prev / next) — the
+   animation runs continuously, opacity flips 0 → 1 on hover, host
+   element's bg/color/border untouched. Desktop only — the mobile
+   socials column is too compact for the overlay to read well, and
+   touch devices don't fire `:hover` reliably anyway. The
+   `--rainbow-delay` variable is set on `documentElement` by
+   `NavClient`'s effect, so all chips share the same wall-clock-
+   driven phase. */
+@media (min-width: 721px) {
+  main.about #about-info ul.socials :is(a, button) {
+    /* `position: relative` anchors the absolutely-positioned
+       `::before` overlay to the chip itself. `isolation: isolate`
+       opens a stacking context so `z-index: -1` on the pseudo only
+       goes behind the chip's content, not behind page-level paint. */
+    position: relative;
+    isolation: isolate;
+  }
+  main.about #about-info ul.socials :is(a, button)::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-color: #ff1fe0;
+    animation: nav-grid-cycle 12s var(--rainbow-delay, 0s) linear infinite;
+    opacity: 0;
+    transition: opacity 180ms ease-out;
+    pointer-events: none;
+  }
+  main.about #about-info ul.socials :is(a, button):hover::before {
+    opacity: 1;
+  }
 }
 /* Shared-border seam — every chip after the first drops its top
    border so the chip above's bottom edge is the single shared line
@@ -2548,6 +2728,12 @@ button.meta-carousel-active-title {
   .project-nav-btn:last-child {
     border-right-width: 2px;
   }
+  /* Hover handled by the `::before` pseudo overlay block higher up
+     (top-level, shared with `.nav-main a` and `.nav-info`). The
+     pseudo runs the rainbow animation continuously and opacity-
+     fades to 0/1 on hover, so the host element's bg/color/border
+     stay untouched. See the comment on `.nav-main a::before` for
+     the full rationale. */
 
   /* Body-cascaded inkColor — when a meta-carousel page is active and
      the active slide has a light background (body.light-slide), flip
@@ -3229,29 +3415,53 @@ body:has(main.about) .project-mobile-bottom-nav {
     justify-content: center;
     font: inherit;
   }
-  /* Open state — inverts the chip so it reads as a pressed-on
-     affordance: solid `--color-light` (our off-white "white") fill,
-     `--color-dark` icon, and a fully-opaque `--color-light` border
-     replacing the eased translucent border. `!important` overrides
-     the chrome-chip easing rule above (`border-color: color-mix(...,
-     transparent)`) and the scrim background. The `__glyph` color
-     flip also has to override `color: inherit` on the button. */
+  /* Open state — mirrors the dark-polarity `.nav-info.active` /
+     `.nav-main a.active` styling (rainbow `nav-grid-cycle` palette
+     loop) so the open chip reads as a pressed-on "active"
+     affordance.
+
+     `background-color` starts on the first palette stop; the
+     animation drives subsequent frames (no `!important` on bg so
+     the animation can override).
+
+     `color` is intentionally left untouched so the open chip's
+     `currentColor` stays at the inherited body ink — same hue the
+     closed chip's border uses. The glyph child's `stroke=
+     "currentColor"` SVG attribute makes the caret track the same
+     ink, so border + caret share one polarity-aware color on every
+     page — no light-vs-dark mismatch where the border flips but
+     the caret stays fixed.
+
+     Border-color is bumped to FULL-opacity `currentColor` (open
+     chip stands out as a pressed-on affordance) — the chrome-chip
+     easing rule (`color-mix(currentColor 50%, transparent)`,
+     line 4175) drops the closed-state border to 50% alpha; the
+     `.project-title-toggle.project-title-toggle--open` double-
+     class selector wins specificity (0,2,0 vs 0,1,0) without
+     needing `!important`. */
   .project-title-toggle--open {
-    background-color: var(--color-light) !important;
-    color: var(--color-dark) !important;
-    border-color: var(--color-light) !important;
+    background-color: #ff1fe0;
+    /* `var(--rainbow-delay)` phase-locks the open chip with every
+       other rainbow element on the page (top-bar hover, socials,
+       contact-form focus, mobile Home/CV active). */
+    animation: nav-grid-cycle 12s var(--rainbow-delay, 0s) linear infinite;
   }
-  /* On light-bg projects (standalone via `data-color-mode="light"`
-     OR meta-carousel via `body.light-slide`), the open-state's
-     `--color-light` border (off-white) becomes invisible against
-     the off-white chip + light-bg page. Force opaque black borders
-     so the open-state chip still reads as a defined box. Specificity
-     (body :is(...) + .toggle--open) outranks the rule above. */
-  body:is(.light-slide, [data-color-mode="light"]) .project-title-toggle--open {
-    border-color: #000 !important;
-  }
-  .project-title-toggle--open .project-title-toggle__glyph {
-    stroke: var(--color-dark);
+  /* Triple-class chain so the selector beats the chrome-chip easing
+     `:is(.nav-main a:not(.active), .nav-info:not(.active), …)` rule
+     at line ~4175. That `:is()` takes its MAX-specificity argument
+     (`.nav-main a:not(.active)` = 0,2,1) and applies it to all
+     listed members, including `.project-title-toggle`. A double
+     `.toggle.toggle--open` = 0,2,0 loses to 0,2,1. Stacking a third
+     `.project-title-toggle` reference bumps to 0,3,0 and wins
+     without needing `!important`.
+
+     Open state restores the TOP border at full opacity — closed
+     state uses `border-top: 0` (line 3387) so CV's bottom edge
+     alone marks the seam; once the chip lights up as a pressed-on
+     affordance, the full 4-sided outline reads as a self-contained
+     "active" chip rather than a tab continuing from CV above. */
+  .project-title-toggle.project-title-toggle.project-title-toggle--open {
+    border: 2px solid currentColor;
   }
   /* Caret rotates -90° to point RIGHT in closed state, 90° to point
      LEFT when open (signals "click to close"). */
@@ -4293,48 +4503,82 @@ body.light-slide {
   backdrop-filter: blur(2px);
 }
 .contact-modal__inner {
-  position: relative;
-  background: var(--color-light);
-  border: 2px solid var(--color-dark);
-  padding: 2rem 1.5rem 1.5rem;
+  /* Switch from `position: relative` to a flex column so the close
+     + submit can be positioned as the FIRST and LAST flex items
+     with explicit alignment. The earlier `position: absolute` on
+     close was anchoring to somewhere unexpected and landing at
+     top-LEFT instead of top-right; in-flow flex layout removes
+     that ambiguity entirely. */
+  display: flex;
+  flex-direction: column;
+  background: #000;
+  border: 0;
+  padding: 0;
   box-sizing: border-box;
+  color: #fff;
   font-family: var(--font-body);
   font-size: 14px;
   line-height: 1.5;
+  min-height: 100%;
 }
 .contact-modal__title {
-  margin: 0 0 1rem;
+  /* Top padding leaves room for the close chip (44px) plus a small
+     gap before the title text. Side + bottom padding align with
+     the form fields below so everything in the inner reads as one
+     left-aligned column. */
+  margin: 0;
+  padding: 1.5rem 1.5rem 1rem;
   font-family: "Neuropol", var(--font-bold);
   font-weight: normal;
   font-size: 18px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
+/* Close (×) chip — sits at the top-right of the inner panel as the
+   first flex item. `align-self: flex-end` pushes it to the right
+   edge in the column-direction flex flow (cross axis = horizontal),
+   and `flex-shrink: 0` keeps it at its 44×44 chip size regardless
+   of viewport. JSX order matters: close is the FIRST child of
+   `.contact-modal__inner` so it lands in the top slot of the
+   column. */
 .contact-modal__close {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  width: 36px;
-  height: 36px;
-  display: flex;
+  align-self: flex-end;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  display: flex !important;
   align-items: center;
   justify-content: center;
   background: transparent;
-  border: 0;
-  color: inherit;
+  box-sizing: border-box;
+  /* No border — the × glyph alone reads as the close affordance,
+     keeps the top-right corner clean. */
+  border: 0 !important;
+  color: #fff !important;
   cursor: pointer;
   padding: 0;
+  opacity: 1;
+  visibility: visible;
 }
-.contact-modal__close:hover { color: var(--color-orchid); }
 .contact-modal__form {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  /* Form itself has NO horizontal padding — that way the submit
+     button can simply use `width: 100%` and span the full panel
+     edge-to-edge without negative-margin gymnastics. Per-field
+     padding lives on `.contact-modal__field` instead. */
+  padding: 0;
 }
 .contact-modal__field {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  /* Horizontal padding moved from `.contact-modal__form` to here
+     so the form itself is full-width — that lets the submit chip
+     span the panel edge-to-edge with a plain `width: 100%`
+     instead of negative-margin gymnastics. */
+  padding: 0 1.5rem;
 }
 .contact-modal__label {
   font-family: "Neuropol", var(--font-bold);
@@ -4352,28 +4596,120 @@ body.light-slide {
   padding: 0.5rem 0.6rem;
   box-sizing: border-box;
   width: 100%;
-  resize: vertical;
 }
+.contact-modal__field textarea {
+  /* Kill the user-resize handle — fixed-height textarea reads more
+     consistently across rendered widths and keeps the submit chip
+     in the same vertical slot regardless of message length. */
+  resize: none;
+}
+/* Focus state — drop the browser's default outline + the previous
+   solid orchid outline; let the input's own 2px border do the work,
+   and paint it with the live `--rainbow-now` colour (updated every
+   frame by NavClient's rAF loop). All rainbow consumers on the
+   page read the SAME variable on every paint, so the input's
+   border is perfectly in sync with the hover overlays on the
+   close + send buttons and any top-bar chip mid-cycle. */
 .contact-modal__field input:focus,
 .contact-modal__field textarea:focus {
-  outline: 2px solid var(--color-orchid);
-  outline-offset: -2px;
+  outline: 0;
+  border-color: var(--rainbow-now, #ff1fe0);
 }
+/* Submit chip — full width, flush with the panel's bottom edge.
+   The form sits inside `.contact-modal__inner` which has 1.5rem of
+   horizontal padding + 0 bottom padding; the negative horizontal
+   margin pulls the button out past the form's sides so it spans
+   the full panel width, and the missing bottom padding lets it
+   rest on the panel's bottom edge.
+
+   White text on the panel's black bg with a single white top
+   border that visually separates the action from the form fields
+   above. No side or bottom borders — the chip is intentionally
+   flush with the panel's outer edges on those three sides. */
 .contact-modal__submit {
-  align-self: flex-start;
-  margin-top: 0.5rem;
+  /* `display: flex` instead of `block` so the "Send" text is a
+     flex child whose box is centred — `text-align: center` alone
+     wasn't enough because the `letter-spacing: 0.06em` adds
+     trailing space after the last character, pulling the visual
+     centre to the LEFT. Centering via flex ignores that trailing
+     whitespace. */
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  /* Compact chip sized to its label + breathing room, centred in
+     the form's cross axis (horizontal in the column-direction
+     flex). `align-self: center` overrides the form's default
+     `stretch` so the chip sizes to content instead of filling
+     edge-to-edge. */
+  width: auto;
+  align-self: center;
+  box-sizing: border-box;
+  margin: 1.5rem 0 2rem;
+  /* Generous padding so the chip reads as a comfortable target
+     with plenty of breathing room around the "Send" label. */
+  padding: 1rem 5rem !important;
+  text-align: center;
   font-family: "Neuropol", var(--font-bold);
   font-weight: normal;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  font-size: 12px;
-  padding: 0.6rem 1.25rem;
-  background: var(--color-dark);
-  color: var(--color-light);
-  border: 2px solid var(--color-dark);
+  font-size: 14px;
+  background: transparent;
+  color: #fff !important;
+  /* 2px white border on all four sides so the chip reads as a
+     self-contained button now that it's no longer flush with the
+     panel edges. */
+  border: 2px solid #fff !important;
   cursor: pointer;
+  opacity: 1;
+  visibility: visible;
 }
-.contact-modal__submit:hover { background: var(--color-orchid); border-color: var(--color-orchid); }
+/* Desktop hover — rainbow `::before` overlay on the close + submit
+   chips, same pattern + variable as the top-bar chrome chips. The
+   `--rainbow-delay` set on `documentElement` by NavClient keeps the
+   animation phase aligned with every other rainbow chip on the page.
+   Mobile skips this — the modal is touch-only there and hover
+   isn't a reliable input on touchscreens. */
+@media (min-width: 721px) {
+  /* Desktop — bump inner-content insets so the title + fields sit
+     further from the panel's left/right edges (mobile keeps the
+     tighter 1.5rem so the form has more usable width on narrow
+     screens). The submit stays centred so it doesn't pick up the
+     extra inset. */
+  .contact-modal__title {
+    padding: 2rem 3rem 1.25rem;
+  }
+  .contact-modal__field {
+    padding: 0 3rem;
+  }
+  /* Both chips need `position: relative` (for the ::before
+     anchoring) + `isolation: isolate` (stacking context so
+     `z-index: -1` only goes behind THIS chip's content). */
+  .contact-modal__close,
+  .contact-modal__submit {
+    position: relative;
+    isolation: isolate;
+  }
+  .contact-modal__close::before,
+  .contact-modal__submit::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    /* `var(--rainbow-now)` is updated every animation frame by
+       `NavClient`'s rAF loop, so the colour stays perfectly in sync
+       with every other rainbow consumer on the page — no
+       animation-delay drift for late-mounting elements. */
+    background-color: var(--rainbow-now, #ff1fe0);
+    opacity: 0;
+    transition: opacity 180ms ease-out;
+    pointer-events: none;
+  }
+  .contact-modal__close:hover::before,
+  .contact-modal__submit:hover::before {
+    opacity: 1;
+  }
+}
 .contact-modal__submit:disabled {
   cursor: progress;
   opacity: 0.6;

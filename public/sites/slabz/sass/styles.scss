@@ -1,0 +1,327 @@
+@import "resets";
+@import "mixins";
+@import "variables";
+@import "typography";
+//@import "clouds";
+@import "schedule";
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.container {
+    @include flexbox();
+    @include flex-direction(column);
+    @include align-items(center);
+    width: 100%;
+    margin: 0 auto;
+}
+
+ul {
+    margin: 0;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+ul li {
+    padding: 5px 0;
+}
+
+.intro {
+    background-image: url('img/background.png');
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    min-height: 100vh;
+    padding: 40px 0;
+    @include flexbox();
+    @include align-items(center);
+    @include justify-content(center);
+    @include phone {
+        @include justify-content(flex-start);
+    }
+    h1 {
+        margin-bottom: 20px;
+        @include phone {
+            margin-bottom: 10px;
+        }
+    }
+    date {
+        margin-bottom: 10px;
+        @include phone {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+    }
+    h1,
+    date {
+        color: #000a29;
+        text-align: center;
+    }
+    p {
+        margin-bottom: 40px;
+        color: $dpblue;
+    }
+    h3 {
+        text-align: center;
+        max-width: 900px;
+        font-size: 32px;
+        margin-bottom: 6px;
+        line-height: 44px;
+        color: #fff;
+        padding: 15px 60px;
+        letter-spacing: .03em;
+        font-size: 26px;
+        background-color: rgba(0, 10, 41, .8);
+        @include phone {
+            font-size: 19px;
+            line-height: 32px;
+            margin: 0 0 5px 0;
+            padding: 8px;
+        }
+    }
+}
+
+.learn {
+    @include flexbox();
+    @include flex-direction(column);
+    @include align-items(flex-end);
+    position: relative;
+    background: linear-gradient(to right, rgba(115, 208, 244, 0) 0, rgba(115, 208, 244, 0) 30%, rgb(255, 255, 255, .77) 33%, rgb(255, 255, 255, .88) 33%), url("img/van9.jpg") no-repeat;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    background-position: bottom;
+    padding: 60px 20px;
+    @include phone {
+        background: linear-gradient(to bottom, rgb(255, 255, 255, .22) 0, rgb(255, 255, 255, .88) 22%, rgb(255, 205, 0, .88) 100%), url("img/learn-mobile.png") no-repeat;
+        background-size: cover;
+        background-position: right;
+        padding: 20px 0px;
+    }
+    h2 {
+        position: absolute;
+        top: 110px;
+        left: 0;
+        width: 30%;
+        text-align: center;
+        color: #fff;
+        text-shadow: 2px 2px 1px $dpblue;
+        @include phone {
+            position: relative;
+            width: 100%;
+            color: $dpblue;
+            text-shadow: 1px 1px 1px #94d1ff;
+            top: 0;
+            left: 0;
+            margin-top: 20px;
+            padding: 0 20px;
+        }
+    }
+    ul {
+        @include flexbox();
+        @include flex-direction(column);
+        @include align-items(center);
+        width: 70%;
+        @include phone {
+            width: 100%;
+        }
+        li {
+            @include flexbox();
+            width: 100%;
+            margin-bottom: 40px;
+            &.learn-img {
+                @include phone {
+                    @include flex-direction(column);
+                    width: 100%;
+                    .txt {
+                        padding: 10px 20px;
+                        p {
+                            margin-bottom: 20px;
+                        }
+                    }
+                    h3 {
+                        @include phone {
+                            line-height: 44px;
+                            margin-bottom: 8px;
+                            text-align: left;
+                        }
+                    }
+                    img {
+                        width: 100%;
+                        padding: 0 20px;
+                        @include phone {
+                            padding: 0 20px;
+                        }
+                    }
+                }
+            }
+            &.line {
+                border-top: 2px dotted $dpblue;
+                margin: 0;
+                padding: 10px 0;
+                //background-color: rgba(255, 205, 0, .1);
+                p {
+                    padding: 10px 20px;
+                    margin: 0;
+                    &:before {
+                        content: "•  ";
+                    }
+                }
+            }
+            .txt {
+                @include flexbox();
+                @include flex-direction(column);
+                @include justify-content(center);
+                @include align-items(flex-start);
+                padding: 10px 60px 10px 10px;
+            }
+            h3 {
+                font-family: "Encode Sans Condensed";
+                font-weight: bold;
+                margin: 0 0 20px 0;
+            }
+            h3,
+            p {
+                color: $dpblue;
+            }
+            img {
+                width: 60%;
+                height: 100%;
+                object-fit: contain;
+                flex: 1 1 auto;
+            }
+        }
+    }
+}
+
+#Events {
+    background-color: #000a29;
+    width: 100%;
+    li {
+        @include flexbox();
+        @include justify-content(center);
+        // @include align-items(center);
+        max-width: 100%;
+        padding: 30px 0;
+        background-color: #559eff;
+        background-color: #94d1ff;
+        @include phone {
+            @include flex-direction(column);
+            padding: 25px 20px;
+        }
+        h2 {
+            @include flexbox();
+            @include flex-direction(column);
+            color: $dpblue;
+            text-shadow: -1px -1px 1px #559eff;
+            width: 36%;
+            text-align: right;
+            letter-spacing: .03em;
+            background-color: transparent;
+            line-height: 46px;
+            margin: 0;
+            font-size: 36px;
+            padding: 0 40px 0 0;
+            @include phone {
+                display: inline-block;
+                width: 100%;
+                font-size: 28px;
+                line-height: 36px;
+                width: 100%;
+                text-align: left;
+                padding: 0;
+                span {
+                    padding-left: 10px;
+                }
+            }
+        }
+    }
+    h2 {
+        padding: 30px 60px;
+        background-color: #000a29;
+        color: #559eff;
+        color: #94d1ff;
+        font-size: 44px;
+        margin: 0;
+        text-shadow: -1px -1px 1px #559eff;
+        @include phone {
+            @include flex-direction(row);
+            width: 100%;
+            line-height: 36px;
+            margin: 0;
+            padding: 20px 15px;
+            font-size: 28px;
+        }
+    }
+    a,
+    date,
+    p {
+        color: #000a29;
+    }
+    date {
+        width: 22%;
+        padding-left: 40px;
+        line-height: 44px;
+        @include flexbox();
+        @include flex-direction(column);
+        @include phone {
+            @include flex-direction(row);
+            width: 100%;
+            margin-bottom: 6px;
+            padding: 0;
+            font-size: 20px;
+            span {
+                margin-left: 5px;
+            }
+        }
+    }
+    p {
+        margin: 0;
+        padding: 0;
+    }
+    a {
+        border-bottom: 2px solid #000a29;
+    }
+}
+
+.geography {
+    @include flexbox();
+    @include flex-wrap(wrap);
+    width: 100%;
+    max-height: 100vh;
+    /* Set the height of the container */
+    .img-container {
+        width: 100%;
+        height: 100%;
+        flex: 1 1 auto;
+    }
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+}
+
+.contacts {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.contacts ul {
+    display: inline-block;
+    text-align: left;
+}

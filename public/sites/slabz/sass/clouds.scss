@@ -1,0 +1,26 @@
+body {
+    margin: 0;
+    //overflow: hidden;
+    background: linear-gradient(to bottom, #87CEEB, #f0f8ff);
+    //height: 100vh;
+    // display: flex;
+    // justify-content: center;
+    // align-items: center;
+}
+
+.cloud {
+    position: absolute;
+    background: white;
+    border-radius: 50px;
+    box-shadow: 10px 10px 0 white, 20px 20px 0 white, 30px 30px 0 white;
+    animation: float linear infinite;
+}
+
+@keyframes float {
+    0% {
+        transform: translateX(-100px);
+    }
+    100% {
+        transform: translateX(calc(100vw + 100px));
+    }
+}

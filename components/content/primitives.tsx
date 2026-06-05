@@ -44,59 +44,34 @@ const manifest = imageManifest as Record<string, { width: number; height: number
 
 type ImgProps = ImageRef & { sizes?: string; className?: string };
 
-/**
- * Build the AVIF / WebP sibling paths for a JPG/PNG source. The
- * `emit-modern-image-formats.mjs` build script writes these siblings
- * alongside the source (`foo.jpg` → `foo.avif` + `foo.webp`).
- * Returns null for non-JPG/PNG sources (gifs, mp4 posters, etc.) —
- * the caller skips emitting `<source>` tags in that case.
- */
-function modernSources(src: string): { avif: string; webp: string } | null {
-  const m = src.match(/\.(jpe?g|png)$/i);
-  if (!m) return null;
-  const base = src.slice(0, -m[0].length);
-  return { avif: `${base}.avif`, webp: `${base}.webp` };
-}
-
 export function Img({ src, alt, sizes = "100vw", className }: ImgProps) {
   const dims = manifest[src];
-  const modern = modernSources(src);
-  // `<picture>` lets the browser pick the first supported format
-  // (AVIF → WebP → original JPG/PNG fallback in `<img>`). Browsers
-  // without AVIF/WebP support skip the `<source>` tags via the
-  // `type` attribute, no network request fired. If the modern
-  // sibling files don't exist (script not yet run, or very small
-  // image the script skipped), the browser 404s the `<source>` and
-  // falls through to the next one — graceful degradation, no
-  // visible breakage.
+  // The earlier `<picture>` wrapper for AVIF/WebP source negotiation
+  // broke ~80 `.foo > img` direct-child / `:nth-of-type(N)` CSS
+  // selectors across globals.css + project-page.css. Reverted to a
+  // plain `<img>` to restore the layout. The AVIF/WebP siblings
+  // emitted by `emit-modern-image-formats.mjs` are still on the
+  // server (~190MB at `public/img/*.{avif,webp}`); a future pass can
+  // serve them via nginx content negotiation (the `Accept: image/
+  // avif` request header → server returns the .avif). No client-side
+  // markup change needed in that approach — see
+  // docs/SERVER-NGINX-PERF.md for the server config.
   if (dims) {
     return (
-      <picture>
-        {modern && <source type="image/avif" srcSet={modern.avif} />}
-        {modern && <source type="image/webp" srcSet={modern.webp} />}
-        <Image
-          src={src}
-          alt={alt ?? ""}
-          width={dims.width}
-          height={dims.height}
-          sizes={sizes}
-          className={className}
-          // Eager-load so paged-off-screen pieces have their images ready
-          // when the user navigates to them. The default `lazy` strategy
-          // uses an intersection observer rooted at the viewport, which
-          // doesn't fire reliably for transform-translated content.
-          loading="eager"
-        />
-      </picture>
+      <Image
+        src={src}
+        alt={alt ?? ""}
+        width={dims.width}
+        height={dims.height}
+        sizes={sizes}
+        className={className}
+        loading="eager"
+      />
     );
   }
   return (
-    <picture>
-      {modern && <source type="image/avif" srcSet={modern.avif} />}
-      {modern && <source type="image/webp" srcSet={modern.webp} />}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt={alt ?? ""} className={className} />
-    </picture>
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={src} alt={alt ?? ""} className={className} />
   );
 }
 

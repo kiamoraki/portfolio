@@ -19,15 +19,15 @@ export default function Home() {
       <Nav />
       <main className="index">
         <section className="index-intro">
-          <p>
-            Hi,<br />I&rsquo;m Kirby, an interdisciplinary artist and visual systems thinker. <br />
-            I render the invisible, visible through{" "}
+          <p>Hi,</p>
+          <p>I&rsquo;m Kirby, an interdisciplinary artist and visual systems thinker. </p>
+          <p>I render the invisible, visible through{" "}
             <Link href="/projects/animations/">moving meditations</Link>,{" "}
             <Link href="/projects/paintings/">paintings</Link>,{" "}
             <Link href="/projects/activations/">activations</Link>, and{" "}
-            <Link href="/projects/design/">posters</Link>. <br />
-            I freelance as a full stack designer and ux engineer, work samples are located at the bottom of my <Link href="/about">cv</Link>.
-          </p>
+            <Link href="/projects/design/">posters</Link>. </p>
+          <p>I freelance as a full stack designer and ux engineer, work samples available at the bottom of my <Link href="/about">cv</Link>.</p>
+          
         </section>
         <ProjectGrid projects={projects} />
       </main>
