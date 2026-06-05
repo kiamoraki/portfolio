@@ -59,10 +59,18 @@ export function ProjectMobileBottomNav({
     vv.addEventListener("resize", update);
     vv.addEventListener("scroll", update);
     window.addEventListener("resize", update);
+    // Chrome Android fires neither `vv.resize` nor `vv.scroll` on
+    // URL-bar transitions reliably — they only fire when the visible
+    // viewport reaches its final state, leaving the bar slide
+    // mid-transition with a stale chromeH. Listening to `window.scroll`
+    // gives the formula a per-frame chance to recompute during the
+    // bar's animation. `passive: true` so it doesn't block scrolling.
+    window.addEventListener("scroll", update, { passive: true });
     return () => {
       vv.removeEventListener("resize", update);
       vv.removeEventListener("scroll", update);
       window.removeEventListener("resize", update);
+      window.removeEventListener("scroll", update);
       root.style.removeProperty("--browser-chrome-bottom-h");
     };
   }, []);

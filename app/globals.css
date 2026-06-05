@@ -707,6 +707,13 @@ main.dark .text { color: var(--color-light); }
        inset slightly from the top-left corner of the viewport. */
     flex-direction: column;
     padding-top: 0;
+    /* Promote to its own composited layer so iOS Safari's URL-bar
+       transitions don't cause the fixed-position chip to jitter
+       relative to the visual viewport. `transform: translate3d(0,0,0)`
+       is the classic GPU-promotion hint; `will-change: transform`
+       reinforces it. Identity transform — no visual change. */
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
   }
   .nav-main a, .nav-projects a {
     width: var(--mobile-sidebar-icon-size);
@@ -741,6 +748,11 @@ main.dark .text { color: var(--color-light); }
        single shared 2px line via border-top removed below. */
     border-top: 0;
     color: var(--color-dark);
+    /* GPU-promote so iOS Safari URL-bar transitions don't jitter
+       the fixed chip relative to the visual viewport (same as
+       .nav-main above). */
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
   }
   .nav-info.dark {
     color: var(--color-light);
@@ -3676,6 +3688,11 @@ main[data-project-slug="intergalactic-helm"] .row {
     left: var(--mobile-sidebar-icon-inset);
     width: var(--mobile-sidebar-icon-size);
     z-index: 3000;
+    /* GPU-promote so iOS Safari URL-bar transitions don't jitter the
+       fixed wrapper relative to the visual viewport. Matches the same
+       hint applied to .nav-main / .nav-info above. */
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
   }
   /* Caret toggle — same size as Home/CV chips, sits below CV. The
      wrapper is positioned `top: calc(... - 2px)` (line ~3364), so the
