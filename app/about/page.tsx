@@ -142,6 +142,7 @@ export default function AboutPage() {
                   <li><a href="https://kiamoraki.com/sites/marsradio/">Mars.Radio</a></li>
                   <li><a href="https://kiamoraki.com/sites/xtian.dev/">Xtian.dev</a></li>
                   <li><a href="https://kiamoraki.com/sites/eos/eos-demo-site/index.html">EOS.org</a> (Desktop only)</li>
+                  <li><a href="https://neptune.kiamoraki.com">Neptune</a></li>
                 </ul>
               </>
             }

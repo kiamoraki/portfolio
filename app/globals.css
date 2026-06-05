@@ -1638,7 +1638,14 @@ main.about {
 }
 main.about #about-info {
   position: fixed;
-  top: calc(var(--spacing-nav-h) + 1.25rem);
+  /* `+ var(--piece-gap, 1.5vw)` shifts the fixed info column down by
+     the standard inter-piece gap so the about page header begins at
+     the same y-offset as a project's first piece. The mobile
+     override below switches `position` to `static` and clears `top`
+     so this calc only takes effect on desktop. */
+  top: calc(
+    var(--spacing-nav-h) + 1.25rem + var(--piece-gap, 1.5vw)
+  );
   left: calc(max(0px, (100vw - 1030px) / 2) + var(--spacing-page));
   width: 220px;
   display: flex;
@@ -1664,21 +1671,42 @@ main.about #about-info > .multi-stack .multi-dash { text-align: center; }
 main.about #about-info ul.socials {
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.25rem;
+  /* `gap: 0` so the chips stack vertically flush, sharing borders the
+     same way the mobile chrome strip does (Home → CV → mail → …
+     adjacent borders overlap into a single seam). */
+  gap: 0;
   width: 100%;
   padding-left: 40px;
 }
-main.about #about-info ul.socials li { border-width: 4px; }
+/* Drop the hover transition's 4px transparent border on `<li>` — it
+   added vertical padding around each chip and broke the flush stack. */
+main.about #about-info ul.socials li { border-width: 0; }
 main.about #about-info ul.socials :is(a, button) {
   width: 56px;
   height: 56px;
   padding: 0;
   min-width: 0;
+  /* Match the desktop chrome-chip style (Home / CV / prev / next) —
+     2px bordered square in `currentColor`. Box-sizing border-box so
+     the 56px outer dimension stays the same as the unbordered
+     version. */
+  box-sizing: border-box;
+  border: 2px solid currentColor;
+}
+/* Shared-border seam — every chip after the first drops its top
+   border so the chip above's bottom edge is the single shared line
+   between them. Same pattern as `.nav-info { border-top: 0 }` on
+   mobile. */
+main.about #about-info ul.socials li:not(:first-child) :is(a, button) {
+  border-top: 0;
 }
 main.about #about-cv {
   margin: 0 0 0 calc(220px + 2.5rem);
   max-width: 650px;
-  padding: .5rem 0 3rem;
+  /* Top padding bumped by `var(--piece-gap, 1.5vw)` so the right
+     column matches the fixed `#about-info` column's new top offset
+     (both shifted down by one standard piece-gap on desktop). */
+  padding: calc(.5rem + var(--piece-gap, 1.5vw)) 0 3rem;
 }
 main.about #about-cv .about-tabs { margin: 0; }
 @media (max-width: 900px) {
