@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "optimize-images": "node scripts/optimize-images.mjs",
+    "images:modern": "node scripts/emit-modern-image-formats.mjs",
     "tags": "node scripts/build-tag-index.mjs"
   },
   "dependencies": {

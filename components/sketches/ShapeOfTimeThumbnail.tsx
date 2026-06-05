@@ -1,5 +1,7 @@
 "use client";
 
+import { loadP5 } from "./loadP5";
+
 import { useEffect, useRef } from "react";
 
 // Scaled-down port of ShapeOfTimeCanvas using the simplest 1:2 Lissajous
@@ -74,8 +76,7 @@ export function ShapeOfTimeThumbnail() {
     let intersectionObserver: IntersectionObserver | null = null;
 
     (async () => {
-      const p5Mod = await import("p5");
-      const P5 = p5Mod.default;
+      const P5 = await loadP5();
       if (cancelled || !containerRef.current) return;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       p5Instance = new P5(sketch as any, containerRef.current) as any;

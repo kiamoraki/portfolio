@@ -1,5 +1,7 @@
 "use client";
 
+import { loadP5 } from "./loadP5";
+
 import { useEffect, useRef } from "react";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -38,8 +40,7 @@ export function WaveCanvasShell({ sketch }: { sketch: (p: P5) => void }) {
     };
 
     (async () => {
-      const p5Mod = await import("p5");
-      const P5Ctor = p5Mod.default;
+      const P5Ctor = await loadP5();
       if (cancelled || !ref.current) return;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       instance = new P5Ctor(wrappedSketch as any, ref.current) as any;

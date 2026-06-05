@@ -268,10 +268,32 @@ export function MetaCarousel({ slides }: Props) {
             `.project-track` div, so we just render it directly here —
             no need for an additional `.meta-carousel-slide` wrapper.
             The querySelectorAll above targets `.meta-carousel-track >
-            .project-track` to find these direct children. */}
-        {renderedSlides.map((slide, i) => (
-          <Fragment key={i}>{slide}</Fragment>
-        ))}
+            .project-track` to find these direct children.
+
+            Lazy-mount window: only the active slide + its immediate
+            neighbours (distance ≤ 1 from `pos`) render their real
+            content. Off-screen slots emit an empty `.project-track`
+            placeholder of the same `100vw × 100%` size so the
+            `translateX(-pos * 100vw)` math keeps working. Without
+            this, all ~22 slides (real + clones) mount their p5
+            canvases on first paint — each canvas being ~250KB of
+            JS execution. Window of 1 means at most 3 canvases are
+            ever live at once. Mid-transition both source + target
+            slots are visible since the distance check applies to
+            each frame's pos. */}
+        {renderedSlides.map((slide, i) => {
+          const distance = Math.abs(i - pos);
+          const isVisible = distance <= 1;
+          if (isVisible) return <Fragment key={i}>{slide}</Fragment>;
+          return (
+            <div
+              key={i}
+              className="project-track"
+              style={{ flexShrink: 0, width: "100vw" }}
+              aria-hidden="true"
+            />
+          );
+        })}
       </div>
       {/* In-component bottom prev/next chips removed — the chrome's
           PREV/NEXT (ProjectNav + ProjectMobileBottomNav) now drives

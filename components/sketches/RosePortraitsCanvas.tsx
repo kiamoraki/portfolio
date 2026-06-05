@@ -1,5 +1,7 @@
 "use client";
 
+import { loadP5 } from "./loadP5";
+
 import { useEffect, useRef } from "react";
 
 const ROSE_PINK = { r: 255, g: 0, b: 255 };
@@ -210,8 +212,7 @@ export function RosePortraitsCanvas({
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const p5Mod = await import("p5");
-      const P5 = p5Mod.default;
+      const P5 = await loadP5();
       if (cancelled || !containerRef.current) return;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const instance = new P5(sketch as any, containerRef.current) as any;

@@ -3740,6 +3740,15 @@ main[data-project-slug="intergalactic-helm"] .row {
     color: var(--color-dark) !important;
     border-color: var(--color-light) !important;
   }
+  /* On light-bg projects (standalone via `data-color-mode="light"`
+     OR meta-carousel via `body.light-slide`), the open-state's
+     `--color-light` border (off-white) becomes invisible against
+     the off-white chip + light-bg page. Force opaque black borders
+     so the open-state chip still reads as a defined box. Specificity
+     (body :is(...) + .toggle--open) outranks the rule above. */
+  body:is(.light-slide, [data-color-mode="light"]) .project-title-toggle--open {
+    border-color: #000 !important;
+  }
   .project-title-toggle--open .project-title-toggle__glyph {
     stroke: var(--color-dark);
   }
@@ -4342,19 +4351,38 @@ body.light-slide {
   background-clip: padding-box;
 }
 
-/* Animations meta-carousel — drop the chrome scrim from every chip
-   listed above so the chrome reads as pure outlines against the
-   slide bg. Each carousel slide has its own canvas bg painted edge-
-   to-edge (see the per-slide bg block higher up), so a scrim layer
-   on the chrome chips dulls the colour transition between adjacent
-   slides without adding contrast — the bordered outlines alone are
-   enough to read against any canvas bg. Scoped via `:has()` on the
-   body so this only kicks in on the `/projects/animations` route. */
-body:has(main[data-project-slug="animations"]) .nav-main,
-body:has(main[data-project-slug="animations"]) .nav-info:not(.active),
-body:has(main[data-project-slug="animations"]) .nav-projects .project-nav-btn,
-body:has(main[data-project-slug="animations"]) .project-mobile-bottom-nav .project-mobile-bottom-nav-link,
-body:has(main[data-project-slug="animations"]) .meta-carousel .meta-carousel-active-title {
+/* ──────────────────────────────────────────────────────────────────
+   "transparent-chrome" pattern — drop the chrome-scrim fill from
+   every chip in the top bar so the chrome reads as pure outlines
+   against whatever the page paints. Used when the page bg is a
+   full-bleed canvas (or other strong visual) that the scrim would
+   otherwise dull. Bordered outlines alone read against any bg.
+
+   Two-axis rule (Cartesian product of the body × chip lists):
+     - Outer `body:is(:has(...), :has(...), ...)` — the PROJECT list.
+       Add a `:has(main[data-project-slug="…"])` line per project
+       that should opt in. Removing a project just deletes its line.
+     - Inner `:is(.nav-main, ...)` — the CHIP list. Every chip in
+       the desktop + mobile top-bar chrome that uses the scrim by
+       default, plus the meta-carousel active title.
+
+   Currently opted in: animations (meta-carousel), shape-of-time,
+   multiverse, wave, lissajous. */
+body:is(
+    :has(main[data-project-slug="animations"]),
+    :has(main[data-project-slug="shape-of-time"]),
+    :has(main[data-project-slug="multiverse"]),
+    :has(main[data-project-slug="wave"]),
+    :has(main[data-project-slug="lissajous"])
+  )
+  :is(
+    .nav-main,
+    .nav-info:not(.active),
+    .nav-projects .project-nav-btn,
+    .nav-projects .project-title,
+    .project-mobile-bottom-nav .project-mobile-bottom-nav-link,
+    .meta-carousel .meta-carousel-active-title
+  ) {
   background-color: transparent;
 }
 
@@ -4398,7 +4426,11 @@ body:has(main[data-project-slug="animations"]) .meta-carousel .meta-carousel-act
   }
   .project-description-panel[data-open="true"] {
     max-height: 60vh;
-    padding: 2rem;
+    /* Top/bottom 1em, L/R kept at 2rem to match the closed-state
+       horizontal padding so opening only animates vertical. Was a
+       uniform `2rem` all sides — bumped the top + bottom down to
+       1em per request for a tighter vertical inset. */
+    padding: 1em 2rem;
     opacity: 1;
   }
   /* Description panel text uses the same 16px / 24px rhythm on
@@ -5363,12 +5395,15 @@ main[data-project-slug="multiverse"] .project-track-content {
     > .project-track:has(
       > .project-track-content[data-slug^="ac-video"]
     ),
-  /* Standalone /projects/jellyfish — same below-nav padding-top on
-     the project track so the canvas sits below the chrome instead
-     of tucking under it. data-slug here is the project slug, not the
-     sketch id (carousel uses sketch id). */
+  /* Standalone /projects/jellyfish + /projects/wave — same below-nav
+     padding-top on the project track so the canvas sits below the
+     chrome instead of tucking under it. data-slug here is the
+     project slug, not the sketch id (carousel uses sketch id). */
   .project-track:has(
     > .project-track-content[data-slug="jellyfish"]
+  ),
+  .project-track:has(
+    > .project-track-content[data-slug="wave"]
   ) {
     padding-top: calc(1rem + 56px);
   }

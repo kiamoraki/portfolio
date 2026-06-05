@@ -1,5 +1,7 @@
 "use client";
 
+import { loadP5 } from "./loadP5";
+
 import { useEffect, useRef } from "react";
 
 const MOBILE_BREAKPOINT = 720;
@@ -37,8 +39,7 @@ export function RadialsCanvas({ inFlow = false }: Props = {}) {
     let io: IntersectionObserver | null = null;
 
     (async () => {
-      const p5Mod = await import("p5");
-      const P5 = p5Mod.default;
+      const P5 = await loadP5();
       if (cancelled || !containerRef.current) return;
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
