@@ -35,6 +35,19 @@ rsync -avz --delete \
 # `img/***` (no leading slash) which matched ANY directory named `img`
 # anywhere in the tree, blocking the site images from deploying.
 
+# Second rsync: push NEW files in /img/ (additive — never deletes).
+# `--ignore-existing` skips files already on the server, so this only
+# uploads new images (e.g. AVIF/WebP siblings emitted by
+# `npm run images:modern`) or new uploaded assets. Server-only assets
+# are still safe because there's no `--delete`. Source is the build's
+# `out/img/` (Next copies `public/img/*` here as part of static export)
+# so the same set of files the dev tree has gets pushed.
+echo ""
+echo "▶ Syncing additive image siblings (avif / webp / new uploads)..."
+rsync -avz --ignore-existing --exclude='.DS_Store' \
+  out/img/ \
+  "$SSH_TARGET:$REMOTE_PATH/img/"
+
 echo ""
 echo "▶ Cleaning up local out/ to avoid duplicating images on disk..."
 rm -rf out
