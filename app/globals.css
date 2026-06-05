@@ -2744,30 +2744,30 @@ body:has(main.about) .project-mobile-bottom-nav {
   padding: 0;
 }
 
-/* Wave — DESKTOP forces square wrapper so the 3×3 cells render as
-   squares (not stretched rectangles in a wide wrapper). Inside the
-   wave-canvas-shell, aspect-ratio: 1 holds the square shape.
+/* Wave — DESKTOP wrapper fills the live area below the navbar
+   (100vw × `calc(100dvh - 1rem - 56px)`) and uses flex centering so
+   the inner square `.wave-canvas-shell` lands at horizontal centre.
 
-   Side length is `min(100vw, 100dvh - 1rem - 56px)` so the square
-   fits inside the `below-nav` live area (chrome bottom → viewport
-   bottom) — was `min(100vw, 100dvh)` which would have exceeded the
-   `calc(100dvh - 1rem - 56px)` height my below-nav `Hook 2` rule
-   puts on `[data-sketch-id^="wave-"]`, leaving the wrapper a non-
-   square 100vh-wide × 1008-tall on a typical 1920×1080 viewport.
+   The wrapper isn't square anymore — was `min(100vw, 100dvh - 1rem
+   - 56px)` for both width AND height, which left dead space on
+   either side of the square on wide landscape viewports. Now the
+   wrapper is full-width, the shell stays square via `aspect-ratio:
+   1` constrained to the wrapper's height, and the flex centering
+   pins the shell to the horizontal centre with auto-sized side
+   margins.
 
-   Eternal-return is NO LONGER bundled in this square rule — in the
-   carousel it now goes full-bleed like emergence (see the separate
-   block below). The standalone `/projects/eternal-return` page
-   keeps the global `height: 90dvh !important` so subsequent pieces
-   (install photos, diagrams) still have room to stack below the
-   toggle sketch. */
+   Eternal-return is NOT bundled here — see the separate full-bleed
+   block below. */
 @media (min-width: 721px) {
   .meta-carousel-track > .project-track .piece-sketch[data-sketch-id^="wave-"],
   .project-track .piece-sketch[data-sketch-id^="wave-"] {
-    width: min(100vw, 100dvh - 1rem - 56px) !important;
-    height: min(100vw, 100dvh - 1rem - 56px) !important;
-    margin: 0 auto;
-    align-self: center;
+    width: 100vw !important;
+    height: calc(100dvh - 1rem - 56px) !important;
+    margin: 0;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   /* Eternal-return-toggle carousel slide → full-bleed 100vw × 100dvh
@@ -2787,7 +2787,12 @@ body:has(main.about) .project-mobile-bottom-nav {
   }
   .meta-carousel-track > .project-track .piece-sketch[data-sketch-id^="wave-"] .wave-canvas-shell,
   .project-track .piece-sketch[data-sketch-id^="wave-"] .wave-canvas-shell {
-    width: 100% !important;
+    /* Square at the wrapper's HEIGHT — `width: auto` lets
+       `aspect-ratio: 1` compute the width from the explicit
+       `height: 100%`. The wrapper's `display: flex; justify-content:
+       center` then horizontally centres this square inside the
+       full-width wrapper. */
+    width: auto !important;
     height: 100% !important;
     aspect-ratio: 1;
   }
