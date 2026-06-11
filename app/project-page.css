@@ -503,6 +503,21 @@ main[data-project-slug="intergalactic-helm"] .row {
     aspect-ratio: 1 / 1;
   }
 }
+@media (max-width: 720px) {
+  /* All RadioactiviTEA images full width on mobile. Hero + Single are
+     already full width; collapse the 2×2 grid into a single full-width
+     column and drop the base square cover-crop so each image shows
+     uncropped at its natural aspect ratio. */
+  .project-track-content[data-slug="radioactivitea"] .piece-layout--grid-2x2 {
+    grid-template-columns: 1fr;
+  }
+  .project-track-content[data-slug="radioactivitea"] .piece-layout--grid-2x2 > img {
+    aspect-ratio: auto;
+    object-fit: contain;
+    width: 100%;
+    height: auto;
+  }
+}
 @media (min-width: 721px) {
   .project-track-content[data-slug="precarity-a-domestic-tale"] .piece[data-piece-id="precarity-09-11"] .piece-layout--pair {
     height: 100dvh;
@@ -1043,4 +1058,62 @@ main[data-project-slug="multiverse"] .project-track-content {
 body:has(main[data-project-slug="shape-of-time"]) .shape-of-time-refresh,
 body[data-meta-active-slug="shape-of-time"] .shape-of-time-refresh {
   display: flex;
+}
+
+/* The Dojo (desktop) — each image fills 90% of the viewport height,
+   centered in a full-100dvh slide whose background is painted with that
+   image's own border colour, so the ~10dvh of letterboxing reads as an
+   intentional colour field rather than empty page. Background colours
+   were sampled from each image's uniform border. */
+@media (min-width: 721px) {
+  main[data-project-slug="dojo"] .piece {
+    height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  main[data-project-slug="dojo"] .piece-layout--single {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+  main[data-project-slug="dojo"] .piece-layout--single img {
+    height: 90dvh;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+  }
+  main[data-project-slug="dojo"] .piece[data-piece-id="dojo-dragon"] {
+    background: #ffbfff;
+  }
+  main[data-project-slug="dojo"] .piece[data-piece-id="dojo-leopard"] {
+    background: #8abbff;
+  }
+  main[data-project-slug="dojo"] .piece[data-piece-id="dojo-snake"] {
+    background: #daf751;
+  }
+  main[data-project-slug="dojo"] .piece[data-piece-id="dojo-tiger"] {
+    background: #fff950;
+  }
+  main[data-project-slug="dojo"] .piece[data-piece-id="dojo-crane"] {
+    background: #b88a00;
+  }
+}
+
+/* The Eternal Return (standalone, desktop) — the canvas is already
+   90dvh (shared lissajous/wave height rule). On the standalone page the
+   piece is only as tall as the canvas, so it sits flush under the
+   navbar. Make the piece a full 100dvh slide and center the 90dvh
+   canvas inside it, so the 10dvh frame splits evenly top + bottom —
+   matching how the animations carousel slide already frames it. */
+@media (min-width: 721px) {
+  main[data-project-slug="eternal-return"]
+    .piece[data-piece-id="eternal-return-toggle"] {
+    height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
