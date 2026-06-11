@@ -690,7 +690,7 @@
   },
   {
     "projectSlug": "mars",
-    "pieceId": "mars-sus-art-1",
+    "pieceId": "mars-rainbow",
     "tags": [
       "activation"
     ],
@@ -698,7 +698,7 @@
   },
   {
     "projectSlug": "mars",
-    "pieceId": "mars-sus-art-2",
+    "pieceId": "mars-ecosystem",
     "tags": [
       "activation"
     ],
@@ -706,7 +706,7 @@
   },
   {
     "projectSlug": "mars",
-    "pieceId": "mars-sus-art-3",
+    "pieceId": "mars-sus-art-1",
     "tags": [
       "activation"
     ],
@@ -714,7 +714,7 @@
   },
   {
     "projectSlug": "mars",
-    "pieceId": "mars-sus-art-install",
+    "pieceId": "mars-sus-art-2",
     "tags": [
       "activation"
     ],
@@ -722,7 +722,7 @@
   },
   {
     "projectSlug": "mars",
-    "pieceId": "mars-sus-art-psuedo-1",
+    "pieceId": "mars-sus-art-3",
     "tags": [
       "activation"
     ],
@@ -730,7 +730,7 @@
   },
   {
     "projectSlug": "mars",
-    "pieceId": "mars-sus-art-psuedo-2",
+    "pieceId": "mars-sus-art-install",
     "tags": [
       "activation"
     ],
@@ -738,7 +738,7 @@
   },
   {
     "projectSlug": "mars",
-    "pieceId": "mars-sus-coins-poster",
+    "pieceId": "mars-sus-art-psuedo-1",
     "tags": [
       "activation"
     ],
@@ -746,11 +746,27 @@
   },
   {
     "projectSlug": "mars",
-    "pieceId": "mars-mural-zenbus",
+    "pieceId": "mars-sus-art-psuedo-2",
     "tags": [
       "activation"
     ],
     "indexInProject": 7
+  },
+  {
+    "projectSlug": "mars",
+    "pieceId": "mars-sus-coins-poster",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 8
+  },
+  {
+    "projectSlug": "mars",
+    "pieceId": "mars-mural-zenbus",
+    "tags": [
+      "activation"
+    ],
+    "indexInProject": 9
   },
   {
     "projectSlug": "mars",
@@ -759,7 +775,7 @@
       "activation",
       "design"
     ],
-    "indexInProject": 8
+    "indexInProject": 10
   },
   {
     "projectSlug": "mars",
@@ -767,7 +783,17 @@
     "tags": [
       "activation"
     ],
-    "indexInProject": 9
+    "indexInProject": 11
+  },
+  {
+    "projectSlug": "shape-of-time-v2",
+    "pieceId": "shape-of-time-v2",
+    "tags": [],
+    "indexInProject": 0,
+    "sketch": {
+      "id": "shape-of-time-v2",
+      "bg": "#000"
+    }
   },
   {
     "projectSlug": "shape-of-time",

@@ -21,6 +21,7 @@ import type { ColorMode } from "./content-types";
 import { ShapeOfTimeCanvas } from "@/components/sketches/ShapeOfTimeCanvas";
 import { ShapeOfTimeWithRefresh } from "@/components/sketches/ShapeOfTimeWithRefresh";
 import { ShapeOfTimeGridCanvas } from "@/components/sketches/ShapeOfTimeGridCanvas";
+import { ShapeOfTimeV2Canvas } from "@/components/sketches/ShapeOfTimeV2Canvas";
 import { RadialsCanvas } from "@/components/sketches/RadialsCanvas";
 import { LissajousCanvas } from "@/components/sketches/LissajousCanvas";
 import { LissajousPairLinesCanvas } from "@/components/sketches/LissajousPairLinesCanvas";
@@ -70,6 +71,7 @@ export const SKETCHES: Record<string, SketchEntry> = {
      `refreshTick` on the canvas's global config to swap pairs. */
   "shape-of-time": { Component: C(ShapeOfTimeWithRefresh), bg: "#000" },
   "shape-of-time-grid": { Component: C(ShapeOfTimeGridCanvas), bg: "#130c12" },
+  "shape-of-time-v2": { Component: C(ShapeOfTimeV2Canvas), bg: "#000" },
 
   // ─── Animations: emergence (RadialsCanvas) ───
   emergence: { Component: C(RadialsCanvas), bg: "#fff" },
