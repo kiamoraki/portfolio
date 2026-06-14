@@ -1,76 +1,29 @@
 "use client";
 
 /**
- * ScrollAffordances — two paired hints rendered on multi-piece project
- * pages so the user knows there's content below the first slide:
+ * ScrollAffordances — slide dots rendered on multi-piece project
+ * pages so the user knows there's content below the first slide.
  *
- *   • <ScrollCue>: a small bottom-center "scroll" chip with an animated
- *     chevron. Fades in on mount, fades out the moment the user
- *     scrolls. Returns if they scroll back to the top. Desktop only —
- *     mobile already has the bottom prev/next chrome implying paging.
+ * Vertical column of N dots stuck to the right edge. Fills the dot
+ * for the currently-most-visible piece. Click a dot to smooth-scroll
+ * that piece into view. Visible on both mobile and desktop (mobile
+ * gets a slightly smaller chip via the CSS @media block).
  *
- *   • <SlideDots>: a vertical column of N dots stuck to the right
- *     edge. Fills the dot for the currently-most-visible piece. Click
- *     a dot to smooth-scroll that piece into view. Desktop only —
- *     mobile screens are too narrow to justify the right-edge gutter.
+ * Auto-hides when the page only has one piece (no point). Rendered
+ * from `app/projects/[slug]/page.tsx` with the piece count computed
+ * at build time so this client component doesn't have to query the
+ * DOM to know whether to render.
  *
- * Both auto-hide when the page only has one piece (no point in either).
- * Rendered from `app/projects/[slug]/page.tsx` with the piece count
- * computed at build time so this client component doesn't have to
- * query the DOM to know whether to render.
+ * The earlier paired `<ScrollCue>` (bottom-center "scroll" chip with
+ * bouncing chevron) was removed — the right-edge dots now serve as
+ * the sole multi-piece affordance, and they're visible from page
+ * load so the discoverability problem is already solved.
  */
 import { useEffect, useRef, useState } from "react";
 
 export function ScrollAffordances({ pieceCount }: { pieceCount: number }) {
   if (pieceCount <= 1) return null;
-  return (
-    <>
-      <ScrollCue />
-      <SlideDots count={pieceCount} />
-    </>
-  );
-}
-
-function ScrollCue() {
-  const [visible, setVisible] = useState(true);
-
-  useEffect(() => {
-    const update = () => {
-      // Hide as soon as the user scrolls more than a few px — the
-      // affordance has served its purpose once they engage. Show
-      // again at the top (e.g. on scroll-up to start) so it acts as
-      // a persistent reminder of "more below" whenever you're
-      // there. 32px threshold gives a clean break from incidental
-      // momentum micro-scrolls.
-      setVisible(window.scrollY < 32);
-    };
-    update();
-    window.addEventListener("scroll", update, { passive: true });
-    return () => window.removeEventListener("scroll", update);
-  }, []);
-
-  return (
-    <div
-      className="scroll-cue"
-      data-visible={visible ? "true" : "false"}
-      aria-hidden="true"
-    >
-      <span className="scroll-cue__label">scroll</span>
-      <svg
-        className="scroll-cue__arrow"
-        viewBox="0 0 24 24"
-        width="14"
-        height="14"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={2.5}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <polyline points="6,9 12,15 18,9" />
-      </svg>
-    </div>
-  );
+  return <SlideDots count={pieceCount} />;
 }
 
 function SlideDots({ count }: { count: number }) {

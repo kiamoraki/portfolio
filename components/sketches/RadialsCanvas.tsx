@@ -45,7 +45,7 @@ export function RadialsCanvas({ inFlow = false }: Props = {}) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       p5Instance = new P5((p: any) => {
         const isMobile = window.innerWidth < MOBILE_BREAKPOINT;
-        const NUM_RADIALS = isMobile ? 16 : 24;
+        const NUM_RADIALS = isMobile ? 12 : 24;
         const NUM_PARTICLES = isMobile ? 50 : 100;
         const START_RADIUS = isMobile ? 20 : 30;
         const MAX_RADIUS_MIN = isMobile ? 60 : 100;
