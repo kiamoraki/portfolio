@@ -1117,3 +1117,96 @@ body[data-meta-active-slug="shape-of-time"] .shape-of-time-refresh {
     justify-content: center;
   }
 }
+
+/* ──────────────────────────────────────────────────────────────────
+   ScrollAffordances — scroll cue + slide dots on multi-piece project
+   pages. Both are desktop only; the mobile bottom prev/next chrome
+   already implies paging well enough, and the right-edge dot gutter
+   would crowd a narrow viewport. Both use `currentColor` so they
+   inherit the page's ink polarity (light on dark project pages,
+   dark on light) without needing per-project overrides.
+   ────────────────────────────────────────────────────────────────── */
+
+.scroll-cue,
+.slide-dots {
+  display: none;
+}
+
+@media (min-width: 721px) {
+  /* — Scroll cue — bottom-center chip with a label + bouncing chevron.
+     `position: fixed` so it stays at the viewport bottom while the
+     user scrolls (it's the page's "more below" hint), data-driven
+     opacity so the React component can fade it out as scrollY climbs. */
+  .scroll-cue {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 4500;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0.85rem;
+    font-family: "Neuropol", var(--font-bold);
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: inherit;
+    background-color: var(--chrome-scrim, transparent);
+    background-clip: padding-box;
+    border: 2px solid color-mix(in srgb, currentColor 50%, transparent);
+    opacity: 1;
+    transition: opacity 240ms ease-out;
+    pointer-events: none;
+  }
+  .scroll-cue[data-visible="false"] {
+    opacity: 0;
+  }
+  .scroll-cue__arrow {
+    /* Gentle bouncing arrow — 2px down/up cycle so the motion reads
+       as a hint, not a distraction. */
+    animation: scroll-cue-bounce 1.4s ease-in-out infinite;
+  }
+  @keyframes scroll-cue-bounce {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(3px); }
+  }
+
+  /* — Slide dots — vertical column on the right edge tracking which
+     piece is currently in view. Each dot is a hollow circle; the
+     active dot fills with `currentColor`. Clickable. */
+  .slide-dots {
+    position: fixed;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 4500;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    pointer-events: none;
+  }
+  .slide-dots__dot {
+    pointer-events: auto;
+    appearance: none;
+    width: 10px;
+    height: 10px;
+    padding: 0;
+    border-radius: 50%;
+    background: transparent;
+    border: 2px solid color-mix(in srgb, currentColor 60%, transparent);
+    cursor: pointer;
+    transition: background-color 180ms ease-out,
+                border-color 180ms ease-out,
+                transform 180ms ease-out;
+  }
+  .slide-dots__dot:hover {
+    border-color: currentColor;
+    transform: scale(1.18);
+  }
+  .slide-dots__dot[data-active="true"] {
+    background-color: currentColor;
+    border-color: currentColor;
+  }
+}

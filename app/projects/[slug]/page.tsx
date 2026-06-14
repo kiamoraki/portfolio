@@ -15,6 +15,7 @@ import {
   ProjectRenderer,
   mdxPieceComponents,
 } from "@/components/content";
+import { ScrollAffordances } from "@/components/content/ScrollAffordances";
 import {
   getAllProjects,
   getNavigableProjects,
@@ -121,6 +122,13 @@ export default async function ProjectPage({
       ? "color-mix(in srgb, var(--color-light) 85%, transparent)"
       : "rgba(0, 0, 0, 0.85)";
 
+  // Piece count for the scroll affordances (cue + dots). Computed
+  // server-side so the client component doesn't have to wait for
+  // DOM mount to know whether to render. Only multi-piece projects
+  // get the affordances; single-piece pages skip them.
+  const pieces = getPiecesForProject(slug);
+  const pieceCount = pieces.length;
+
   // LCP image preload — `build-content-index.mjs` captures the `src`
   // of the first image-bearing primitive in each project's first piece
   // as `lcpImage`. If the AVIF sibling exists (per `image-manifest`),
@@ -131,7 +139,7 @@ export default async function ProjectPage({
   // amount of wasted bandwidth on the long-tail in exchange for the
   // common-case LCP win. `type` + `fetchPriority="high"` give the
   // browser the strongest possible hint to fetch this first.
-  const firstPiece = getPiecesForProject(slug)[0];
+  const firstPiece = pieces[0];
   const lcpSrc = firstPiece?.lcpImage;
   let lcpPreloadHref: string | null = null;
   let lcpPreloadType: string | null = null;
@@ -215,6 +223,10 @@ export default async function ProjectPage({
         )}
         </Suspense>
       </main>
+      {/* Scroll cue + slide dots — auto-hide when the project has
+          one piece (no scroll affordance needed). Client component
+          because it tracks scrollY + IntersectionObserver per piece. */}
+      <ScrollAffordances pieceCount={pieceCount} />
     </CarouselStateProvider>
   );
 }
