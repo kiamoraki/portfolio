@@ -51,48 +51,32 @@ type FigureProps = {
 
 export function Figure({ src, alt = "", caption, style, className, priority }: FigureProps) {
   const dims = manifest[src];
-  // Same AVIF/WebP picture wrap pattern as `Img` in
-  // `components/content/primitives.tsx` — browser-side format
-  // negotiation via `<source>` tags, no server config needed.
-  // `picture { display: contents; }` in globals.css keeps the
-  // existing `figure.image > img` selectors matching.
-  const base = src.replace(/\.(jpe?g|png)$/i, "");
-  const isConvertible = base !== src;
-  const avifSrc = isConvertible ? `${base}.avif` : null;
-  const webpSrc = isConvertible ? `${base}.webp` : null;
-  const hasAvif = !!avifSrc && avifSrc in manifest;
-  const hasWebp = !!webpSrc && webpSrc in manifest;
-
-  const sizes =
-    "(max-width: 720px) 100vw, (max-width: 1200px) 80vw, 1200px";
-
-  const img = dims ? (
-    <Image
-      src={src}
-      alt={alt}
-      width={dims.width}
-      height={dims.height}
-      sizes={sizes}
-      priority={priority}
-      loading={priority ? undefined : "eager"}
-      unoptimized={src.endsWith(".gif")}
-    />
-  ) : (
-    // Fallback for any image not in the manifest (animations, externally-named refs)
-    // eslint-disable-next-line @next/next/no-img-element
-    <img src={src} alt={alt} />
-  );
-
+  // Plain `<img>` — see the comment on `Img` in
+  // `components/content/primitives.tsx` for why we DON'T `<picture>`
+  // wrap here. Short version: `<picture>` becomes a DOM child of
+  // `figure.image`, which breaks `figure.image > img` selectors and
+  // the ~85 other `.foo > img` / `:nth-of-type(N)` rules across
+  // globals.css + project-page.css. `display: contents` doesn't fix
+  // it (selectors match on DOM, not layout tree). AVIF/WebP siblings
+  // on the server will be served via Apache content negotiation once
+  // the vhost `AllowOverride` change lands.
   return (
     <figure className={["image", className].filter(Boolean).join(" ")} style={style}>
-      {dims && (hasAvif || hasWebp) ? (
-        <picture>
-          {hasAvif && <source type="image/avif" srcSet={avifSrc!} sizes={sizes} />}
-          {hasWebp && <source type="image/webp" srcSet={webpSrc!} sizes={sizes} />}
-          {img}
-        </picture>
+      {dims ? (
+        <Image
+          src={src}
+          alt={alt}
+          width={dims.width}
+          height={dims.height}
+          sizes="(max-width: 720px) 100vw, (max-width: 1200px) 80vw, 1200px"
+          priority={priority}
+          loading={priority ? undefined : "eager"}
+          unoptimized={src.endsWith(".gif")}
+        />
       ) : (
-        img
+        // Fallback for any image not in the manifest (animations, externally-named refs)
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={src} alt={alt} />
       )}
       {caption ? <figcaption>{caption}</figcaption> : null}
     </figure>
