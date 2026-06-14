@@ -106,6 +106,22 @@ body {
   line-height: 22px;
 }
 ul { list-style: none; padding: 0; margin: 0; }
+/* Strip the 2px chip border from the Home / CV icons on landing pages
+   (homepage + /about) — both viewports, both states. The chrome ink
+   colour + (when active) the rainbow ::before overlay still telegraph
+   the chip; the border was extra weight that earned its keep only on
+   project pages where the chip sits over busy canvas content.
+
+   - Homepage: Home is `.active` (sits over the index radial canvas),
+     CV is closed — drop both borders so the icons read as pure
+     glyphs against the rainbow / page bg.
+   - /about: Home is closed, CV is `.active` — same treatment, so
+     the bordered chip family disappears entirely on that route. */
+body:has(main.index) .nav-main a,
+body:has(main.about) .nav-main a,
+body:has(main.about) .nav-info {
+  border: 0 !important;
+}
 a {
   color: var(--color-dark);
   text-decoration: none;
@@ -3496,18 +3512,37 @@ body:has(main.about) .project-mobile-bottom-nav {
      toggle. Dropping `border-top` lets CV's bottom edge be the
      single shared seam, same as the closed state. */
   .project-title-toggle.project-title-toggle.project-title-toggle--open {
-    border: 2px solid currentColor;
-    border-top: 0;
+    /* Borderless on top/left/bottom — the rainbow bg carries the
+       pressed-on affordance. The RIGHT edge gets a 2px currentColor
+       stroke that matches the description panel's border below; the
+       title + panel slide out to the right of the toggle, so this
+       border picks up that container's left edge and reads as one
+       continuous outline. */
+    border: 0;
+    border-right: 2px solid currentColor;
   }
-  /* Caret rotates -90° to point RIGHT in closed state, 90° to point
-     LEFT when open (signals "click to close"). */
+  /* Glyph rotates 45° when the panel is open — the "+" cross
+     becomes an "×" close affordance. Transitions smoothly so the
+     spin reads as a state change, not a flicker. Identity rotation
+     in the closed state so the transition has something to ease
+     back to. */
   .project-title-toggle__glyph {
-    transform: rotate(-90deg);
-    transition: transform 220ms ease;
+    transition: transform 240ms ease;
+    transform: rotate(0deg);
   }
   .project-title-toggle--open .project-title-toggle__glyph {
-    transform: rotate(90deg);
+    transform: rotate(45deg);
   }
+  /* Closed-state toggle inherits the chrome-scrim fill from the
+     mobile chrome-chip rule (~line 4187) — the rest of the icon
+     overlay carries the same scrim, so the toggle now matches.
+     (Earlier we forced this to transparent; restoring the inherit.) */
+  /* The toggle's pressed-on `--open` state signals via the rainbow
+     bg, so the glyph itself doesn't need a state-change animation
+     (was rotating chevron, then "txt" text, now an info-icon SVG —
+     each iteration ditched the prior rule). No extra CSS needed —
+     the SVG's intrinsic dimensions + stroke="currentColor" pick up
+     the chrome's ink polarity automatically. */
 
   /* Title — hidden until toggle reveal. Positioned absolutely to
      the right of the toggle button (`left: 100%`), same top as the
@@ -3686,18 +3721,16 @@ body:has(main.about) .project-mobile-bottom-nav {
    sit side-by-side as a pair on row 2; nico (img 1) and adam (img 4)
    each span both columns full-width on rows 1 and 3. */
 
-/* CV mobile — restore the bordered-square chip look on the Home icon
-   and apply the same treatment to each social icon. The earlier rule
-   `body:has(main.about) .nav-main a { border: 0 !important }` (inside
-   the mobile @media block, line ~759) stripped the Home border on
-   /about; this overrides it with `border: 2px solid currentColor`
-   to match the project-page chrome chip family. The socials get the
-   same bordered-square styling so they read as a column of matching
-   buttons. */
+/* CV mobile — the Home + socials icons used to carry a 2px bordered-
+   square chip look to mirror the project-page chrome family. User
+   subsequently asked for borders off on the /about Home (and CV)
+   chips, so the Home rule below now just keeps `box-sizing` while
+   the explicit `border: 0 !important` higher up wins. Socials rule
+   stays — that controls the socials li chrome, separate concern. */
 @media (max-width: 720px) {
   body:has(main.about) .nav-main a {
     box-sizing: border-box !important;
-    border: 2px solid currentColor !important;
+    border: 0 !important;
   }
 
   /* Social icons — each anchor renders as a `--spacing-nav-h-mobile`
@@ -4044,8 +4077,11 @@ body.light-slide {
     max-width: none;
     max-height: 0;
     /* Horizontal padding stays at the open state so the panel doesn't
-       collapse horizontally as it opens — only vertical animates. */
-    padding: 0 2rem;
+       collapse horizontally as it opens — only vertical animates.
+       L/R inset is 1rem (was 2rem) for a tighter reading column on
+       narrow viewports — gives the description text more usable
+       width without crowding the panel's bordered edges. */
+    padding: 0 1rem;
     cursor: pointer;
     overflow: hidden;
     opacity: 0;
@@ -4053,11 +4089,9 @@ body.light-slide {
   }
   .project-description-panel[data-open="true"] {
     max-height: 60vh;
-    /* Top/bottom 1em, L/R kept at 2rem to match the closed-state
-       horizontal padding so opening only animates vertical. Was a
-       uniform `2rem` all sides — bumped the top + bottom down to
-       1em per request for a tighter vertical inset. */
-    padding: 1em 2rem;
+    /* Top/bottom 1em, L/R kept at 1rem to match the closed-state
+       horizontal padding so opening only animates vertical. */
+    padding: 1em 1rem;
     opacity: 1;
   }
   /* Description panel text uses the same 16px / 24px rhythm on
@@ -4405,17 +4439,19 @@ body.light-slide {
   width: 100%;
   height: 100%;
 }
-.eternal-return-toggle__buttons {
+/* Single toggle button — was two side-by-side (closed-eye / open-eye)
+   pressed-state chips; consolidated into one button whose icon
+   cross-fades between the two eyes based on `--active`. Click =
+   flip observation state. Positioned absolutely at the bottom-
+   center of the canvas slot (where the `__buttons` wrapper used
+   to sit). */
+.eternal-return-toggle__btn {
   position: absolute;
   bottom: clamp(1rem, 4vh, 2.5rem);
   left: 50%;
   transform: translateX(-50%);
-  display: flex;
-  gap: 0.75rem;
   z-index: 10;
   pointer-events: auto;
-}
-.eternal-return-toggle__btn {
   width: 52px;
   height: 52px;
   display: flex;
@@ -4442,6 +4478,45 @@ body.light-slide {
 .eternal-return-toggle__btn:focus-visible {
   outline: 2px solid var(--color-light);
   outline-offset: 2px;
+}
+
+/* Icon stack — closed-eye + open-eye SVGs overlaid in the same
+   22×22 slot. CSS toggles opacity + a tiny scaleY based on the
+   `data-observed` attribute so the swap reads as the eye lid
+   lifting rather than a hard cut. `transform-origin: center` keeps
+   the open-eye pupil aligned with the closed-eye centre during the
+   transition. */
+.eternal-return-toggle__icon-stack {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  display: inline-block;
+}
+.eternal-return-toggle__icon {
+  position: absolute;
+  inset: 0;
+  transform-origin: center;
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+.eternal-return-toggle__icon-stack[data-observed="false"]
+  .eternal-return-toggle__icon--closed {
+  opacity: 1;
+  transform: scaleY(1);
+}
+.eternal-return-toggle__icon-stack[data-observed="false"]
+  .eternal-return-toggle__icon--open {
+  opacity: 0;
+  transform: scaleY(0.3);
+}
+.eternal-return-toggle__icon-stack[data-observed="true"]
+  .eternal-return-toggle__icon--closed {
+  opacity: 0;
+  transform: scaleY(0.3);
+}
+.eternal-return-toggle__icon-stack[data-observed="true"]
+  .eternal-return-toggle__icon--open {
+  opacity: 1;
+  transform: scaleY(1);
 }
 
 /* Shorter canvas heights for `lissajous*`, `wave-*`, and the

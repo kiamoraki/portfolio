@@ -43,19 +43,32 @@ export function EternalReturnToggleCanvas({ inFlow = false }: Props) {
   return (
     <div className="eternal-return-toggle">
       <EternalReturnUnobservedCanvas ref={ref} controlled inFlow={inFlow} />
-      <div className="eternal-return-toggle__buttons" role="group" aria-label="Observation mode">
-        <button
-          type="button"
-          className={`eternal-return-toggle__btn${
-            !observed ? " eternal-return-toggle__btn--active" : ""
-          }`}
-          aria-label="Unobserved — closed eye"
-          aria-pressed={!observed}
-          onClick={() => flip(false)}
+      <button
+        type="button"
+        className={`eternal-return-toggle__btn${
+          observed ? " eternal-return-toggle__btn--active" : ""
+        }`}
+        aria-label={
+          observed
+            ? "Observed — click to close the eye"
+            : "Unobserved — click to open the eye"
+        }
+        aria-pressed={observed}
+        onClick={() => flip(!observed)}
+      >
+        {/* Both eye SVGs stacked at the same position; CSS toggles
+            opacity + a slight scaleY so the transition reads as the
+            lid opening. `data-observed` on the button drives the
+            child visibility. Two SVGs (rather than a single morphing
+            path) keeps the glyph fidelity and skips a path-tween
+            library — the cross-fade is enough animation to read as
+            "opening". */}
+        <span
+          className="eternal-return-toggle__icon-stack"
+          data-observed={observed ? "true" : "false"}
         >
-          {/* Closed-eye glyph — a single arc that traces a softly closed
-              lid. Uses `currentColor` so it tracks the page ink. */}
           <svg
+            className="eternal-return-toggle__icon eternal-return-toggle__icon--closed"
             viewBox="0 0 24 24"
             width="22"
             height="22"
@@ -72,18 +85,8 @@ export function EternalReturnToggleCanvas({ inFlow = false }: Props) {
             <path d="M15 17.5 L 15.5 19.5" />
             <path d="M19 16 L 20 18" />
           </svg>
-        </button>
-        <button
-          type="button"
-          className={`eternal-return-toggle__btn${
-            observed ? " eternal-return-toggle__btn--active" : ""
-          }`}
-          aria-label="Observed — open eye"
-          aria-pressed={observed}
-          onClick={() => flip(true)}
-        >
-          {/* Open-eye glyph — almond outline + pupil. */}
           <svg
+            className="eternal-return-toggle__icon eternal-return-toggle__icon--open"
             viewBox="0 0 24 24"
             width="22"
             height="22"
@@ -97,8 +100,8 @@ export function EternalReturnToggleCanvas({ inFlow = false }: Props) {
             <path d="M2 12 C 5 7, 10 5, 12 5 C 14 5, 19 7, 22 12 C 19 17, 14 19, 12 19 C 10 19, 5 17, 2 12 Z" />
             <circle cx="12" cy="12" r="3.2" fill="currentColor" stroke="none" />
           </svg>
-        </button>
-      </div>
+        </span>
+      </button>
     </div>
   );
 }

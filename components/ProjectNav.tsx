@@ -163,19 +163,24 @@ export function ProjectNav({
           descriptionOpen ? "Close project title" : "Open project title"
         }
       >
+        {/* "+" cross — two perpendicular strokes. When the panel is
+            open (`.project-title-toggle--open`) the CSS rotates the
+            glyph 45° so the "+" reads as an "×" — a familiar close
+            affordance. The transform is on the glyph, not the
+            button, so the click target stays at the same coords. */}
         <svg
           className="project-title-toggle__glyph"
           viewBox="0 0 24 24"
-          width="18"
-          height="18"
+          width="22"
+          height="22"
           fill="none"
           stroke="currentColor"
           strokeWidth={2.5}
           strokeLinecap="round"
-          strokeLinejoin="round"
           aria-hidden="true"
         >
-          <polyline points="6,9 12,15 18,9" />
+          <line x1="5" y1="12" x2="19" y2="12" />
+          <line x1="12" y1="5" x2="12" y2="19" />
         </svg>
       </button>
       {hasDescription ? (

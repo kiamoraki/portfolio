@@ -1129,18 +1129,31 @@ body[data-meta-active-slug="shape-of-time"] .shape-of-time-refresh {
 
 .slide-dots {
   position: fixed;
-  /* Stuck to the right edge; vertically centered between top chrome
-     (~56px) and the mobile bottom nav (~56px) so they don't overlap
-     either. On desktop with no bottom nav the centering still reads
-     fine. */
-  right: 0.5rem;
-  top: 50%;
-  transform: translateY(-50%);
+  /* MOBILE position: stacked vertically below the project-title-toggle
+     ("txt") button in the left icon column. The toggle's wrapper sits
+     at `top: inset + size * 2` and the toggle button itself is `size`
+     tall, so dots start at `inset + size * 3 + small gap`. Anchored
+     to the same `left: inset` so dots align with the icon column.
+     `width: size` + `align-items: center` centres the dots horizontally
+     under the toggle (toggle is `size` wide, dots are 8px).
+
+     Desktop override below pulls them back to the right edge. */
+  top: calc(
+    var(--mobile-sidebar-icon-inset, 1rem) +
+      var(--mobile-sidebar-icon-size, 56px) * 3 + 1rem
+  );
+  left: var(--mobile-sidebar-icon-inset, 1rem);
+  width: var(--mobile-sidebar-icon-size, 56px);
   z-index: 4500;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  /* Mobile gap loosened from 0.5rem → 1rem — the dots sit in the
+     left icon column under the toggle and benefit from extra
+     breathing room when stacked against the page bg. Desktop
+     override below keeps the tighter 0.6rem since the right-edge
+     column has less competing visual chrome. */
+  gap: 1rem;
   pointer-events: none;
 }
 .slide-dots__dot {
@@ -1167,10 +1180,18 @@ body[data-meta-active-slug="shape-of-time"] .shape-of-time-refresh {
 }
 
 @media (min-width: 721px) {
-  /* Desktop dots are slightly bigger + spaced more (10/0.6 vs 8/0.5)
-     since the viewport is roomier. */
+  /* Desktop puts the dots back on the right edge, vertically centered
+     — no top-left icon column to anchor under, so the right edge is
+     the natural home. Dots are slightly bigger + spaced more
+     (10/0.6 vs 8/0.5) since the viewport is roomier. The mobile
+     `top` / `left` / `width` are explicitly unset so the right-anchor
+     positioning takes over cleanly. */
   .slide-dots {
+    top: 50%;
+    left: auto;
     right: 1rem;
+    width: auto;
+    transform: translateY(-50%);
     gap: 0.6rem;
   }
   .slide-dots__dot {

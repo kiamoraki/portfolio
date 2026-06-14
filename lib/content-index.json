@@ -17,7 +17,8 @@
     "tags": [
       "design"
     ],
-    "indexInProject": 0
+    "indexInProject": 0,
+    "lcpImage": "/img/dojo/dojo_dragon.jpg"
   },
   {
     "projectSlug": "dojo",
@@ -177,7 +178,8 @@
     "tags": [
       "activation"
     ],
-    "indexInProject": 0
+    "indexInProject": 0,
+    "lcpImage": "/img/precarity_a_domestic_tale/2015-kirby-precarity_a_domestic_tale-peekinside.jpg"
   },
   {
     "projectSlug": "precarity-a-domestic-tale",
@@ -370,7 +372,8 @@
     "tags": [
       "activation"
     ],
-    "indexInProject": 0
+    "indexInProject": 0,
+    "lcpImage": "/img/radioactivitea/20190610-kirby-radioactivitea-day.jpg"
   },
   {
     "projectSlug": "radioactivitea",
@@ -402,7 +405,8 @@
     "tags": [
       "activation"
     ],
-    "indexInProject": 0
+    "indexInProject": 0,
+    "lcpImage": "/img/TOBRIT/Kirby_TOBRIT_tobrit_dot_com-1.jpg"
   },
   {
     "projectSlug": "tobrit",
@@ -502,7 +506,8 @@
     "tags": [
       "activation"
     ],
-    "indexInProject": 0
+    "indexInProject": 0,
+    "lcpImage": "/img/roses/portal-01.jpeg"
   },
   {
     "projectSlug": "roses",
@@ -574,7 +579,8 @@
     "tags": [
       "design"
     ],
-    "indexInProject": 0
+    "indexInProject": 0,
+    "lcpImage": "/img/22-fake_rekordz/220817-spanky.jpg"
   },
   {
     "projectSlug": "fake-rekordz",
@@ -614,7 +620,8 @@
     "tags": [
       "activation"
     ],
-    "indexInProject": 0
+    "indexInProject": 0,
+    "lcpImage": "/img/mars/23-zeva-snays-3.jpg"
   },
   {
     "projectSlug": "moon-raves",
@@ -694,7 +701,8 @@
     "tags": [
       "activation"
     ],
-    "indexInProject": 0
+    "indexInProject": 0,
+    "lcpImage": "/img/mars/mars-rainbow.avif"
   },
   {
     "projectSlug": "mars",
