@@ -21,7 +21,7 @@
  *     fades the canvas down on desktop so the photographs read as
  *     foreground without the canvas competing.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { SKETCHES, OVERLAY_SKETCHES, deriveColorMode } from "@/lib/sketch-registry";
 import type { ColorMode as ColorModeValue } from "@/lib/content-types";
@@ -34,6 +34,39 @@ type SketchProps = {
 
 export function Sketch({ id, bg, colorMode }: SketchProps) {
   const entry = SKETCHES[id];
+  // IntersectionObserver gate: don't render the inner Component (which
+  // mounts a p5 instance + starts its draw loop) until the wrapper is
+  // about to scroll into view. Without this, EVERY piece-canvas on a
+  // long-scroll standalone project page mounts eagerly on first paint
+  // — half a dozen p5 instances all racing for the chunk and drawing
+  // simultaneously, even though the user can only see one at a time.
+  // `rootMargin: "300px"` gives the canvas ~300px of headroom so it's
+  // mounted + drawing by the time the user actually scrolls to it.
+  // Once visible, we DON'T unmount on scroll-away — losing simulation
+  // state mid-scroll would be jarring; individual canvases can opt in
+  // to pause/resume via their own IntersectionObserver if CPU becomes
+  // an issue. (Within the meta-carousel, `MetaCarousel` already gates
+  // mount via its lazy-mount window, so this observer fires almost
+  // immediately for slides ≤1 from the active position — harmless
+  // overlap.)
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "300px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   if (!entry) {
     if (process.env.NODE_ENV !== "production") {
       console.warn(`[Sketch] unknown id "${id}" — check lib/sketch-registry.ts`);
@@ -46,6 +79,7 @@ export function Sketch({ id, bg, colorMode }: SketchProps) {
   const Component = entry.Component;
   return (
     <div
+      ref={wrapRef}
       className="piece-sketch piece-layout piece-layout--single"
       data-color-mode={resolvedMode}
       data-sketch-id={id}
@@ -64,7 +98,7 @@ export function Sketch({ id, bg, colorMode }: SketchProps) {
           track. Without it, position: fixed re-anchors to the
           transformed ancestor and slides off-screen as you page.
           Canvases that don't define an `inFlow` prop just ignore it. */}
-      <Component inFlow />
+      {visible ? <Component inFlow /> : null}
     </div>
   );
 }

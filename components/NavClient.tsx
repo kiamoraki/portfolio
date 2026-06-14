@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { loadP5 } from "@/components/sketches/loadP5";
 
 export function NavClient() {
   const pathname = usePathname();
@@ -32,6 +33,18 @@ export function NavClient() {
   // `.project-title-toggle--open`) — those will be slightly behind
   // the JS-driven elements on first paint after mount, but the
   // drift is bounded by one frame (~16ms) which is imperceptible.
+
+  // Kick off the p5 chunk fetch as soon as the page hydrates. The
+  // chunk is ~1MB and gated by the `loadP5()` singleton, so this
+  // first call starts the request; every sketch's IntersectionObserver
+  // that later calls `loadP5()` reuses the in-flight promise. By the
+  // time a thumbnail or piece-canvas mounts and asks for p5, it's
+  // either already loaded or close to it. NavClient mounts on every
+  // route, so this happens regardless of which page the user lands on.
+  useEffect(() => {
+    void loadP5();
+  }, []);
+
   useEffect(() => {
     // 12-stop palette matching the `nav-grid-cycle` keyframes — the
     // wrap-around stop (12 ≡ 0) is implicit via modular indexing.

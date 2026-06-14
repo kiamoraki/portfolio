@@ -115,4 +115,10 @@ export type PieceIndexEntry = {
   indexInProject: number;
   /** Sketch-shaped pieces carry their bg for color-mode derivation. */
   sketch?: { id: string; bg: string; colorMode?: ColorMode };
+  /** Set only on the first piece of each project. Captures the `src`
+   *  of the first image-bearing primitive (Cover / Hero / Single /
+   *  Img / Figure) so the project page can emit a `<link rel="preload"
+   *  as="image">` hint for LCP — kicks off the hero image fetch
+   *  during HTML parse instead of after React mounts. */
+  lcpImage?: string;
 };

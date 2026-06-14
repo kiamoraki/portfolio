@@ -99,6 +99,21 @@ function findSketch(children) {
   return { id, bg: bg ?? "", colorMode };
 }
 
+// Find the first `src="..."` on any image-bearing primitive in the
+// piece's children. Used to capture the LCP image (the visible-on-load
+// hero) per project, so `app/projects/[slug]/page.tsx` can emit a
+// `<link rel="preload" as="image">` hint and the browser can start
+// fetching it during HTML parse instead of after the page mounts and
+// React decides to render an `<img>`. Only called for the FIRST piece
+// of each project — pieces below the fold don't compete for LCP.
+function findFirstImage(children) {
+  const m =
+    /<(?:Cover|Hero|Single|Img|Figure)\b[^>/]*?\bsrc\s*=\s*["']([^"']+)["']/.exec(
+      children,
+    );
+  return m?.[1];
+}
+
 async function main() {
   const files = (await fs.readdir(CONTENT_DIR))
     .filter((f) => f.endsWith(".mdx") || f.endsWith(".md"))
@@ -149,6 +164,11 @@ async function main() {
       if (credit) entry.credit = credit;
       if (date) entry.date = date;
       if (sketch) entry.sketch = sketch;
+      // LCP preload hint: only on the first piece of each project.
+      if (i === 0) {
+        const lcpImage = findFirstImage(b.children);
+        if (lcpImage) entry.lcpImage = lcpImage;
+      }
       index.push(entry);
     });
   }

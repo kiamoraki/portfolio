@@ -21,6 +21,10 @@ import {
   getProject,
   getProjectNeighbors,
 } from "@/lib/projects";
+import { getPiecesForProject } from "@/lib/content-pieces";
+import imageManifest from "@/lib/image-manifest.json";
+
+const manifest = imageManifest as Record<string, { width: number; height: number }>;
 
 // Meta routes that redirect to the FIRST project matching the tag,
 // with a `?tag=…` URL param so the chrome's PREV/NEXT walks only
@@ -117,6 +121,30 @@ export default async function ProjectPage({
       ? "color-mix(in srgb, var(--color-light) 85%, transparent)"
       : "rgba(0, 0, 0, 0.85)";
 
+  // LCP image preload — `build-content-index.mjs` captures the `src`
+  // of the first image-bearing primitive in each project's first piece
+  // as `lcpImage`. If the AVIF sibling exists (per `image-manifest`),
+  // preload THAT instead of the JPG — modern browsers (vast majority
+  // of traffic) end up requesting AVIF via `<picture>` anyway, so the
+  // preload should target the format they'll actually use. Browsers
+  // that fall back to JPG won't use the AVIF preload, accepting a small
+  // amount of wasted bandwidth on the long-tail in exchange for the
+  // common-case LCP win. `type` + `fetchPriority="high"` give the
+  // browser the strongest possible hint to fetch this first.
+  const firstPiece = getPiecesForProject(slug)[0];
+  const lcpSrc = firstPiece?.lcpImage;
+  let lcpPreloadHref: string | null = null;
+  let lcpPreloadType: string | null = null;
+  if (lcpSrc) {
+    const avifSibling = lcpSrc.replace(/\.(jpe?g|png)$/i, ".avif");
+    if (avifSibling !== lcpSrc && avifSibling in manifest) {
+      lcpPreloadHref = avifSibling;
+      lcpPreloadType = "image/avif";
+    } else {
+      lcpPreloadHref = lcpSrc;
+    }
+  }
+
   return (
     <CarouselStateProvider>
       {bg ? (
@@ -124,6 +152,16 @@ export default async function ProjectPage({
       ) : (
         <style>{`html,body{color:${ink};}body{--chrome-scrim:${chromeScrim};}`}</style>
       )}
+      {lcpPreloadHref ? (
+        // eslint-disable-next-line @next/next/no-page-custom-font
+        <link
+          rel="preload"
+          as="image"
+          href={lcpPreloadHref}
+          {...(lcpPreloadType ? { type: lcpPreloadType } : {})}
+          fetchPriority="high"
+        />
+      ) : null}
       <Nav />
       {/* `ProjectNav`, `ProjectMobileBottomNav`, and (on the
           `shape-of-time` route) `ShapeOfTime` all call
