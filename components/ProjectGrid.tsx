@@ -49,6 +49,15 @@ export function ProjectGrid({
         const Sketch = p.thumbSketch ? SKETCH_REGISTRY[p.thumbSketch] : null;
         const src = p.thumb ? `/img/icons/${p.thumb}` : null;
         const dims = src ? manifest[src] : null;
+        const isGif = !!src && src.endsWith(".gif");
+        // For GIFs, the matching `<name>.first.jpg` sibling is emitted
+        // by `scripts/extract-gif-first-frames.mjs` at build time.
+        // We hand it to next/image as `placeholder="blur"` +
+        // `blurDataURL` so the static first frame paints instantly while
+        // the heavy animated GIF streams. The browser still loads the
+        // jpg (smaller than the GIF, ~10-50KB), but renders it the
+        // moment the HTML hits the layout — no waiting on the 1MB+ GIF.
+        const placeholderSrc = isGif ? src!.replace(/\.gif$/i, ".first.jpg") : null;
         return (
           <li key={p.slug} className={`grid-item-${slugify(p.title)}`}>
             <Link
@@ -68,7 +77,28 @@ export function ProjectGrid({
                   width={dims.width}
                   height={dims.height}
                   sizes="120px"
-                  unoptimized={src.endsWith(".gif")}
+                  unoptimized={isGif}
+                  // GIFs are heavy (1MB+). The matching
+                  // `<name>.first.jpg` sibling (emitted by
+                  // `scripts/extract-gif-first-frames.mjs`) is set as
+                  // the `<img>`'s `background-image` so the static
+                  // first frame paints behind the GIF the moment the
+                  // small JPG arrives — instant perceived load.
+                  // Once the animated GIF finishes streaming, its
+                  // own pixels cover the bg fully (GIFs have an
+                  // opaque background, so there's no FOUC). On
+                  // browsers that finish the GIF before the JPG,
+                  // the bg is simply never shown — harmless.
+                  style={
+                    isGif && placeholderSrc
+                      ? {
+                          backgroundImage: `url(${placeholderSrc})`,
+                          backgroundSize: "contain",
+                          backgroundRepeat: "no-repeat",
+                          backgroundPosition: "center",
+                        }
+                      : undefined
+                  }
                 />
               ) : src ? (
                 // eslint-disable-next-line @next/next/no-img-element
