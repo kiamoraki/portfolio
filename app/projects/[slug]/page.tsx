@@ -122,12 +122,12 @@ export default async function ProjectPage({
       ? "color-mix(in srgb, var(--color-light) 85%, transparent)"
       : "rgba(0, 0, 0, 0.85)";
 
-  // Piece count for the scroll affordances (cue + dots). Computed
-  // server-side so the client component doesn't have to wait for
-  // DOM mount to know whether to render. Only multi-piece projects
-  // get the affordances; single-piece pages skip them.
+  // Pieces — still used below for the LCP image preload (we read the
+  // first piece's `lcpImage`). The piece COUNT was previously also
+  // used to drive the ScrollAffordances render, but the component is
+  // now DOM-driven and self-discovers slots (so it covers legacy
+  // projects too) — no count needed here anymore.
   const pieces = getPiecesForProject(slug);
-  const pieceCount = pieces.length;
 
   // LCP image preload — `build-content-index.mjs` captures the `src`
   // of the first image-bearing primitive in each project's first piece
@@ -226,7 +226,13 @@ export default async function ProjectPage({
       {/* Scroll cue + slide dots — auto-hide when the project has
           one piece (no scroll affordance needed). Client component
           because it tracks scrollY + IntersectionObserver per piece. */}
-      <ScrollAffordances pieceCount={pieceCount} />
+      {/* `ScrollAffordances` is DOM-driven — it discovers its own
+          slot count after mount (counting `.piece` for v2 projects
+          and top-level `.row` / `figure.image` / `.piece-layout`
+          for legacy projects), so it lights up automatically on
+          paintings + intergalactic-helm without page.tsx needing
+          to know which format the project is. */}
+      <ScrollAffordances />
     </CarouselStateProvider>
   );
 }

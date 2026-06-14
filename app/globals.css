@@ -3512,14 +3512,10 @@ body:has(main.about) .project-mobile-bottom-nav {
      toggle. Dropping `border-top` lets CV's bottom edge be the
      single shared seam, same as the closed state. */
   .project-title-toggle.project-title-toggle.project-title-toggle--open {
-    /* Borderless on top/left/bottom — the rainbow bg carries the
-       pressed-on affordance. The RIGHT edge gets a 2px currentColor
-       stroke that matches the description panel's border below; the
-       title + panel slide out to the right of the toggle, so this
-       border picks up that container's left edge and reads as one
-       continuous outline. */
+    /* Fully borderless now that the dialogue panel + slide-out title
+       have also lost their borders. Rainbow bg carries the pressed-
+       on affordance entirely. */
     border: 0;
-    border-right: 2px solid currentColor;
   }
   /* Glyph rotates 45° when the panel is open — the "+" cross
      becomes an "×" close affordance. Transitions smoothly so the
@@ -3552,8 +3548,20 @@ body:has(main.about) .project-mobile-bottom-nav {
     top: 0;
     left: 100%;
     right: auto;
-    width: auto;
-    height: var(--mobile-sidebar-icon-size);
+    /* `width: max-content` (not `auto`) — `auto` triggers shrink-to-
+       fit, which uses the wrapper's 56px width as the available
+       constraint and collapses the chip to min-content (the longest
+       word). With `max-content` the chip wants single-line width and
+       only falls back to `max-width` (set in the `--open` state)
+       when the title actually exceeds it. Result: short titles stay
+       on one line; long titles wrap horizontally inside the
+       max-width-capped chip instead of stacking by character. */
+    width: max-content;
+    /* `min-height` (not `height`) so the chip grows downward when
+       the title text wraps to multiple lines — long names like
+       "Precarity: A Domestic Tale" need more than one row to fit
+       within the open-state `max-width`. */
+    min-height: var(--mobile-sidebar-icon-size);
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -3562,8 +3570,11 @@ body:has(main.about) .project-mobile-bottom-nav {
     justify-content: center;
     background: transparent;
     color: inherit;
-    border: 2px solid currentColor;
-    border-left: 0;
+    /* Was `border: 2px solid currentColor; border-left: 0` — outline
+       dropped on mobile per user preference; the chip's fill (rainbow
+       when open, transparent when collapsed) plus the description
+       panel's fill below carry the dialogue weight. */
+    border: 0;
     cursor: pointer;
     font-family: "Neuropol", var(--font-bold);
     font-weight: normal;
@@ -3573,31 +3584,54 @@ body:has(main.about) .project-mobile-bottom-nav {
     text-transform: uppercase;
     text-align: center;
     z-index: auto;
-    /* Closed state — collapses to 0 width, no border weight visible. */
-    max-width: 0;
-    overflow: hidden;
-    opacity: 0;
-    transition: max-width 280ms ease, opacity 200ms ease, padding 280ms ease;
-  }
-  /* Specificity match with the closed-state `.nav-projects
-     .project-title` (0,2,0) — otherwise this rule loses the cascade
-     and `max-width: 0` stays even when `--open` is added. */
-  .nav-projects .project-title--open {
+    /* Chip is ALWAYS laid out at its full natural width (capped by
+       max-width). The open/closed visual is driven by `clip-path`
+       which wipes the chip left-to-right WITHOUT triggering text
+       reflow — the earlier `max-width: 0 → calc(...)` animation
+       caused mid-transition text wrapping (the chip narrow at any
+       intermediate frame meant the text wrapped to multiple lines,
+       then "un-wrapped" as it widened, reading as a crunched
+       expansion). With clip-path the text is rendered once at its
+       final width; only the visible region grows.
+       `pointer-events: none` on closed keeps the invisible chip
+       from intercepting taps. */
     max-width: calc(100vw - var(--mobile-sidebar-icon-inset) * 2 - var(--mobile-sidebar-icon-size));
     padding: 0 1rem;
+    clip-path: inset(0 100% 0 0);
+    opacity: 0;
+    pointer-events: none;
+    transition: clip-path 280ms ease, opacity 200ms ease;
+  }
+  /* Specificity match with the closed-state `.nav-projects
+     .project-title` (0,2,0) — otherwise this rule loses the
+     cascade. */
+  .nav-projects .project-title--open {
+    clip-path: inset(0 0 0 0);
     opacity: 1;
+    pointer-events: auto;
   }
   /* Internal title caret hidden on mobile — the toggle button has
      its own caret. */
   .nav-projects .project-title__glyph {
     display: none;
   }
-  /* Title text fills available width. */
+  /* Title text wraps ONLY when its natural single-line width would
+     overflow the chip's `max-width` (chip caps at `calc(100vw -
+     inset*2 - icon-size)` in the open state). Short titles
+     ("Lissajous", "Mars", "Roses") stay on one line; long titles
+     ("Precarity: A Domestic Tale") flow to a second.
+
+     `flex: 0 1 auto` (not `1 1`) — don't GROW into excess chip
+     space, just allow shrink + flex-basis from content. Without
+     this the text was being stretched by flex-grow to fill the
+     chip, then re-wrapping inside the stretched box and wrapping
+     even on titles that should have fit on one line. */
   .nav-projects .project-title .project-title__text {
     flex: 0 1 auto;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    display: block;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: center;
   }
   /* Hide the desktop info-toggle button + slide-indicators inside the
      title on mobile so just the title text reads cleanly. */
@@ -4069,11 +4103,10 @@ body.light-slide {
     width: calc(100vw - var(--mobile-sidebar-icon-inset) * 2 - var(--mobile-sidebar-icon-size));
     height: auto;
     box-sizing: border-box;
-    /* All four borders visible — the panel reads as a self-contained
-       box below the title rather than borrowing the title's bottom
-       border. Top edge sits 2px above the title's bottom (`top: chip
-       - 2px` offset) so the two borders overlap cleanly. */
-    border: 2px solid currentColor;
+    /* Was `border: 2px solid currentColor` — outline dropped on
+       mobile per user preference (the title chip border was removed
+       too; the dialogue now reads by fill alone). */
+    border: 0;
     max-width: none;
     max-height: 0;
     /* Horizontal padding stays at the open state so the panel doesn't

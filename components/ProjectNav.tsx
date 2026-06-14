@@ -175,7 +175,7 @@ export function ProjectNav({
           height="22"
           fill="none"
           stroke="currentColor"
-          strokeWidth={2.5}
+          strokeWidth={2}
           strokeLinecap="round"
           aria-hidden="true"
         >

@@ -1,46 +1,47 @@
 "use client";
 
 /**
- * ScrollAffordances — slide dots rendered on multi-piece project
+ * ScrollAffordances — slide dots rendered on multi-section project
  * pages so the user knows there's content below the first slide.
  *
- * Vertical column of N dots stuck to the right edge. Fills the dot
- * for the currently-most-visible piece. Click a dot to smooth-scroll
- * that piece into view. Visible on both mobile and desktop (mobile
- * gets a slightly smaller chip via the CSS @media block).
+ * Vertical column of N dots stuck to the right edge (left icon
+ * column on mobile). Fills the dot for the currently-most-visible
+ * section. Click a dot to smooth-scroll that section into view.
+ * Visible on both mobile and desktop (mobile gets a slightly smaller
+ * chip via the CSS @media block).
  *
- * Auto-hides when the page only has one piece (no point). Rendered
- * from `app/projects/[slug]/page.tsx` with the piece count computed
- * at build time so this client component doesn't have to query the
- * DOM to know whether to render.
+ * Slot discovery is DOM-driven so both v2 (Piece-based) and legacy
+ * (top-level Row / Figure) projects light up automatically:
  *
- * The earlier paired `<ScrollCue>` (bottom-center "scroll" chip with
- * bouncing chevron) was removed — the right-edge dots now serve as
- * the sole multi-piece affordance, and they're visible from page
- * load so the discoverability problem is already solved.
+ *   1. Prefer `main .piece` — v2 projects render every piece as
+ *      `<section class="piece">` under `.project-track-content`.
+ *   2. Fall back to `main > .row, main > figure.image, main > .piece-
+ *      layout` — legacy projects render layout primitives directly
+ *      as children of `<main>`.
+ *
+ * Renders nothing if fewer than 2 slots exist (no scroll affordance
+ * needed on single-piece pages). The earlier paired `<ScrollCue>`
+ * (bottom-center "scroll" chip with bouncing chevron) was removed —
+ * the dots alone serve as the multi-section affordance.
  */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
-export function ScrollAffordances({ pieceCount }: { pieceCount: number }) {
-  if (pieceCount <= 1) return null;
-  return <SlideDots count={pieceCount} />;
-}
+const SLOT_SELECTOR =
+  "main .piece, main > .row, main > figure.image, main > .piece-layout";
 
-function SlideDots({ count }: { count: number }) {
+export function ScrollAffordances() {
+  const [slots, setSlots] = useState<HTMLElement[]>([]);
   const [active, setActive] = useState(0);
-  const piecesRef = useRef<HTMLElement[]>([]);
 
   useEffect(() => {
-    // Query every `.piece` element on the page. They render in
-    // document order, so `nodes[i]` corresponds to dot `i`.
     const nodes = Array.from(
-      document.querySelectorAll<HTMLElement>("main .piece"),
+      document.querySelectorAll<HTMLElement>(SLOT_SELECTOR),
     );
-    piecesRef.current = nodes;
-    if (nodes.length === 0) return;
+    setSlots(nodes);
+    if (nodes.length <= 1) return;
 
-    // Track which piece occupies the most of the viewport at any
-    // moment. `entry.intersectionRatio` updates per piece; we pick
+    // Track which slot occupies the most of the viewport at any
+    // moment. `entry.intersectionRatio` updates per slot; we pick
     // the one with the largest ratio. Threshold step of 0.05 gives
     // smooth tracking without the observer firing every pixel.
     const ratios = new Map<Element, number>();
@@ -66,20 +67,22 @@ function SlideDots({ count }: { count: number }) {
     return () => observer.disconnect();
   }, []);
 
+  if (slots.length <= 1) return null;
+
   const onClick = (i: number) => {
-    const target = piecesRef.current[i];
+    const target = slots[i];
     if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   return (
-    <nav className="slide-dots" aria-label="Jump to piece">
-      {Array.from({ length: count }).map((_, i) => (
+    <nav className="slide-dots" aria-label="Jump to section">
+      {slots.map((_, i) => (
         <button
           key={i}
           type="button"
           className="slide-dots__dot"
           data-active={i === active ? "true" : "false"}
-          aria-label={`Piece ${i + 1} of ${count}`}
+          aria-label={`Section ${i + 1} of ${slots.length}`}
           aria-current={i === active ? "true" : undefined}
           onClick={() => onClick(i)}
         />
