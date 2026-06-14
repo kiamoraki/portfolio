@@ -50,14 +50,13 @@ export function ProjectGrid({
         const src = p.thumb ? `/img/icons/${p.thumb}` : null;
         const dims = src ? manifest[src] : null;
         const isGif = !!src && src.endsWith(".gif");
-        // For GIFs, the matching `<name>.first.jpg` sibling is emitted
-        // by `scripts/extract-gif-first-frames.mjs` at build time.
-        // We hand it to next/image as `placeholder="blur"` +
-        // `blurDataURL` so the static first frame paints instantly while
-        // the heavy animated GIF streams. The browser still loads the
-        // jpg (smaller than the GIF, ~10-50KB), but renders it the
-        // moment the HTML hits the layout — no waiting on the 1MB+ GIF.
-        const placeholderSrc = isGif ? src!.replace(/\.gif$/i, ".first.jpg") : null;
+        // For GIFs, the matching `<name>.first.png` sibling is emitted
+        // by `scripts/extract-gif-first-frames.mjs` at build time. PNG
+        // (not JPEG) so transparent GIFs keep their transparency —
+        // JPEG flattens alpha to black and you'd see a "black flash"
+        // behind any GIF that doesn't have an opaque bg (Tobrit,
+        // Roses, etc) before the GIF finishes loading.
+        const placeholderSrc = isGif ? src!.replace(/\.gif$/i, ".first.png") : null;
         return (
           <li key={p.slug} className={`grid-item-${slugify(p.title)}`}>
             <Link

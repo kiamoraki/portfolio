@@ -36,8 +36,11 @@ npm-debug.log*
 /lib/image-manifest.json
 
 # Generated on every build by scripts/extract-gif-first-frames.mjs —
-# first-frame JPG placeholders shown behind heavy animated GIFs.
-/public/img/icons/*.first.jpg
+# first-frame PNG placeholders shown behind heavy animated GIFs.
+# PNG (not JPEG) so transparent GIFs keep their alpha — JPEG would
+# flatten transparency to black and "flash" black before each GIF
+# finishes loading.
+/public/img/icons/*.first.png
 
 # Claude local state
 .claude/
