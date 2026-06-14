@@ -1127,12 +1127,66 @@ body[data-meta-active-slug="shape-of-time"] .shape-of-time-refresh {
    dark on light) without needing per-project overrides.
    ────────────────────────────────────────────────────────────────── */
 
-.scroll-cue,
-.slide-dots {
+/* Scroll cue is desktop-only — mobile already has the bottom prev/next
+   chrome telegraphing "more content below". Slide dots however work
+   on both: the right-edge gutter is empty on mobile (chrome stacks
+   left-side only) so the dots have a natural place to live. */
+.scroll-cue {
   display: none;
 }
 
+/* — Slide dots: shared base (mobile + desktop) — */
+.slide-dots {
+  position: fixed;
+  /* Stuck to the right edge; vertically centered between top chrome
+     (~56px) and the mobile bottom nav (~56px) so they don't overlap
+     either. On desktop with no bottom nav the centering still reads
+     fine. */
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 4500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+.slide-dots__dot {
+  pointer-events: auto;
+  appearance: none;
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border-radius: 50%;
+  background: transparent;
+  border: 2px solid color-mix(in srgb, currentColor 60%, transparent);
+  cursor: pointer;
+  transition: background-color 180ms ease-out,
+              border-color 180ms ease-out,
+              transform 180ms ease-out;
+}
+.slide-dots__dot:hover {
+  border-color: currentColor;
+  transform: scale(1.18);
+}
+.slide-dots__dot[data-active="true"] {
+  background-color: currentColor;
+  border-color: currentColor;
+}
+
 @media (min-width: 721px) {
+  /* Desktop dots are slightly bigger + spaced more (10/0.6 vs 8/0.5)
+     since the viewport is roomier. */
+  .slide-dots {
+    right: 1rem;
+    gap: 0.6rem;
+  }
+  .slide-dots__dot {
+    width: 10px;
+    height: 10px;
+  }
+
   /* — Scroll cue — bottom-center chip with a label + bouncing chevron.
      `position: fixed` so it stays at the viewport bottom while the
      user scrolls (it's the page's "more below" hint), data-driven
@@ -1172,41 +1226,7 @@ body[data-meta-active-slug="shape-of-time"] .shape-of-time-refresh {
     50%      { transform: translateY(3px); }
   }
 
-  /* — Slide dots — vertical column on the right edge tracking which
-     piece is currently in view. Each dot is a hollow circle; the
-     active dot fills with `currentColor`. Clickable. */
-  .slide-dots {
-    position: fixed;
-    right: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 4500;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.6rem;
-    pointer-events: none;
-  }
-  .slide-dots__dot {
-    pointer-events: auto;
-    appearance: none;
-    width: 10px;
-    height: 10px;
-    padding: 0;
-    border-radius: 50%;
-    background: transparent;
-    border: 2px solid color-mix(in srgb, currentColor 60%, transparent);
-    cursor: pointer;
-    transition: background-color 180ms ease-out,
-                border-color 180ms ease-out,
-                transform 180ms ease-out;
-  }
-  .slide-dots__dot:hover {
-    border-color: currentColor;
-    transform: scale(1.18);
-  }
-  .slide-dots__dot[data-active="true"] {
-    background-color: currentColor;
-    border-color: currentColor;
-  }
+  /* (slide-dots styling moved to the top-level base block above so
+     it applies on mobile too — the desktop @media only overrides the
+     size/spacing knobs.) */
 }
