@@ -1199,3 +1199,22 @@ body[data-meta-active-slug="shape-of-time"] .shape-of-time-refresh {
     height: 10px;
   }
 }
+
+/* Paintings opts OUT of the slide-dots affordance — it's a long
+   scroll of stacked figures (~25 sections), so the dot column becomes
+   a crowded ladder that competes with the artwork rather than helping.
+   Other projects still get the dots automatically. */
+body:has(main[data-project-slug="paintings"]) .slide-dots {
+  display: none;
+}
+
+/* Shape of Time — inactive toggle goes fully transparent so the
+   canvas behind isn't competing with a scrim chip. The `--open`
+   state still paints the rainbow bg as usual; only the closed state
+   loses the chrome-scrim. Doubled-class selector to beat the mobile
+   chrome-chip :is() rule (~line 4187 in globals.css). */
+body:has(main[data-project-slug="shape-of-time"])
+  .project-title-toggle.project-title-toggle:not(.project-title-toggle--open) {
+  background: transparent;
+  background-color: transparent;
+}

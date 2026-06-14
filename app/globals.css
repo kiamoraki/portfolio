@@ -3631,7 +3631,7 @@ body:has(main.about) .project-mobile-bottom-nav {
     display: block;
     white-space: normal;
     overflow-wrap: anywhere;
-    text-align: center;
+    text-align: left;
   }
   /* Hide the desktop info-toggle button + slide-indicators inside the
      title on mobile so just the title text reads cleanly. */
