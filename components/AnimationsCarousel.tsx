@@ -11,11 +11,25 @@
  * match what `<ProjectRenderer>` emits on the standalone project
  * page, so the same CSS rules drive both views.
  */
+import dynamic from "next/dynamic";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { getAllProjects } from "@/lib/projects";
 import { getPiecesForProject } from "@/lib/content-pieces";
-import { MetaCarousel } from "@/components/MetaCarousel";
 import { PieceFilter, mdxPieceComponents } from "@/components/content";
+
+// `MetaCarousel` is the only consumer of the carousel client bundle
+// (~7 KB minified plus its full React hooks tree). Static-importing
+// it dragged that chunk into every `/projects/[slug]` page's client
+// bundle, even though only `/projects/animations` actually renders
+// the carousel. `next/dynamic` puts MetaCarousel in its own chunk
+// loaded on demand — non-animations project pages no longer pay for
+// it. `ssr: false` is NOT used here because AnimationsCarousel is
+// itself a server component (no "use client" directive) and Next
+// disallows `ssr: false` inside server components — default `ssr:
+// true` still produces the code-split chunk we want.
+const MetaCarousel = dynamic(() =>
+  import("@/components/MetaCarousel").then((m) => m.MetaCarousel),
+);
 
 const ANIMATIONS_TAG = "animations";
 
