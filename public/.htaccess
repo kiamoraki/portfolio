@@ -1,0 +1,131 @@
+# =============================================================================
+# Apache perf config for kiamoraki.com static export.
+#
+# Three things this file does:
+#   1. GZIP compression on text assets (HTML, CSS, JS, SVG, JSON, fonts).
+#   2. AVIF + WebP content negotiation — serves the modern sibling when the
+#      browser's `Accept` header advertises support, falls back to JPG/PNG.
+#   3. Cache headers — `immutable` 1-year cache on `/_next/static/*` (hashed
+#      filenames), 30-day cache on `/img/` and `/fonts/`, 5-minute cache on
+#      HTML so deploys propagate quickly.
+#
+# Brotli (mod_brotli) is NOT available on the server's Apache 2.4.6 (CentOS).
+# That module shipped with Apache 2.4.26 (2017); this host is older. Brotli
+# would save another ~5-10% over gzip — not worth a custom module compile
+# given that gzip alone takes the ~71KB CSS chunk down to ~12KB.
+#
+# To verify after deploy:
+#   curl -sI -H 'Accept-Encoding: gzip' https://kiamoraki.com/_next/static/chunks/<hash>.css | grep -i content-encoding
+#   curl -sI -H 'Accept: image/avif' https://kiamoraki.com/img/sus/IMG_1704.jpg     | grep -i content-type
+#
+# If neither test shows a difference, `AllowOverride` is set to `None` on
+# the vhost — see `docs/SERVER-APACHE-PERF.md` for the equivalent vhost
+# block to paste into `/etc/httpd/conf.d/...` instead.
+# =============================================================================
+
+
+# -----------------------------------------------------------------------------
+# 1. Gzip compression (mod_deflate)
+# -----------------------------------------------------------------------------
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE \
+    text/html \
+    text/plain \
+    text/css \
+    text/xml \
+    text/javascript \
+    application/javascript \
+    application/x-javascript \
+    application/json \
+    application/xml \
+    application/xml+rss \
+    application/xhtml+xml \
+    application/atom+xml \
+    application/rdf+xml \
+    image/svg+xml \
+    font/ttf \
+    font/otf \
+    application/font-sfnt \
+    application/x-font-ttf
+
+  # Don't double-compress already-compressed formats.
+  SetEnvIfNoCase Request_URI \
+    \.(?:gif|jpe?g|png|webp|avif|ico|woff2?|mp4|webm|ogg|mp3|zip|gz|br)$ \
+    no-gzip dont-vary
+</IfModule>
+
+
+# -----------------------------------------------------------------------------
+# 2. AVIF / WebP content negotiation (mod_rewrite + mod_headers)
+#
+# When the browser sends `Accept: image/avif`, rewrite `foo.jpg` requests to
+# `foo.avif` (if the sibling exists). Same for WebP as a second-priority
+# fallback. JPG/PNG remains the served file for browsers that ask for
+# neither. Animated GIFs are intentionally excluded — the AVIF/WebP siblings
+# only carry the first frame, so rewriting would break animations.
+#
+# `Vary: Accept` on the response so any caches (browser, ISP, CDN) keep
+# separate copies per Accept header.
+# -----------------------------------------------------------------------------
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # AVIF — highest priority
+  RewriteCond %{HTTP_ACCEPT} image/avif
+  RewriteCond %{REQUEST_URI} ^/(.+)\.(jpe?g|png)$ [NC]
+  RewriteCond %{DOCUMENT_ROOT}/%1.avif -f
+  RewriteRule ^(.+)\.(jpe?g|png)$ /$1.avif [T=image/avif,E=ACCEPT:1,L]
+
+  # WebP — fallback if AVIF wasn't accepted but WebP was
+  RewriteCond %{HTTP_ACCEPT} image/webp
+  RewriteCond %{REQUEST_URI} ^/(.+)\.(jpe?g|png)$ [NC]
+  RewriteCond %{DOCUMENT_ROOT}/%1.webp -f
+  RewriteRule ^(.+)\.(jpe?g|png)$ /$1.webp [T=image/webp,E=ACCEPT:1,L]
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header append Vary Accept env=ACCEPT
+</IfModule>
+
+<IfModule mod_mime.c>
+  AddType image/avif .avif
+  AddType image/webp .webp
+</IfModule>
+
+
+# -----------------------------------------------------------------------------
+# 3. Cache headers (mod_expires + mod_headers)
+#
+# Hashed Next.js chunks under `/_next/static/` are content-addressed — when
+# the contents change, the URL changes — so they're safe to cache forever.
+# Images and fonts are stable enough to cache for a month with revalidation.
+# HTML is short-lived so deploys propagate quickly.
+# -----------------------------------------------------------------------------
+<IfModule mod_expires.c>
+  ExpiresActive On
+
+  # Hashed assets — immutable 1 year
+  <FilesMatch "\.[a-z0-9]{6,}\.(css|js|woff2?)$">
+    ExpiresDefault "access plus 1 year"
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+
+  # Images — 30 days with stale-while-revalidate
+  <FilesMatch "\.(jpe?g|png|gif|webp|avif|svg|ico)$">
+    ExpiresDefault "access plus 30 days"
+    Header set Cache-Control "public, max-age=2592000, stale-while-revalidate=86400"
+  </FilesMatch>
+
+  # Fonts — 30 days (the woff2 above will hit the hashed rule if Next.js
+  # ever fingerprints them; bare /fonts/*.woff2 falls through to here)
+  <FilesMatch "\.(woff2?|ttf|otf|eot)$">
+    ExpiresDefault "access plus 30 days"
+    Header set Cache-Control "public, max-age=2592000"
+  </FilesMatch>
+
+  # HTML — short cache so deploys ship fast
+  <FilesMatch "\.html$">
+    ExpiresDefault "access plus 5 minutes"
+    Header set Cache-Control "public, max-age=300, must-revalidate"
+  </FilesMatch>
+</IfModule>
