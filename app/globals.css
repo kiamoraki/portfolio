@@ -4998,3 +4998,28 @@ body.light-slide {
     height: 44px;
   }
 }
+
+/* ──────────────────────────────────────────────────────────────────
+   Mobile — drop borders from the icon-overlay chrome (top-left
+   Home/CV/title-toggle, bottom prev/next chips, /about socials
+   column). The icons read on their own against the chrome-scrim
+   fills; the borders were adding visual noise without separating
+   anything that wasn't already separated by the scrim. `!important`
+   beats the ~dozen scattered `border: 2px solid currentColor`
+   declarations across globals.css + project-page.css (each chip's
+   base rule, the chrome-chip easing rule, the mobile-specific
+   restyles, etc) without having to track them all down.
+
+   Excluded by selector: `.--active` / `.--open` states (kept their
+   borders so the pressed-on affordance still reads cleanly), and
+   the desktop layout (`@media min-width: 721px` — borders intact).
+   ────────────────────────────────────────────────────────────────── */
+@media (max-width: 720px) {
+  .nav-main a:not(.active),
+  .nav-info:not(.active),
+  .project-title-toggle:not(.project-title-toggle--open),
+  .project-mobile-bottom-nav-link__chip,
+  main.about #about-info ul.socials :is(a, button) {
+    border: 0 !important;
+  }
+}
