@@ -1,8 +1,6 @@
 "use client";
 
-import { loadP5 } from "./loadP5";
-
-import { useEffect, useRef } from "react";
+import { useLazySketch } from "./useLazySketch";
 
 // Scaled-down port of ShapeOfTimeCanvas using the simplest 1:2 Lissajous
 // pair — a spiral of particles inward + low-alpha feedback rect for the
@@ -68,52 +66,16 @@ const sketch = (p: any) => {
 };
 
 export function ShapeOfTimeThumbnail() {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    let p5Instance: import("p5") | null = null;
-    let cancelled = false;
-    let intersectionObserver: IntersectionObserver | null = null;
-
-    (async () => {
-      const P5 = await loadP5();
-      if (cancelled || !containerRef.current) return;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      p5Instance = new P5(sketch as any, containerRef.current) as any;
-
-      intersectionObserver = new IntersectionObserver(
-        (entries) => {
-          for (const entry of entries) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const inst = p5Instance as any;
-            if (!inst) continue;
-            if (entry.isIntersecting) inst.loop?.();
-            else inst.noLoop?.();
-          }
-        },
-        { threshold: 0.05 }
-      );
-      intersectionObserver.observe(containerRef.current);
-    })();
-
-    return () => {
-      cancelled = true;
-      intersectionObserver?.disconnect();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (p5Instance as any)?.remove?.();
-    };
-  }, []);
-
+  const ref = useLazySketch(sketch);
   return (
     <div
-      ref={containerRef}
+      ref={ref}
       style={{
         width: THUMB_SIZE,
         height: THUMB_SIZE,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "#130c12",
       }}
     />
   );
