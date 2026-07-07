@@ -26,7 +26,7 @@ export default function Home() {
             <Link href="/projects/paintings/">paintings</Link>,{" "}
             <Link href="/projects/activations/">activations</Link>, and{" "}
             <Link href="/projects/design/">posters</Link>. </p>
-          <p>I freelance as a full stack designer and ux engineer, work samples available at the bottom of my <Link href="/about">cv</Link>.</p>
+          <p>I freelance as a full-stack designer and UX engineer, work samples available at the bottom of my <Link href="/about">cv</Link>.</p>
           
         </section>
         <ProjectGrid projects={projects} />

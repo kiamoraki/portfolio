@@ -101,7 +101,7 @@ export default function AboutPage() {
                 <ul>
                   <li>Digital Creative Director @ <a target="_blank" rel="noopener noreferrer" href="https://audiofemme.com">Audiofemme</a></li>
                   <li>Office Manager @ HEaT for <a href="https://burningman.org">The Burning Man Project</a></li>
-                  <li>Virutal STEAM startup Co-Founder <a target="_blank" rel="noopener noreferrer" href="https://kiamoraki.com/sites/marsradio/">Mars.Radio</a></li>
+                  <li>Virtual STEAM startup Co-Founder <a target="_blank" rel="noopener noreferrer" href="https://kiamoraki.com/sites/marsradio/">Mars.Radio</a></li>
                   <li>Front End Developer / <a href="https://cgp.com">C&G Partners</a></li>
                   <li>Product Designer / <a href="https://nasdaq.com">Nasdaq</a></li>
                   <li>Graphic Designer / <a href="https://taprootfoundation.org">Taproot Foundation</a></li>
@@ -109,7 +109,7 @@ export default function AboutPage() {
 
                 <h3>Teaching</h3>
                 <ul>
-                  <li>Professor @ <a href="https://mars.college">Mars College</a></li>
+                  <li>Interdisciplinary Educator @ <a href="https://mars.college">Mars College</a></li>
                   <li>Coach @ <a href="https://kiamoraki.com/sites/marsradio/">Mars Radio Cyber Arts Camp</a></li>
                   <li>Adobe Suite & Web Design Instructor @ <a href="https://thirdward.org">Third Ward</a></li>
                   <li>Web Design & Dev Instructor @ <a href="https://codenation.org/">Code Nation</a></li>
@@ -126,7 +126,7 @@ export default function AboutPage() {
                 <h3>Selected Exhibitions & Residencies</h3>
                 <ul>
                   <li><span className="date">2021-26</span> Mars.College / Art Residency in Bombay Beach / CA</li>
-                  <li><span className="date">2020</span> Brahmain.ai / Art Residency in Bombay Beach / CA</li>
+                  <li><span className="date">2020</span> Brahman.ai / Art Residency in Bombay Beach / CA</li>
                   <li><span className="date">2020</span> &ldquo;Roses&rdquo; / Bombay Beach / CA</li>
                   <li><span className="date">2019</span> &ldquo;TOBRIT&rdquo; / Burning Man</li>
                   <li><span className="date">2019</span> &ldquo;Artificial Consciousness&rdquo; / Glamtech / Chelsea Music Venue / NYC</li>
@@ -145,8 +145,8 @@ export default function AboutPage() {
                   <li><strong>2025</strong> 10 Day <a href="https://www.dhamma.org/en-us/meditation-courses/vipassana-meditation-course/">Vipassana Meditation Workshop</a> / North Fork / CA</li>
                   <li><strong>2025</strong> 15hr Breathwork Coach Training <a href="https://yogabody.com">Yoga Body</a></li>
                   <li><strong>2013-18</strong> <a href="https://schoolofpracticalphilosophy.org">School of Practical Philosophy</a> / NYC</li>
-                  <li><strong>2012</strong>MFA Design & Technology / <a href="https://parsons.edu">Parsons The New School for Design</a> / NYC</li>
-                  <li><strong>2009</strong> BFA Fine Arts & Architecture / <a href="https://miamioh.edu">Miami University</a> / Oxford / OH</li>
+                  <li><strong>2012</strong> MFA Design & Technology / <a href="https://parsons.edu">Parsons The New School for Design</a> / NYC</li>
+                  <li><strong>2009</strong> BFA Architecture + Interdisciplinary Studies / <a href="https://miamioh.edu">Miami University</a> / Oxford / OH</li>
                 </ul>
 
                 <h3>Website Design & Builds</h3>
@@ -165,6 +165,8 @@ export default function AboutPage() {
                 <li>
                   <h4>2026</h4>
                   <ul>
+                    <li>Office Manager @ HEaT for The Burning Man Project</li>
+                    <li>10day Vipassana Service Period @ <a href="https://www.dhamma.org/en-us/meditation-courses/vipassana-meditation-course/">Dhama Pasavana</a></li>
                     <li>OG camp founder &amp; lead to 20 new Martians @ <a href="https://mars.college">Mars College</a> high–tech low–cost off–grid art residency</li>
                     <li>DJ @ Sub Club, Bliss Club &amp; Mars College</li>
                     <li><a href="https://www.bombaybeachbiennale.org/">Bombay Beach Biennale</a> Artist Liaison</li>
@@ -285,7 +287,7 @@ export default function AboutPage() {
                   <h4>2013</h4>
                   <ul>
                     <li>Product Designer @ Nasdaq OMX</li>
-                    <li>&ldquo;Wave Machine&rdquo; debuts at Oscillator in the Dublin Science Gallery</li>
+                    <li>&ldquo;Wave Machine&rdquo; debuts at Oscillator in the Dublin Science Museum</li>
                   </ul>
                 </li>
                 <li>
