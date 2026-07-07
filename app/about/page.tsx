@@ -75,9 +75,21 @@ export default function AboutPage() {
                 </a>
               </li>
               <li>
-                <a target="_blank" rel="noopener noreferrer" href="https://x.com/kiamoraki" aria-label="X">
+                <a target="_blank" rel="noopener noreferrer" href="https://x.com/kiamora__" aria-label="X">
                   <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
                     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                  </svg>
+                </a>
+              </li>
+              <li>
+                <a target="_blank" rel="noopener noreferrer" href="https://github.com/kiamoraki" aria-label="GitHub">
+                  {/* GitHub mark — single filled path traced from the
+                      official Octocat silhouette, sized to match the
+                      18×18 footprint of the other social glyphs in the
+                      column. `fill="currentColor"` so the icon picks
+                      up the polarity-aware ink. */}
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+                    <path d="M12 .5C5.65.5.5 5.65.5 12.05c0 5.1 3.29 9.42 7.86 10.95.58.11.79-.25.79-.55 0-.27-.01-.99-.02-1.95-3.2.7-3.87-1.54-3.87-1.54-.52-1.34-1.28-1.7-1.28-1.7-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.2 1.77 1.2 1.03 1.78 2.7 1.26 3.36.96.1-.75.4-1.27.73-1.56-2.55-.29-5.24-1.29-5.24-5.74 0-1.27.45-2.31 1.18-3.12-.12-.29-.51-1.47.11-3.06 0 0 .97-.31 3.18 1.2.92-.26 1.91-.39 2.89-.39.98 0 1.97.13 2.89.39 2.21-1.51 3.18-1.2 3.18-1.2.62 1.59.23 2.77.11 3.06.74.81 1.18 1.85 1.18 3.12 0 4.46-2.69 5.45-5.26 5.74.41.36.78 1.07.78 2.16 0 1.56-.01 2.82-.01 3.21 0 .31.21.67.8.55 4.57-1.53 7.86-5.85 7.86-10.95C23.5 5.65 18.35.5 12 .5z" />
                   </svg>
                 </a>
               </li>

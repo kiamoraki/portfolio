@@ -118,6 +118,7 @@ ul { list-style: none; padding: 0; margin: 0; }
    - /about: Home is closed, CV is `.active` — same treatment, so
      the bordered chip family disappears entirely on that route. */
 body:has(main.index) .nav-main a,
+body:has(main.index) .nav-info,
 body:has(main.about) .nav-main a,
 body:has(main.about) .nav-info {
   border: 0 !important;
@@ -1839,12 +1840,11 @@ main.about #about-info ul.socials :is(a, button) {
   height: 56px;
   padding: 0;
   min-width: 0;
-  /* Match the desktop chrome-chip style (Home / CV / prev / next) —
-     2px bordered square in `currentColor`. Box-sizing border-box so
-     the 56px outer dimension stays the same as the unbordered
-     version. */
+  /* Borderless on desktop too — the chrome-chip 2px stroke was
+     dropped to match the Home / CV chips above. `box-sizing` kept
+     so any future border addition keeps the 56px outer dimension. */
   box-sizing: border-box;
-  border: 2px solid currentColor;
+  border: 0;
 }
 
 /* Socials chips share the same rainbow `::before` overlay hover
