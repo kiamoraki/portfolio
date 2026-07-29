@@ -45,3 +45,9 @@ npm-debug.log*
 # Claude local state
 .claude/
 
+# CV data lives in a separate PRIVATE repo (~/Dev/cv). This is a
+# defensive belt so nothing personal (phone number, home address,
+# unlisted employment history) ever accidentally reaches the public
+# portfolio remote if it lands in a ./cv/ folder here.
+/cv/
+
