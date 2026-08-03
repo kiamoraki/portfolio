@@ -24,9 +24,28 @@ type Props = {
   // When true, render inside the document flow (relative position, fills
   // parent) instead of the default fixed/full-viewport background mode.
   inFlow?: boolean;
+  // Multiplier for radius sizes (START_RADIUS, MAX_RADIUS_MIN,
+  // MAX_RADIUS_RANGE, MAX_RADIAL_SIZE). Default 1 keeps current
+  // desktop/mobile-branched sizes.
+  sizeScale?: number;
+  // Multiplier for NUM_RADIALS (the growing rings). Default 1.
+  radialCountScale?: number;
+  // Multiplier for NUM_PARTICLES (the wandering / orbiting dots).
+  // Default 1. Independent from radialCountScale so you can thin
+  // particles without also thinning rings.
+  particleCountScale?: number;
+  // Multiplier for animation speed — both the radials' wandering
+  // velocity AND particle velocity (linear and rotational). Default 1.
+  speedScale?: number;
 };
 
-export function RadialsCanvas({ inFlow = false }: Props = {}) {
+export function RadialsCanvas({
+  inFlow = false,
+  sizeScale = 1,
+  radialCountScale = 1,
+  particleCountScale = 1,
+  speedScale = 1,
+}: Props = {}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const inFlowRef = useRef(inFlow);
   useEffect(() => {
@@ -45,12 +64,15 @@ export function RadialsCanvas({ inFlow = false }: Props = {}) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       p5Instance = new P5((p: any) => {
         const isMobile = window.innerWidth < MOBILE_BREAKPOINT;
-        const NUM_RADIALS = isMobile ? 12 : 24;
-        const NUM_PARTICLES = isMobile ? 50 : 100;
-        const START_RADIUS = isMobile ? 20 : 30;
-        const MAX_RADIUS_MIN = isMobile ? 60 : 100;
-        const MAX_RADIUS_RANGE = isMobile ? 100 : 200;
-        const MAX_RADIAL_SIZE = isMobile ? 150 : 300;
+        // Base counts/sizes per viewport class, then scale by the
+        // caller-provided multipliers. `Math.max(1, …)` keeps the
+        // sketch from degenerating to zero at very small scales.
+        const NUM_RADIALS = Math.max(1, Math.round((isMobile ? 12 : 24) * radialCountScale));
+        const NUM_PARTICLES = Math.max(1, Math.round((isMobile ? 50 : 100) * particleCountScale));
+        const START_RADIUS = (isMobile ? 20 : 30) * sizeScale;
+        const MAX_RADIUS_MIN = (isMobile ? 60 : 100) * sizeScale;
+        const MAX_RADIUS_RANGE = (isMobile ? 100 : 200) * sizeScale;
+        const MAX_RADIAL_SIZE = (isMobile ? 150 : 300) * sizeScale;
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         class Radial {
@@ -180,16 +202,21 @@ export function RadialsCanvas({ inFlow = false }: Props = {}) {
 
         const randomRadial = () => {
           const pos = p.createVector(p.random(p.width), p.random(p.height));
-          const vel = p.createVector(p.random(-0.5, 0.5), p.random(-0.5, 0.5));
+          const vel = p.createVector(
+            p.random(-0.5, 0.5) * speedScale,
+            p.random(-0.5, 0.5) * speedScale,
+          );
           return new Radial(pos, vel);
         };
 
-        const MIN_ROTATION_SPEED = isMobile ? 5 : 2.5;
+        const MIN_ROTATION_SPEED = (isMobile ? 5 : 2.5) * speedScale;
+        const MAX_ROTATION_SPEED = 10 * speedScale;
         const randomParticle = () => {
           const pos = p.createVector(p.random(p.width), p.random(p.height));
           const vx =
-            p.random(MIN_ROTATION_SPEED, 10) * (p.random() < 0.5 ? -1 : 1);
-          const vel = p.createVector(vx, p.random(-10, 10));
+            p.random(MIN_ROTATION_SPEED, MAX_ROTATION_SPEED) *
+            (p.random() < 0.5 ? -1 : 1);
+          const vel = p.createVector(vx, p.random(-MAX_ROTATION_SPEED, MAX_ROTATION_SPEED));
           return new Particle(pos, vel);
         };
 
@@ -219,7 +246,14 @@ export function RadialsCanvas({ inFlow = false }: Props = {}) {
         };
 
         p.draw = () => {
-          p.background(255);
+          // Transparent clear, not `p.background(255)`. The hard white
+          // fill didn't match the page: emergence has no `bg` in
+          // frontmatter, so its page renders on the default light
+          // `--color-light` (#f8f7ff), and the canvas painted pure
+          // #fff on top of it as a visible lighter rectangle. Clearing
+          // instead lets the page colour show through, so the sketch
+          // matches whatever background it's placed on.
+          p.clear();
 
           for (let i = 0; i < NUM_RADIALS; i++) {
             const r = radials[i];

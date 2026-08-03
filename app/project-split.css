@@ -1,0 +1,824 @@
+/* Column gutter token, defined at :root rather than on `.split` so the
+   fixed chrome (a SIBLING of the grid, not a descendant) can align to
+   it as well. See the `.split` rule for the reasoning behind the
+   clamp. */
+:root {
+  --split-gap: clamp(1rem, 1.6vw, 1.75rem);
+}
+
+/* project-split.css: the split project-page template.
+ *
+ * Layout: 1/3 text rail on the left, 2/3 content column on the right.
+ * Opted into per project with `layout: split` in MDX frontmatter; the
+ * shared [slug] template reads it. No dedicated route file needed.
+ *
+ * Generalized from the emergence prototype, with two deliberate
+ * differences that make it work for projects with real MDX bodies:
+ *
+ *   1. NO COLORS. The prototype hardcoded #fff / #1a1a3a. Here every
+ *      color is inherited, so the page picks up the `theme` / `bg` /
+ *      `colorMode` frontmatter that [slug] already paints onto <body>.
+ *      One stylesheet serves both light and dark projects.
+ *   2. STICKY RAIL. The prototype vertically centered its text against
+ *      a single sketch. A project with several pieces scrolls, so the
+ *      rail sticks below the chrome and the content column scrolls past
+ *      it. Single-visual pages can opt back into centering with
+ *      `.split--center`.
+ *
+ * Pieces need no overrides: `.piece` is already `width: 100%`, so the
+ * existing piece CSS reflows to the column for free. The `100vw` piece
+ * rules are all scoped to `.meta-carousel-track`, a different context.
+ */
+
+/* The title lives in the left rail, so hide ProjectNav's title chip.
+   ProjectNav renders as a SIBLING of the grid, not inside it, so this
+   hooks off the body via `:has()` (the same pattern `body:has(main.about)`
+   already uses) instead of a wrapper class. Non-split projects, which
+   never render `.split`, keep their chip. */
+body:has(.split) .project-title-wrapper {
+  display: none;
+}
+
+.split {
+  display: grid;
+  /* 6-column template. Placement is by grid LINE, so with 6 columns
+     there are 7 lines: the text occupies column 1 (lines 1 to 2) and
+     the media spans columns 2 through 6 INCLUSIVE (lines 2 to 7), so
+     it runs to the right edge of the grid. */
+  grid-template-columns: repeat(6, 1fr);
+  /* Single token for the column gutter. The container's left/right
+     padding reads from it too, so the outer margin always matches the
+     gap between columns and the two can't drift apart when tuned.
+
+     Viewport-driven with rem BOUNDS, the same shape as the fluid root
+     in globals.css, because this gutter sits between two competing
+     site conventions:
+       - rem for typography and chrome spacing
+       - `--piece-gap: 1.5vw` for gutters between and inside media
+     Plain rem holds steady but drifts from the piece gaps INSIDE a
+     slide (26px vs 12px at 800w). Plain vw tracks them but collapses
+     to ~11px at the 721 breakpoint, too tight for an editorial
+     layout. The clamp tracks the viewport like `--piece-gap` while
+     the rem floor keeps narrow desktop readable, and the rem bounds
+     still respect a reader's font-size preference. */
+  gap: var(--split-gap);
+  /* Viewport-locked, not content-sized. The media column must never
+     scroll, so the grid is exactly one screen tall and both columns
+     stretch to fill it; anything that doesn't fit is handled INSIDE a
+     column (the rail scrolls itself, the media scales down). */
+  align-items: stretch;
+  /* Top padding clears the fixed chrome strip (1rem inset + chip
+     height) plus a gap, so the rail's first line sits below it.
+     Left, RIGHT and BOTTOM all come from `--split-gap`, so the outer
+     margin is uniform on three sides and equals the inter-column
+     gutter.
+
+     Top is DERIVED (chrome inset + bar height + one gutter) rather
+     than the old hardcoded 6rem, which was sized for a 54px nav and
+     left ~34px of slack once the bar shrank to 30px. Deriving it means
+     it tracks any future change to `--spacing-nav-h`. */
+  padding: calc(1rem + var(--spacing-nav-h) + var(--split-gap))
+    var(--split-gap) var(--split-gap) var(--split-gap);
+  height: 100dvh;
+  overflow: hidden;
+}
+
+/* Single-visual pages (one sketch, no scrolling sequence) center the
+   pair vertically instead, matching the emergence prototype. */
+.split--center {
+  align-items: center;
+}
+
+.split-text {
+  grid-column: 1 / 2;
+  /* No horizontal padding. The inherited 0.5rem from the emergence
+     prototype inset the rail's text 8.8px from the column edge, so it
+     sat right of the Home icon in the chrome above, which aligns to
+     the column itself. Zeroing it puts the icon, the title and the
+     body copy on one left line. Mobile re-adds a left inset below, to
+     clear the fixed chrome column. */
+  padding: 0;
+  /* The rail is the ONLY thing allowed to scroll. A long description
+     (the eternal-return quote runs past a short viewport) scrolls
+     within the column instead of growing the page.
+     `min-height: 0` is required: a grid item defaults to
+     `min-height: auto`, which refuses to shrink below its content and
+     would silently defeat the overflow. */
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  /* Sit above decorative overlay sketches. `<SketchOverlay>` portals a
+     `position: fixed` full-viewport canvas at `z-index: 1` (tobrit's
+     "gazing entheons"), which otherwise paints straight over the rail
+     and makes the title and description unreadable. Grid items accept
+     `z-index` without needing `position`. */
+  z-index: 2;
+  /* No background: the rail is transparent and the page shows through.
+     The `z-index: 2` above still puts the TEXT in front of decorative
+     overlay canvases, but they are no longer occluded behind it, so on
+     a project with a busy full-viewport overlay (tobrit's faces) the
+     artwork now reads through the rail. The gutter padding and its
+     negative margin went with the panel: they existed only to widen
+     the painted bar past the text. */
+}
+
+.split--center .split-text {
+  position: static;
+}
+
+.split-title {
+  font-family: var(--font-bold);
+  /* Stepped down again: 1.75 -> 1.375 -> 1.125. */
+  font-size: 1.125rem;
+  line-height: 1.15;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin: 0 0 1.25rem 0;
+  color: inherit;
+}
+
+.split-description {
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  /* Slightly looser leading than the old 15px setting, so the smaller
+     size stays comfortable across a long block like the eternal-return
+     quote. */
+  line-height: 1.6;
+  color: inherit;
+}
+
+.split-description p {
+  margin: 0 0 0.75rem 0;
+}
+
+.split-description p:last-child {
+  margin-bottom: 0;
+}
+
+/* Placeholder copy for projects with no frontmatter description yet.
+   Dimmed and italic so it reads as a to-do rather than as body copy. */
+.split-description--placeholder {
+  opacity: 0.45;
+  font-style: italic;
+}
+
+/* Content column. `main` already carries .fullbleed (padding: 0) on
+   most projects, so the grid's padding is the only outer spacing. */
+.split-content {
+  /* Columns 2 through 6 = 5 of the 6 tracks. Line 7 is the grid's
+     right edge; ending at line 6 would leave column 6 empty. */
+  grid-column: 2 / 7;
+  min-width: 0; /* let the track shrink below intrinsic content width */
+  /* Never scrolls. Same `min-height: 0` reasoning as the rail: without
+     it the column refuses to shrink below its content and the page
+     grows a scrollbar instead of the media scaling down. */
+  min-height: 0;
+  overflow: hidden;
+}
+
+.split-content > * {
+  margin-top: 0;
+}
+
+/* ─── Media carousel ────────────────────────────────────────────
+   One piece visible at a time. Left half of the box steps back, right
+   half steps forward (see components/SplitMediaCarousel.tsx).
+
+   Inactive slides are taken OUT OF FLOW and hidden with `visibility`,
+   NOT `display: none`. `<Sketch>` lazy-mounts its p5 canvas off an
+   IntersectionObserver, and a display:none wrapper has no box, so the
+   observer would never fire and a sketch on any slide but the first
+   would stay permanently blank. `position: absolute` + `visibility`
+   keeps the box measurable while hiding it.
+
+   The ACTIVE slide is `position: relative`, so it alone contributes
+   height and the column sizes to whatever is currently shown. */
+.split-carousel {
+  position: relative;
+  /* `main.split-content` is a flex container, and this wrapper sits
+     between it and `.project-track` (which used to be the direct flex
+     child). A flex item defaults to `flex: 0 1 auto`, so it sizes to
+     its content, and this wrapper's content is almost entirely
+     absolutely-positioned slides. Left alone it collapses to ~100px
+     and drags the whole media column down with it. Claim the full
+     line explicitly. */
+  flex: 1 1 100%;
+  width: 100%;
+  min-width: 0;
+  align-self: stretch;
+  /* Fill the locked column height so slides have a box to fit inside
+     rather than a box that grows to them. */
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  /* Directional caret cursors are set per-half below. */
+}
+
+.split-carousel:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
+
+.split-carousel[data-carousel-ready="true"] [data-carousel-slide] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* No `:first-of-type` fallback: with mixed sibling types (legacy
+   bodies interleave FIGURE / DIV / SECTION) several elements each
+   qualify as first-of-type, which showed two slides at once on
+   paintings. The hide rule below is gated on `data-carousel-ready`
+   instead, so before JS tags anything nothing is hidden and the page
+   degrades to a plain stacked document. */
+
+/* The active slide. Declared after the hide rule so it wins. */
+/* Specificity must MATCH the hide rule above, which is (0,3,0) via
+   `.split-carousel[data-carousel-ready] [data-carousel-slide]`. As a
+   bare `.split-carousel [data-carousel-active]` this was (0,2,0) and
+   lost, hiding every slide including the active one. */
+.split-carousel[data-carousel-ready="true"] [data-carousel-active="true"] {
+  position: relative;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.split-carousel[data-carousel-ready="true"] [data-carousel-active="false"] {
+  position: absolute;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* No inter-piece margin in carousel mode; only one shows at a time. */
+.split-carousel [data-carousel-slide] + [data-carousel-slide] {
+  margin-top: 0;
+}
+
+/* ─── Fit-to-height ─────────────────────────────────────────────
+   The media column never scrolls, so every slide has to fit the box.
+   The active slide fills the column and centers its content; images
+   and sketch frames cap at the available height and scale down,
+   preserving their aspect ratio rather than cropping.
+
+   `min-height: 0` recurs on each nesting level because a flex/grid
+   item defaults to `min-height: auto`, which refuses to shrink below
+   its content. Miss it at any level and that level overflows instead
+   of passing the constraint down. */
+/* `ProjectRenderer` wraps the pieces in `.project-track >
+   .project-track-content`. Both size to content by default, which
+   breaks the height chain between the locked column and the slide:
+   the carousel would be 741px tall while the track stayed 172px, and
+   a `height: 100%` slide inside it resolved against the WRONG box.
+   Note `.project-track-content` also ships `min-height: auto`, which
+   has to be zeroed or it refuses to shrink. */
+.split-carousel > .project-track,
+.split-carousel > .project-track > .project-track-content {
+  height: 100%;
+  min-height: 0;
+}
+
+.split-carousel [data-carousel-active="true"] {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  /* Vertically CENTRED. Most slides fill the column, so for them this
+     is identical to top-aligning; it only matters for a slide whose
+     box comes up short (tobrit's final `--cover` piece renders 659 in
+     an 803 column), which otherwise sat against the top with all the
+     dead space below it. Paired with `object-position: center` on the
+     images, so both the box in the column and the picture in the box
+     centre. Was `flex-start`. */
+  justify-content: center;
+}
+
+.split-carousel [data-carousel-slide] > *,
+.split-carousel [data-carousel-slide] .piece-layout {
+  min-height: 0;
+  max-height: 100%;
+}
+
+/* `--cover` pieces carry `width: 100vw; height: 100dvh` from the
+   default full-bleed template, which overflows the media column by
+   the width of the text rail (measured 1440px inside a 1158px column
+   on tobrit). Pull them back to the column and centre them. */
+.split-carousel .piece-layout--cover {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+/* Images contain rather than crop: the whole frame stays visible and
+   letterboxes if the column's proportions don't match the image's. */
+.split-carousel [data-carousel-slide] img,
+.split-carousel [data-carousel-slide] video {
+  /* FILL the available box, then letterbox inside it. `width: auto`
+     left images at intrinsic size, so a slide could sit hundreds of
+     px short of the column edge (tobrit's sketch pair was 664px
+     short). Sizing the box to 100% and letting `object-fit: contain`
+     handle the fit means the image is as large as it can be while
+     staying whole, and `object-position: center` centres the
+     letterboxing. */
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  /* Centre on BOTH axes. `object-position` only has an effect on the
+     axis that has slack, so this reads as: an image that fills the
+     width but not the height gets centred vertically in the media
+     zone, and one that fills the height but not the width stays
+     centred horizontally. Was `center top`, which parked wide images
+     against the top edge with all the empty space below them. */
+  object-position: center;
+  margin-inline: auto;
+}
+
+/* `--cover` images carry `object-fit: cover !important` from the
+   default template, which CROPS to fill. That's right for a
+   full-bleed hero and wrong here: on a collage it silently cuts off
+   the edges. Beaten at higher specificity (0,3,0 vs 0,2,0). */
+.split-carousel .piece-layout--cover > img,
+.split-carousel .piece-layout--cover img {
+  object-fit: contain !important;
+  object-position: center !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Sketch pieces render as a 16:9 frame, matching the emergence
+   prototype's `.emergence-sketch-frame`, rather than the full-viewport
+   box they get in the default template.
+   `!important` is required on both axes:
+     - `<Sketch>` emits an INLINE `width: 100vw; height: 100dvh`, and
+       inline styles beat plain stylesheet rules.
+     - a global `height: 90dvh !important` also applies (it's what
+       produced the 810px height at a 900px viewport).
+   The `.piece` wrapper is height-constrained too, otherwise it keeps
+   reserving the full viewport height around the now-shorter frame. */
+/* Sketch pieces FILL the locked column. This was `height: auto` back
+   when the frame was a fixed 16:9 box and the piece had to collapse
+   around it; now the sketch takes the full column and the grid inside
+   scales to fit, so auto would strand it at its content height. */
+.split-content .piece:has(.piece-sketch) {
+  height: 100% !important;
+  min-height: 0;
+}
+
+.split-content .piece-sketch {
+  /* FILLS the column rather than holding a fixed ratio. The media
+     column is viewport-locked and never scrolls, so the sketch takes
+     whatever height is available and the grid inside scales to fit
+     (see the `fitInside` prop, which contains the grid and leaves an
+     even border when whole cells don't divide evenly).
+     Was `aspect-ratio: 16 / 9` with `height: auto`. */
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  aspect-ratio: auto !important;
+  margin-inline: auto;
+  /* Beats the inline `overflow: hidden` that <Sketch> emits, so a CTA
+     can sit below the frame instead of being clipped by it. The canvas
+     itself is `position: absolute; inset: 0` and fits the box exactly,
+     so nothing leaks. */
+  overflow: visible !important;
+}
+
+/* Sketch controls are laid out by the sketch component itself now (a
+   row above the canvas, canvas filling the rest), so this template no
+   longer positions them. See `.eternal-return-toggle` in globals.css. */
+
+/* Mobile: stack. Title + description on top, content below.
+ *
+ * The fixed mobile chrome forms a COLUMN down the left edge (Home at
+ * top, CV below it, then the ScrollAffordances dots), measured at
+ * x=16..72 on a 375w viewport. Full-bleed image pieces are happy to
+ * run underneath it, but rail TEXT is not: without a left inset the
+ * CV chip sits on top of the title and the dots strike through the
+ * description. So the text column is inset past that chrome, and the
+ * content column below it keeps the normal 1rem gutter.
+ *
+ * Bottom padding clears the fixed `.project-mobile-bottom-nav`
+ * (3.5rem tall, 1rem off the bottom edge). */
+@media (max-width: 720px) {
+  .split {
+    grid-template-columns: 1fr;
+    padding: 5.5rem 1rem
+      calc(var(--mobile-sidebar-icon-size, 3.5rem) + 2rem) 1rem;
+    gap: 1.5rem;
+    align-items: start;
+    min-height: unset;
+  }
+
+  /* Reset the desktop line placement. Without this, the explicit
+     column lines against a single-column template would generate
+     IMPLICIT columns and throw the stack sideways. */
+  .split-text,
+  .split-content {
+    grid-column: 1 / -1;
+  }
+
+  /* Clear the fixed chrome column: inset + icon width + breathing room.
+     Sticky is dropped here since the rail no longer sits beside the
+     content, it sits above it. */
+  .split-text {
+    position: static;
+    padding-left: calc(
+      var(--mobile-sidebar-icon-inset, 1rem) +
+        var(--mobile-sidebar-icon-size, 3.5rem) + 0.5rem
+    );
+  }
+
+  .split-title {
+    font-size: 1rem;
+    margin-bottom: 0.875rem;
+  }
+
+  /* No mobile font-size override for .split-description. The fluid root
+     already renders the same rem value smaller here (16px root on
+     mobile vs up to 18px on wide desktop), so a second step down would
+     double-count. */
+
+  /* Hold the 16:9 frame on mobile too.
+     The desktop rule above is out-specified here by
+     `.project-track .piece-sketch[data-sketch-id^="eternal-return"]`
+     (globals.css, inside the mobile block) at 0,3,0 with !important.
+     Note that rule is scoped to `.project-track` ALONE, not
+     `.meta-carousel-track` like its siblings, so it reaches the
+     standalone project page as well as the carousel.
+     `main.split-content` takes this to 0,3,1 so it wins outright
+     rather than relying on stylesheet order. */
+  main.split-content .piece-sketch[data-sketch-id] {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 16 / 9;
+  }
+
+  main.split-content .piece:has(.piece-sketch) {
+    height: auto !important;
+    min-height: 0;
+  }
+}
+
+/* ─── Credits in the rail ───────────────────────────────────────
+   `<Credits>` portals itself into `#split-credits-slot` on split
+   pages (components/content/Text.tsx), so the credits read as prose
+   under the description instead of consuming a carousel slide. */
+#split-credits-slot:empty {
+  display: none;
+}
+
+.split-credits {
+  margin-top: 1.5rem;
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  opacity: 0.75;
+}
+
+/* The authored credits markup is a multi-column grid sized for a
+   full-width slide. In a narrow rail it has to collapse to one
+   column, and its slide-era padding and max-width are meaningless
+   here. */
+.split-credits > div {
+  display: block !important;
+  max-width: none !important;
+  padding: 0 !important;
+  font-size: inherit !important;
+}
+
+.split-credits ul {
+  margin: 0 0 0.75rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.split-credits ul:last-child {
+  margin-bottom: 0;
+}
+
+.split-credits li {
+  margin-bottom: 0.25rem;
+}
+
+/* The emptied `-credits` piece still exists in the carousel DOM.
+   The carousel already excludes it from the slide count; this stops
+   it painting an empty box. */
+.split-carousel .piece[data-piece-id$="-credits"] {
+  display: none !important;
+}
+
+/* ─── Neutralise per-slug viewport sizing ───────────────────────
+   Several projects carry slug-scoped rules in project-page.css that
+   pin their content to the VIEWPORT, e.g.
+
+     main[data-project-slug="multiverse"] { height: 100dvh }
+     main[data-project-slug="multiverse"] .piece-sketch {
+       width: 100vw !important; height: 100dvh !important; }
+
+   Those are correct in the default full-bleed template, where `main`
+   IS the viewport. In the split template `main` is a grid cell inset
+   by the container's padding, so a 100dvh child overflows the grid by
+   the padding amount: multiverse's column measured 900px tall ending
+   106px BELOW the fold, which both clipped the sketch and pushed the
+   rail's scroll region out of reach.
+
+   Re-anchor to the CELL. Specificity is deliberate: the slug rules
+   are (0,2,1) and (0,1,1), so `main.split-content[data-project-slug]`
+   at (0,3,1) beats them outright rather than relying on file order. */
+main.split-content[data-project-slug] {
+  height: 100% !important;
+  max-height: 100%;
+}
+
+main.split-content[data-project-slug] .piece-sketch,
+main.split-content[data-project-slug] .piece-layout {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+}
+
+/* Several projects reserve chrome clearance on their track:
+
+     .project-track-content[data-slug="fake-rekordz"] {
+       padding-top: calc(1rem + 3.5rem + var(--piece-gap, 1.5vw)); }
+
+   Correct in the default template, where the track starts at the top
+   of the viewport under the fixed chrome. In the split template the
+   grid ALREADY pads for the chrome, so this double-counts: measured
+   101px of dead space that pushed fake-rekordz's slides down to
+   y=207 while the column started at y=106, defeating the
+   top-alignment. Zero it inside the carousel.
+
+   BOTH wrappers need it: `ProjectRenderer` emits
+   `.project-track > .project-track-content`, and the clearance is
+   applied to whichever one a given project's rule targets. wave puts
+   it on `.project-track` (79px), fake-rekordz on
+   `.project-track-content` (101px). Zeroing only one leaves the other
+   offsetting the slide. */
+.split-carousel .project-track,
+.split-carousel .project-track-content {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Final say on sketch height inside the split carousel.
+   Several projects ship slug-scoped `height` rules at (0,3,1) with
+   `!important` (shape-of-time's `calc(100dvh - 4.5rem)`, wave's
+   `calc(100dvh - 1rem - 3.5rem)`), which tie with the earlier
+   `main.split-content[data-project-slug]` override and win or lose on
+   file order. Prefixing with `body:has(.split)` lifts this above all
+   of them, so a sketch always fills its column cell and the artwork
+   centres inside it rather than being anchored to a viewport-derived
+   height that ignores the grid's padding. */
+body:has(.split) main.split-content .piece-sketch {
+  /* Slug-scoped rules add chrome clearance as a MARGIN, not padding
+     (shape-of-time and wave both carry `margin-top: 4.5rem`). In the
+     split grid that clearance already exists on the container, so the
+     margin double-counted: the sketch started 79px below its piece
+     and `height: 100%` then resolved 79px short, leaving it neither
+     filling nor centred. Zeroing the margin is what actually fixes
+     it; the height rule alone could not. */
+  margin: 0 !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* The sketch WRAPPER paints no background in this template, so the
+   black (or whatever the canvas paints) ends at the canvas edge and
+   the rest of the media column falls back to the page background.
+
+   `<Sketch>` sets `background` as an INLINE style from the `bg` prop,
+   hence `!important`. This is safe because every sketch paints its own
+   background in p5 (`p.background(0)` on wave/eternal-return/
+   shape-of-time, `#130c12` on the lissajous family, a `fillRect` on
+   multiverse); emergence is the one deliberate exception, using
+   `p.clear()`, and it WANTS the page colour behind it.
+
+   Matters most for square canvases: wave's 771x771 canvas sat inside a
+   1158-wide wrapper, so the black read as a wide panel rather than a
+   square. */
+body:has(.split) main.split-content .piece-sketch {
+  background: transparent !important;
+}
+
+/* Fifth variant of the chrome-clearance double-count: piece LAYOUTS
+   (radioactivitea's `--hero`) carry it as vertical padding, which left
+   the image 79px short and 79px down inside a layout that was already
+   filling the column. Only the vertical axis is zeroed: horizontal
+   padding is the `--single` / `--hero` gutter (`0 var(--piece-gap)`)
+   and is wanted. */
+.split-carousel [data-carousel-slide] .piece-layout {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  /* Horizontal gutter zeroed too. `--single` / `--hero` carry
+     `padding: 0 var(--piece-gap)`, which is the outer margin in the
+     full-bleed template but double-counts here: the grid already
+     insets the column by `--split-gap`. It rendered images 1115 wide
+     in a 1158 box, so the visible gap on the right of the media read
+     about 44px against the text's 23px on the left. Zeroing it makes
+     the media run edge to edge and the two outer gaps match.
+     Gaps BETWEEN cells in `--pair` / `--grid-2x2` are `gap`, not
+     padding, so they're unaffected. */
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* Legacy slides are `figure.image` / `.row`, which carry the legacy
+   document rhythm (`margin: 3rem 0`, `max-height: 90vh`) meant for a
+   scrolling page. In a carousel cell those push the slide down and cap
+   it short of the column. Neutralised so a legacy body fills and
+   top-aligns like a v2 piece. */
+.split-carousel[data-carousel-ready="true"] [data-carousel-active="true"] {
+  margin: 0 !important;
+  height: 100% !important;
+  max-height: 100% !important;
+}
+
+/* Legacy projects without `fullbleed: true` (paintings) keep `main`'s
+   default page padding and centred flex alignment, which shrank the
+   carousel wrapper to its content (604px inside a 771px column) so
+   every fill rule below it resolved against the wrong box. In this
+   template the grid already supplies the outer spacing, so main is
+   flattened and the wrapper made to fill. */
+main.split-content {
+  padding: 0 !important;
+  align-items: stretch !important;
+}
+
+.split-carousel {
+  height: 100% !important;
+  min-height: 0;
+}
+
+/* AC `ac-oc-tiles`: 6 square tiles as 2 rows of 3 rather than a single
+   row of 6. At 6-up in a 1158px column each tile was only 168px, which
+   loses the drawings' detail; 3-up gives ~380px.
+
+   Scoped to `.split-carousel` rather than editing the rule in
+   project-page.css, so the piece's presentation elsewhere (meta
+   carousel / tag walks) is unchanged. Specificity is (0,4,0), above
+   the (0,3,0) desktop rule it overrides.
+
+   Rows are `1fr` (not `auto`): with `auto`, three 386px-wide squares
+   stack to 772px + gap, just past the 771px column, and the second
+   row would clip. `1fr` splits the column height and the images
+   contain inside it. */
+.split-carousel .piece[data-piece-id="ac-oc-tiles"] .piece-layout--stack {
+  grid-template-columns: repeat(3, 1fr) !important;
+  grid-template-rows: repeat(2, 1fr) !important;
+  height: 100%;
+  min-height: 0;
+}
+
+.split-carousel .piece[data-piece-id="ac-oc-tiles"] .piece-layout--stack > img {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: contain;
+}
+
+/* ─── Directional caret cursors ─────────────────────────────────
+   The click zones are invisible, so the cursor tells you which way a
+   click will go: a left-pointing caret over the left half, a right
+   caret over the right. `cursor` can't vary by position within one
+   element, so SplitMediaCarousel tracks the pointer and flips
+   `data-carousel-half`; splitting the box into two overlay halves
+   would have covered the slide's own controls and swallowed their
+   clicks.
+
+   Each cursor is ONE chevron stroked twice. The white stroke is
+   offset by exactly one stroke width, so the two sit adjacent edge to
+   edge with no space between them. Offsetting by the whole
+   chevron width instead produced two separate chevrons with a break
+   between them.
+   rather than a dark chevron haloed in white. Whichever of the pair
+   contrasts with what's underneath carries the shape, so the same
+   cursor reads on black artwork and on the white page. The
+   `w-resize` / `e-resize` fallbacks cover browsers that reject the
+   data URI. */
+.split-carousel[data-carousel-half="left"] {
+  cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cpath%20d%3D%22M17.5%208%20L9.5%2016%20L17.5%2024%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M20%208%20L12%2016%20L20%2024%22%20fill%3D%22none%22%20stroke%3D%22%23111%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E") 16 16, w-resize;
+}
+
+.split-carousel[data-carousel-half="right"] {
+  cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cpath%20d%3D%22M14.5%208%20L22.5%2016%20L14.5%2024%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M12%208%20L20%2016%20L12%2024%22%20fill%3D%22none%22%20stroke%3D%22%23111%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E") 16 16, e-resize;
+}
+
+/* Slide counter under the title. Portalled in from the carousel. */
+#split-count-slot:empty {
+  display: none;
+}
+
+.split-count {
+  display: block;
+  margin: -0.75rem 0 1.25rem 0;
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  opacity: 0.55;
+  font-variant-numeric: tabular-nums;
+}
+
+/* eternal-return diagrams: the four cells are already identical boxes,
+   but the source images have differing aspect ratios (750x628 vs
+   885x628), so `contain` letterboxed each one differently and they
+   read as four different sizes. `cover` fills the cell, so all four
+   present at the same size. */
+.split-carousel .piece[data-piece-id="eternal-return-diagrams"] img {
+  object-fit: cover !important;
+  object-position: center !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Lissajous pins its FIRST piece to `80dvh` while its siblings take
+   `90dvh`, via `.project-track-content[data-slug="lissajous"] >
+   .piece:first-child .piece-sketch` at (0,4,0). That out-specified the
+   general fill rule (0,3,2), so slide 1 rendered 720px tall against
+   the other four at 803. Class count dominates in specificity, so
+   (0,4,2) still lost to their (0,5,0): the chain needs FIVE
+   class-level selectors, not just more elements. Hence
+   `.split-carousel` in the middle, giving (0,5,2).
+
+   The sketch's amplitude needs no separate change: `recomputeSize()`
+   derives `ampX`/`ampY` from `p.width` / `p.height`, so a taller
+   canvas scales the figure with it. */
+body:has(.split) main.split-content .split-carousel [data-carousel-slide] .piece-sketch {
+  height: 100% !important;
+  max-height: 100% !important;
+}
+
+/* Preserve single newlines inside a description paragraph. Blank lines
+   already split into separate <p>, but content like the lissajous
+   equations and variable list needs line breaks WITHIN a block, which
+   would otherwise collapse into one run-on line. `pre-line` keeps the
+   newlines and still collapses the YAML block scalar's indentation. */
+.split-description p {
+  white-space: pre-line;
+}
+
+/* Line the PREV/NEXT chips up with the media block's right edge.
+   The chips sit `1rem` in from the viewport (the chrome inset used
+   throughout), while the media column stops at `--split-gap`. Shifting
+   the nav by the DIFFERENCE lands its right edge exactly on the
+   column's, and stays correct if either token is retuned.
+   Scoped to split pages: elsewhere there's no media column to align
+   to, and the chrome keeps its standard 1rem inset. */
+/* Left chrome inset to match the text column, mirroring the right.
+   Home and CV are separately fixed-positioned at the standard 1rem
+   chrome inset, while the grid's first column starts at
+   `--split-gap`, leaving them 5.4px short of the rail at 1440. Both
+   are translated by the difference so the bar's outer gaps equal the
+   grid's on both sides. Transform rather than `left`, for the same
+   reason as the right side: these boxes aren't laid out from the
+   edge they'd need to be. */
+body:has(.split) .nav-main,
+body:has(.split) .nav-info {
+  transform: translateX(calc(var(--split-gap) - 1rem));
+}
+
+body:has(.split) .nav-projects {
+  /* TRANSFORM, not `right`: the chips aren't laid out from the nav's
+     right edge (the nav computes to zero width), so adjusting `right`
+     moved nothing. Translating the group shifts it regardless of the
+     underlying positioning. Negative = leftward by the difference
+     between the chrome inset and the column gutter. */
+  transform: translateX(calc(1rem - var(--split-gap)));
+}
+
+/* tobrit `tobrit-build`: the four grid cells are already identical
+   boxes, but the sources differ in aspect (960x720, 1080x1080,
+   1080x814), so `contain` letterboxed each differently and they read
+   as mismatched sizes. `cover` fills the cell so all four present
+   identically. Same treatment as `ac-oc-tiles`. */
+.split-carousel .piece[data-piece-id="tobrit-build"] img {
+  object-fit: cover !important;
+  object-position: center !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* RoseGridCanvas ships its own full-bleed container via an inline
+   <style>: `width: 100vw; height: 100dvh` plus negative side margins
+   to break out of the page gutter. Correct in the default template,
+   but in a column it made the canvas 1440x900 inside an 1158x803 cell,
+   so the bottom row of roses was clipped. The sketch's own `dims()`
+   already measures its parent, so constraining the container is enough
+   for the canvas to size itself correctly. */
+.split-carousel .rose-grid-fullbleed {
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+}

@@ -31,8 +31,13 @@ export function TobritCanvas() {
           }
         };
 
+        // Face sizes, as a fraction of the source image. Halved on
+        // desktop (was [0.3, 0.9]) and pulled in on mobile (was
+        // [0.12, 0.4]): at the old range the faces read as large
+        // foreground shapes competing with the project's photography
+        // rather than as a background texture behind it.
         const scaleRange = (): [number, number] =>
-          window.innerWidth < 720 ? [0.12, 0.4] : [0.3, 0.9];
+          window.innerWidth < 720 ? [0.08, 0.25] : [0.15, 0.45];
 
         p.setup = () => {
           const c = p.createCanvas(p.windowWidth, p.windowHeight);

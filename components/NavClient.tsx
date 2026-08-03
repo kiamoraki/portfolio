@@ -101,14 +101,17 @@ export function NavClient() {
           className={`icon-standard ${isIndex ? "active" : ""}`}
           aria-label="Home"
         >
+          {/* 13px glyph with a 1.25 stroke (was 22 / 2, then 16 / 1.5).
+              Stroke tracks the glyph size so the house keeps the same
+              optical weight as the wordmark beside it. */}
           <svg
             className="nav-house-icon"
             viewBox="0 0 24 24"
-            width="22"
-            height="22"
+            width="13"
+            height="13"
             fill="none"
             stroke="currentColor"
-            strokeWidth={2}
+            strokeWidth={1.25}
             strokeLinecap="round"
             strokeLinejoin="round"
             aria-hidden="true"
@@ -116,6 +119,12 @@ export function NavClient() {
             <path d="M3 11.5 12 3l9 8.5" />
             <path d="M5 10v10h14V10" />
           </svg>
+          {/* Wordmark beside the house glyph. Not `aria-label`ed away:
+              the link's `aria-label="Home"` already names it, so this
+              is decorative to assistive tech and read once. */}
+          <span className="nav-home-label" aria-hidden="true">
+            Kiamora Kirby
+          </span>
         </Link>
       </nav>
       {/* CV chip — always rendered so it stays in the chrome strip on

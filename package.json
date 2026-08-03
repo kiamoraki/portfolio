@@ -4,7 +4,7 @@
   "description": "Kirby's Portfolio",
   "private": true,
   "scripts": {
-    "dev": "node scripts/build-image-manifest.mjs && node scripts/build-tag-index.mjs && node scripts/build-content-index.mjs && node scripts/extract-gif-first-frames.mjs && next dev",
+    "dev": "node scripts/build-image-manifest.mjs && node scripts/build-tag-index.mjs && node scripts/build-content-index.mjs && node scripts/extract-gif-first-frames.mjs && next dev --webpack",
     "build": "node scripts/build-image-manifest.mjs && node scripts/build-tag-index.mjs && node scripts/build-content-index.mjs && node scripts/extract-gif-first-frames.mjs && next build && node scripts/build-redirects.mjs",
     "gif-frames": "node scripts/extract-gif-first-frames.mjs",
     "start": "next start",

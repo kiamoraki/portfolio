@@ -7,8 +7,14 @@ import { useEffect, useRef } from "react";
 const NUM_MOL = 15;
 const NUM_ORBITS = 4;
 
+/* Sketch FACTORY, taking a dimensions getter, matching the pattern in
+   RadialsCanvas. It previously sized itself off `window.innerWidth /
+   innerHeight` directly, which is correct in the full-bleed template
+   where the canvas IS the viewport, but wrong in the split template
+   where it's a grid cell inset by the container's padding: the canvas
+   overflowed its column and got clipped at the bottom. */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const sketch = (p: any) => {
+const makeSketch = (getDims: () => [number, number]) => (p: any) => {
   class Molecule {
     center: { x: number; y: number };
     angle: number[] = [];
@@ -103,7 +109,8 @@ const sketch = (p: any) => {
 
   p.setup = () => {
     p.pixelDensity(1);
-    const c = p.createCanvas(window.innerWidth, window.innerHeight);
+    const [cw, ch] = getDims();
+    const c = p.createCanvas(cw, ch);
     c.style("display", "block");
     p.frameRate(24);
     for (let i = 0; i < NUM_MOL; i++) molecules.push(new Molecule());
@@ -111,7 +118,8 @@ const sketch = (p: any) => {
   };
 
   p.windowResized = () => {
-    p.resizeCanvas(window.innerWidth, window.innerHeight);
+    const [cw, ch] = getDims();
+    p.resizeCanvas(cw, ch);
     layoutMolecules();
   };
 
@@ -131,7 +139,7 @@ const sketch = (p: any) => {
   };
 };
 
-export function MultiverseCanvas() {
+export function MultiverseCanvas({ inFlow = false }: { inFlow?: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -143,7 +151,17 @@ export function MultiverseCanvas() {
       const P5 = await loadP5();
       if (cancelled || !containerRef.current) return;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      p5Instance = new P5(sketch as any, containerRef.current) as any;
+      // Size from the CONTAINER when it has a measurable box, falling
+      // back to the viewport. Covers both templates without the sketch
+      // needing to know which one it's in.
+      const getDims = (): [number, number] => {
+        const el = containerRef.current;
+        if (el && el.clientWidth > 0 && el.clientHeight > 0) {
+          return [el.clientWidth, el.clientHeight];
+        }
+        return [window.innerWidth, window.innerHeight];
+      };
+      p5Instance = new P5(makeSketch(getDims) as any, containerRef.current) as any;
 
       intersectionObserver = new IntersectionObserver(
         (entries) => {
@@ -173,7 +191,7 @@ export function MultiverseCanvas() {
       ref={containerRef}
       style={{
         width: "100%",
-        height: "100dvh",
+        height: inFlow ? "100%" : "100dvh",
         background: "#00001c",
         overflow: "hidden",
       }}

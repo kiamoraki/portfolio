@@ -4,6 +4,12 @@
 @theme {
   --color-dark: #020014;
   --color-light: #f8f7ff;
+  /* TEXT on dark backgrounds. Deliberately separate from
+     `--color-light`, which is also the page BACKGROUND on light pages
+     and the border colour on several chrome chips: changing that token
+     would turn every light page grey. Use this for `color:` on dark
+     surfaces, `--color-light` for backgrounds and borders. */
+  --color-ink-light: #E0E0E0;
   --color-purple: #6321f6;
   --color-orchid: #c01fff;
   --color-aqua: #7cfbf2;
@@ -14,7 +20,14 @@
      Home/CV icon chips, project title chip, PREV/NEXT buttons, and
      every `calc(... + var(--spacing-nav-h) * N)` offset between
      them. Adjusting this scales the whole header strip consistently. */
-  --spacing-nav-h: 54px;
+  /* Top chrome bar height. 30px at the 16px root base.
+     Was 3.375rem (54px) when the chrome was a row of bordered square
+     chips; the bar is now a thin borderless strip, so the chips no
+     longer need to read as tappable boxes on desktop. Drives ~41
+     `calc(... + var(--spacing-nav-h) * N)` offsets, which all follow
+     automatically. The mobile token below is unchanged: 30px is under
+     the 44px iOS HIG touch minimum, so mobile keeps its own height. */
+  --spacing-nav-h: 1.875rem;
   /* Home/CV icon chip width — matches `--spacing-nav-h` (54px) so
      the chips render as exact squares on desktop. Referenced by
      `.nav-main a`, `.nav-info`, and the title chip's `left` calc
@@ -25,53 +38,108 @@
      so the title chip ends exactly at the PREV button's left edge.
      At 100px, "PREV"/"NEXT" (~50px text) centers with ~25px of
      breathing room on each side — compact next to the icon chips. */
-  --spacing-nav-prev-w: 100px;
-  --spacing-nav-h-mobile: 44px;
-  --spacing-sidebar-mobile: 44px;
-  --spacing-sidebar-icon-w-mobile: 72px;
+  --spacing-nav-prev-w: 6.25rem;
+  --spacing-nav-h-mobile: 2.75rem;
+  --spacing-sidebar-mobile: 2.75rem;
+  --spacing-sidebar-icon-w-mobile: 4.5rem;
   --color-sidebar-accent: #b588ff;
-  --spacing-page: 60px;
-  --spacing-page-mobile: 20px;
+  --spacing-page: 3.75rem;
+  --spacing-page-mobile: 1.25rem;
 
-  --font-body: "DroidSans", system-ui, sans-serif;
-  --font-bold: "DroidSansBold", system-ui, sans-serif;
+  --font-body: "EK Roumald", Georgia, "Times New Roman", serif;
+  /* Resolves to the Bold cut at normal weight (see the alias
+     @font-face above), so `font-family: var(--font-bold)` still
+     renders bold without a weight declaration. */
+  --font-bold: "EK Roumald Bold", Georgia, "Times New Roman", serif;
   --font-icon-std: "SSStandard";
   --font-icon-social: "SSSocial";
 }
 
-/* ─── Fonts (preserve original face set) ────────────────────── */
-/* Live fonts — body + chrome only. All TTF/OTF source files converted
-   to subset woff2 via `pyftsubset --flavor=woff2 --unicodes=...`:
-     - DroidSans: 186KB ttf → 23KB woff2 (Latin Basic + Supplement +
-       common punctuation)
-     - DroidSans-Bold: 190KB → 24KB
-     - Neuropol (chrome / heading): 84KB → 14KB (Latin Basic +
-       Supplement only — Neuropol only renders short strings)
-   Net font payload: ~460KB → ~61KB (87% reduction). woff2 is
-   supported in every browser ≥ Safari 11 / Chrome 36 / Firefox 39,
-   no fallback needed.
+/* ─── Fonts ─────────────────────────────────────────────────────
+   The site now runs on ONE typeface, EK Roumald, in four cuts.
 
-   Removed (dead — declared but never referenced anywhere): Azonix,
-   Taurus, NauSea, Square, MonumentValley, SSStandard, SSSocial.
-   The `.icon-standard` / `.icon-social` class consumers (Home chip,
-   ContactButton) all use inline SVG glyphs now, so the icon-font
-   declarations became no-ops. */
+   Superseded 2026-08-01: DroidSans (body), DroidSans-Bold, and
+   Neuropol (chrome / heading). Their source files were deleted, so
+   the old @font-face rules and the `"Neuropol", …` prefix on 20
+   font stacks were removed rather than left pointing at 404s.
+
+   The four EK Roumald woff2 files ship unsubset, straight from the
+   foundry (75-88KB each). The deleted faces had been put through
+   `pyftsubset --flavor=woff2 --unicodes=...` to trim them; if font
+   payload matters, the same treatment applies here. Roman is the
+   only cut on the first viewport of most pages.
+
+   Previously removed and still gone (declared but never referenced):
+   Azonix, Taurus, NauSea, Square, MonumentValley, SSStandard,
+   SSSocial. The `.icon-standard` consumers use inline SVG glyphs, so
+   the icon-font vars below are inert. */
+/* ─── EK Roumald ────────────────────────────────────────────────
+   The site's single typeface, replacing DroidSans / DroidSans-Bold /
+   Neuropol (source files deleted 2026-08-01).
+
+   All four cuts register under ONE family name with proper
+   `font-weight` / `font-style` descriptors, so the browser picks the
+   right file automatically from `font-weight: bold` and
+   `font-style: italic`. That is what makes every variation usable
+   anywhere without naming a separate family:
+
+     regular      font-weight: normal; font-style: normal   → Roman
+     italic       font-weight: normal; font-style: italic   → Italic
+     bold         font-weight: bold;   font-style: normal   → Bold
+     bold italic  font-weight: bold;   font-style: italic   → BoldItalic
+
+   woff2 only, matching the convention the deleted faces used: it's
+   supported in every browser >= Safari 11 / Chrome 36 / Firefox 39,
+   so the .woff / .ttf / .eot siblings in the folder are unreferenced.
+   The foundry's own `stylesheet.css` in that folder is NOT imported;
+   it uses relative urls and an IE-era eot-first `src` stack. */
 @font-face {
-  font-family: "DroidSans";
-  src: url("/fonts/DroidSans.woff2") format("woff2");
+  font-family: "EK Roumald";
+  src: url("/fonts/EKRoumald/EKRoumald-Roman.woff2") format("woff2");
   font-weight: normal;
+  font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: "DroidSansBold";
-  src: url("/fonts/DroidSans-Bold.woff2") format("woff2");
+  font-family: "EK Roumald";
+  src: url("/fonts/EKRoumald/EKRoumald-Italic.woff2") format("woff2");
   font-weight: normal;
+  font-style: italic;
   font-display: swap;
 }
 @font-face {
-  font-family: "Neuropol";
-  src: url("/fonts/neuropol.woff2") format("woff2");
+  font-family: "EK Roumald";
+  src: url("/fonts/EKRoumald/EKRoumald-Bold.woff2") format("woff2");
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "EK Roumald";
+  src: url("/fonts/EKRoumald/EKRoumald-BoldItalic.woff2") format("woff2");
+  font-weight: bold;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Alias family that resolves to the Bold cut at NORMAL weight.
+   ~20 rules across the site say `font-family: var(--font-bold)` to get
+   bold text, inherited from when DroidSansBold was a separate family.
+   Registering this alias keeps every one of those rules working
+   untouched. Prefer `font-weight: bold` on the main family for new
+   work; this exists so the swap didn't need 20 simultaneous edits. */
+@font-face {
+  font-family: "EK Roumald Bold";
+  src: url("/fonts/EKRoumald/EKRoumald-Bold.woff2") format("woff2");
   font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "EK Roumald Bold";
+  src: url("/fonts/EKRoumald/EKRoumald-BoldItalic.woff2") format("woff2");
+  font-weight: normal;
+  font-style: italic;
   font-display: swap;
 }
 
@@ -98,12 +166,34 @@ html, body {
 html { overflow-x: clip; }
 body { overflow-x: hidden; }
 
+/* ─── Fluid root ────────────────────────────────────────────────
+   The whole stylesheet is authored in rem against a 16px base, so
+   this single rule scales every type size, spacing token, chip and
+   gutter on the site. Nothing else needs a breakpoint to grow.
+
+   Range: 16px at <= 720w  →  18px at >= 1600w, linear between.
+     - The 16px FLOOR is deliberate: it's the browser default, which
+       is what the site rendered at before the rem migration. Every
+       hand-tuned mobile value (--spacing-nav-h-mobile: 44px, the
+       56px sidebar icons) therefore lands on exactly the pixel it
+       was tuned to. A floor below 16 would silently shrink those
+       touch targets under the 44px iOS HIG minimum.
+     - The ceiling stops the growth at 18px so large monitors get a
+       more comfortable read without the chrome ballooning.
+
+   The bounds are rem (not px) on purpose: a reader who raises their
+   browser's base font size still gets a proportionally larger site.
+   A px-bounded clamp would override that preference. */
+html {
+  font-size: clamp(1rem, 0.8977rem + 0.2273vw, 1.125rem);
+}
+
 body {
   font-family: var(--font-body);
   color: var(--color-dark);
   background: var(--color-light);
-  font-size: 14px;
-  line-height: 22px;
+  font-size: 0.875rem;
+  line-height: 1.375rem;
 }
 ul { list-style: none; padding: 0; margin: 0; }
 /* Strip the 2px chip border from the Home / CV icons on landing pages
@@ -141,12 +231,11 @@ strong {
 }
 
 /* ─── Icon fonts ────────────────────────────────────────────── */
-.icon-standard { font-family: var(--font-icon-std); font-size: 18px; line-height: 1; }
-.icon-social   { font-family: var(--font-icon-social); font-size: 18px; line-height: 1; }
+.icon-standard { font-family: var(--font-icon-std); font-size: 1.125rem; line-height: 1; }
 
 /* ─── Dark theme override (used by legacy theme: dark frontmatter) ── */
-main.dark { color: var(--color-light); }
-main.dark a, main.dark p, main.dark span, main.dark cite, main.dark h1, main.dark h2, main.dark h3, main.dark strong { color: var(--color-light); }
+main.dark { color: var(--color-ink-light); }
+main.dark a, main.dark p, main.dark span, main.dark cite, main.dark h1, main.dark h2, main.dark h3, main.dark strong { color: var(--color-ink-light); }
 main.dark figcaption { color: rgba(255,255,255,0.6); }
 main.dark a:hover { color: var(--color-dark) !important; background-color: var(--color-light) !important; }
 
@@ -158,7 +247,7 @@ main {
   width: 100%;
   min-height: 100vh;
   padding: var(--spacing-page);
-  padding-left: 44px;
+  padding-left: 2.75rem;
 }
 @media (max-width: 720px) {
   /* No more top padding for a horizontal nav bar — the icon buttons
@@ -190,10 +279,10 @@ figure.image img {
 }
 figure.image figcaption {
   text-align: center;
-  padding: 4px 5px;
-  margin-top: 5px;
+  padding: 0.25rem 0.3125rem;
+  margin-top: 0.3125rem;
   text-transform: uppercase;
-  font-size: 12px;
+  font-size: 0.75rem;
   color: #666;
 }
 
@@ -225,8 +314,8 @@ figure.image figcaption {
 }
 .row.equal-heights > figure.image img { object-fit: cover; height: 100%; }
 .row > figure.image:has(img[src*="glamtech-logo"]) {
-  flex: 0 1 200px;
-  max-width: 200px;
+  flex: 0 1 12.5rem;
+  max-width: 12.5rem;
 }
 
 @media (max-width: 720px) {
@@ -274,65 +363,6 @@ figure.image figcaption {
   .row:has(.video-vertical) > .video-vertical iframe {
     max-width: 100% !important;
   }
-  /* Artificial Consciousness: full-width .mp4 videos at the top of the
-     mobile stack, ahead of the regular project-mobile-stack images.
-     !important on display because the base `.ac-mobile-videos
-     { display: none }` hide rule lives further down the file and
-     would otherwise win the cascade tie. */
-  .ac-mobile-videos {
-    display: flex !important;
-    flex-direction: column;
-    gap: 1px;
-    width: 100%;
-    background: #000;
-  }
-  .ac-mobile-video {
-    width: 100%;
-    height: auto;
-    display: block;
-    background: #000;
-  }
-
-  /* Artificial Consciousness: pair the two tile-* images side-by-side
-     on mobile instead of stacking them. The stack flips to a 2-col grid;
-     everything spans both columns except the tile pair. */
-  .project-mobile-stack:has(img[src*="tile-pornj-playa"]) {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-  }
-  .project-mobile-stack:has(img[src*="tile-pornj-playa"]) > .project-mobile-slide {
-    grid-column: 1 / -1;
-  }
-  .project-mobile-stack > .project-mobile-slide:has(img[src*="tile-pornj-playa"]) {
-    grid-column: 1 / 2;
-  }
-  .project-mobile-stack > .project-mobile-slide:has(img[src*="tile-blue-playa"]) {
-    grid-column: 2 / 3;
-  }
-  /* Glamtech logo: shrink to 25%, collapse its own row to 0 height, and
-     center the image on the boundary between the previous and next
-     install photos so half overlays each. Force a recompile bust. */
-  .project-mobile-slide:has(> img[src*="glamtech-logo"]),
-  .project-mobile-slide:has(img[src*="glamtech-logo"]) {
-    height: 0 !important;
-    min-height: 0 !important;
-    overflow: visible !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    position: relative !important;
-    z-index: 2 !important;
-    pointer-events: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-  }
-  .project-mobile-slide:has(img[src*="glamtech-logo"]) > img,
-  .project-mobile-slide:has(img[src*="glamtech-logo"]) img {
-    width: 25% !important;
-    max-width: 25% !important;
-    height: auto !important;
-    display: block !important;
-  }
   /* Paintings "Everything & Nothing" 4-up: 2×2 grid on mobile. */
   .row:has(img[src*="everythingandnothing_02"]) {
     flex-direction: row !important;
@@ -369,7 +399,7 @@ figure.image figcaption {
 }
 
 .text {
-  max-width: 720px;
+  max-width: 45rem;
   padding: 2.5rem;
   color: var(--color-dark);
   font-size: 1.25rem;
@@ -377,14 +407,12 @@ figure.image figcaption {
   margin: 3rem 0;
 }
 .text p, .text cite, .text em, .text strong, .text a { color: inherit; }
-main.dark .text { color: var(--color-light); }
+main.dark .text { color: var(--color-ink-light); }
 .text p { margin: 0 0 1em; }
 .text p:last-child { margin-bottom: 0; }
 @media (max-width: 720px) {
   .text { padding-left: 0; padding-right: 0; }
 }
-
-.window-gap { height: 100vh; width: 100%; }
 
 .video, .video-vertical {
   width: 100%;
@@ -393,44 +421,17 @@ main.dark .text { color: var(--color-light); }
 }
 .video iframe, .video-vertical iframe {
   width: 100%;
-  max-width: 960px;
+  max-width: 60rem;
   aspect-ratio: 16 / 9;
   border: 0;
 }
-.video-vertical iframe { aspect-ratio: 9 / 16; max-width: 480px; }
+.video-vertical iframe { aspect-ratio: 9 / 16; max-width: 30rem; }
 
 .credits { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 3rem; }
 .credits h3 { grid-column: 1 / -1; font-family: var(--font-bold); text-transform: uppercase; }
 .credits ul li { margin-bottom: 0.4em; }
 @media (max-width: 720px) { .credits { grid-template-columns: 1fr; } }
-
-/* ─── Wave grids ────────────────────────────────────────────── */
-.wave-grids {
-  display: grid;
-  gap: 16px;
-  width: 100%;
-  margin: 2rem 0;
-  grid-template-columns: 1fr 1fr;
-}
-.wave-grids > :nth-child(5) {
-  grid-column: 1 / -1;
-  width: calc(50% - 8px);
-  justify-self: center;
-}
-.wave-canvas-cell {
-  width: 100%;
-  aspect-ratio: 1;
-  background: #000;
-  display: block;
-}
-.wave-canvas-cell canvas {
-  width: 100% !important;
-  height: 100% !important;
-  display: block;
-}
 @media (max-width: 720px) {
-  .wave-grids { grid-template-columns: 1fr; }
-  .wave-grids > :nth-child(5) { grid-column: auto; width: 100%; }
 }
 
 /* ─── Nav ───────────────────────────────────────────────────── */
@@ -444,7 +445,7 @@ main.dark .text { color: var(--color-light); }
   z-index: 5000;
   display: flex;
 }
-.nav-main { left: 0; top: 0; flex-direction: column; padding-top: 4px; }
+.nav-main { left: 0; top: 0; flex-direction: column; padding-top: 0.25rem; }
 .nav-projects { right: 0; top: 0; align-items: center; }
 @media (max-width: 720px) {
   /* Mobile sidebar buttons stack vertically on the left (was a
@@ -459,18 +460,18 @@ main.dark .text { color: var(--color-light); }
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 3px;
-  font-family: "Neuropol", var(--font-bold);
+  margin-bottom: 0.1875rem;
+  font-family: var(--font-bold);
   color: var(--color-dark);
 }
 /* Anchor font sizes split — `.nav-main a` keeps the original 14px;
    `.nav-projects a` (PREV/NEXT) reads at 12px to match the CV label
    and flank the 16px title chip. */
 .nav-main a {
-  font-size: 14px;
+  font-size: 0.875rem;
 }
 .nav-projects a {
-  font-size: 12px;
+  font-size: 0.75rem;
 }
 @media (max-width: 720px) {
   .nav-main a, .nav-projects a {
@@ -479,57 +480,12 @@ main.dark .text { color: var(--color-light); }
   }
 }
 .nav-main a.active { background-color: #b588ff; color: var(--color-dark); }
-
-.nav-menu-toggle {
-  width: var(--spacing-nav-h);
-  height: var(--spacing-nav-h);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 3px;
-  color: var(--color-dark);
-  background: transparent;
-  border: 0;
-  cursor: pointer;
-  padding: 0;
-}
 .nav-menu-toggle.active { background-color: #b588ff; color: var(--color-dark); }
-.nav-main.dark .nav-menu-toggle { color: var(--color-light); }
+.nav-main.dark .nav-menu-toggle { color: var(--color-ink-light); }
 .nav-main.dark .nav-menu-toggle.active { background-color: #b588ff; color: var(--color-dark); }
 @media (max-width: 720px) {
-  .nav-menu-toggle {
-    width: var(--spacing-nav-h-mobile);
-    height: var(--spacing-nav-h-mobile);
-  }
 }
-
-.nav-project-list {
-  position: fixed;
-  left: var(--spacing-nav-h);
-  top: 0;
-  z-index: 5001;
-  margin: 0;
-  padding: 1.25rem 1.5rem;
-  list-style: none;
-  background: rgba(0, 0, 0, 0.85);
-  color: var(--color-light);
-  max-height: 100vh;
-  overflow-y: auto;
-  font-family: var(--font-bold);
-  text-transform: uppercase;
-  font-size: 14px;
-  letter-spacing: 0.04em;
-}
-.nav-project-list li { margin: 0.45em 0; }
-.nav-project-list a { color: var(--color-light); }
-.nav-project-list a:hover { color: var(--color-purple, #c01fff); }
 @media (max-width: 720px) {
-  .nav-project-list {
-    left: 0;
-    top: var(--spacing-nav-h-mobile);
-    right: 0;
-    border-top: 1px solid color-mix(in srgb, var(--color-light) 20%, transparent);
-  }
 }
 .nav-projects .project-title {
   position: fixed;
@@ -538,9 +494,9 @@ main.dark .text { color: var(--color-light); }
   height: var(--spacing-nav-h);
   display: flex;
   align-items: center;
-  font-family: "Neuropol", var(--font-bold);
+  font-family: var(--font-bold);
   text-transform: uppercase;
-  font-size: 14px;
+  font-size: 0.875rem;
   letter-spacing: 0.04em;
   padding: 0 1rem;
   margin: 0;
@@ -561,41 +517,13 @@ main.dark .text { color: var(--color-light); }
 .solo-mode [data-nextjs-dev-tools-button],
 .solo-mode nextjs-portal { display: none !important; }
 .solo-mode main { padding: 0 !important; }
-
-/* Carousel slide indicators rendered inside the project title */
-.slide-indicators {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-left: 12px;
-  vertical-align: middle;
-}
-.slide-indicator {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border: 1px solid currentColor;
-  background: transparent;
-  box-sizing: border-box;
-}
 .slide-indicator.active { background: currentColor; }
-.slide-nav-caret {
-  background: transparent;
-  border: 0;
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: inherit;
-  line-height: 0;
-}
 
 .project-info-toggle {
   background: transparent;
   border: 0;
-  padding: 4px 8px;
-  margin: 0 4px 0 16px;
+  padding: 0.25rem 0.5rem;
+  margin: 0 0.25rem 0 1rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -612,21 +540,6 @@ main.dark .text { color: var(--color-light); }
 .project-info-toggle.active .info-ring {
   fill: #b588ff;
   stroke: #b588ff;
-}
-
-.project-nav-arrows {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  margin-left: 16px;
-  vertical-align: middle;
-}
-.project-nav-label {
-  font-family: var(--font-bold);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  font-size: 12px;
-  line-height: 1;
 }
 .nav-projects a.project-nav-arrow {
   width: auto;
@@ -652,16 +565,16 @@ main.dark .text { color: var(--color-light); }
   color: var(--color-dark);
 }
 .nav-info-label {
-  font-family: "Neuropol", var(--font-bold);
+  font-family: var(--font-bold);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   /* Compact 12px label so the "CV" text sits cleanly inside the
      54×54 icon chip (matches `.project-nav-btn`). The title-text
      runs at 16px so the centre chip reads as the prominent one. */
-  font-size: 12px;
+  font-size: 0.75rem;
   line-height: 1;
 }
-.nav-info.dark { color: var(--color-light); }
+.nav-info.dark { color: var(--color-ink-light); }
 /* CV active state — unified with the Home active style
    (`.nav-main a.active { background-color: #b588ff; color: var(--color-dark) }`)
    so both buttons read identically when their page is the current
@@ -684,7 +597,7 @@ main.dark .text { color: var(--color-light); }
        chrome rhythm and gives a fingertip-friendlier target on the
        mobile sidebar stack. The CV-page social rail mirrors this
        size below so the socials sit at the same scale. */
-    --mobile-sidebar-icon-size: 56px;
+    --mobile-sidebar-icon-size: 3.5rem;
   }
   .nav-main {
     left: var(--mobile-sidebar-icon-inset);
@@ -714,7 +627,7 @@ main.dark .text { color: var(--color-light); }
     margin-bottom: 0;
   }
   .dark.nav-main a {
-    color: var(--color-light);
+    color: var(--color-ink-light);
     border-color: var(--color-light);
   }
   /* CV / info icon — stacks directly below the grid icon, same square
@@ -741,7 +654,7 @@ main.dark .text { color: var(--color-light); }
     will-change: transform;
   }
   .nav-info.dark {
-    color: var(--color-light);
+    color: var(--color-ink-light);
     border-color: var(--color-light);
   }
   /* Active state — Home (on /) and CV (on /about) share the same
@@ -768,18 +681,19 @@ main.dark .text { color: var(--color-light); }
     border-right-color: var(--color-light) !important;
     border-bottom-color: var(--color-light) !important;
   }
-  /* Whole-icon color cycle through the radials palette — definition
+
+/* Whole-icon color cycle through the radials palette — definition
      moved OUT of this `@media (max-width: 720px)` block to the top
      level (see immediately after the @media closes). When nested
      inside a media query, Turbopack scoped the @keyframes to the
      mobile breakpoint, so `.project-nav-btn:hover` (desktop) couldn't
      find the animation by name. */
+
   /* Header text font — Neuropol for the prose-y labels, but NOT for
      .nav-main a (which renders the "grid" icon glyph via SSStandard). */
-  .nav-info,
-  .nav-site-title,
-  .project-mobile-header-nav-link {
-    font-family: "Neuropol", var(--font-bold);
+
+  .nav-info {
+    font-family: var(--font-bold);
   }
   /* CV page: transparent topbar, no outlines on the icons, hide the CV
      cell, force grid + socials to dark so they read on the about page's
@@ -811,9 +725,13 @@ main.dark .text { color: var(--color-light); }
     min-height: 100lvh;
   }
 }
-@media (min-width: 721px) and (max-width: 900px) {
-  .nav-main { left: 12px; }
-  .nav-info { left: 12px; }
+/* Narrow-desktop inset: pull the nav chrome off the viewport edge so it
+   doesn't read as cramped. Above 1200 the content column is centered
+   with room to spare, so the chrome sits flush at left: 0 (line ~469).
+   Band widened from its old 721–900 to the standard 721–1200 ladder. */
+@media (min-width: 721px) and (max-width: 1200px) {
+  .nav-main { left: 0.75rem; }
+  .nav-info { left: 0.75rem; }
 }
 
 /* Whole-chip color cycle through the radials palette — used by
@@ -859,21 +777,7 @@ main.dark .text { color: var(--color-light); }
   90.9090% { border-color: #ffba45; }
   100%     { border-color: #ff1fe0; }
 }
-
-.nav-site-title {
-  display: inline-flex;
-  align-items: center;
-  height: var(--spacing-nav-h);
-  padding: 0 1rem;
-  font-family: var(--font-bold);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  font-size: 14px;
-  color: var(--color-dark);
-  white-space: nowrap;
-}
 @media (max-width: 720px) {
-  .nav-site-title { height: var(--spacing-nav-h-mobile); }
 }
 
 /* On desktop, nav-main is a column on the left edge; floating the site
@@ -884,8 +788,8 @@ main.dark .text { color: var(--color-light); }
 }
 
 /* dark variant */
-.dark.nav-main a, .dark.nav-projects a, .dark.nav-projects .project-title { color: var(--color-light); }
-.dark.nav-main .nav-site-title { color: var(--color-light); }
+.dark.nav-main a, .dark.nav-projects a, .dark.nav-projects .project-title { color: var(--color-ink-light); }
+.dark.nav-main .nav-site-title { color: var(--color-ink-light); }
 .dark.nav-main a.active { background-color: #b588ff; color: var(--color-dark); }
 
 /* Rainbow chip-hover via absolutely-positioned `::before` overlay
@@ -1025,9 +929,9 @@ main.dark .text { color: var(--color-light); }
   }
 }
 #project-list li {
-  width: calc(25% - 60px);
+  width: calc(25% - 3.75rem);
   aspect-ratio: 1;
-  margin: 30px;
+  margin: 1.875rem;
   box-sizing: border-box;
 }
 @media (max-width: 720px) {
@@ -1048,9 +952,11 @@ main.dark .text { color: var(--color-light); }
   font-family: var(--font-body);
   letter-spacing: 0.02em;
   text-transform: uppercase;
-  font-size: 14px;
-  padding: 5px;
-  border: 8px solid transparent;
+  font-size: 0.875rem;
+  padding: 0.3125rem;
+  /* Transparent border reserves the hover-highlight band. Spacing,
+     not a hairline, so it scales in rem. */
+  border: 0.25rem solid transparent;
   background: var(--card-bg, #fff);
   box-sizing: border-box;
   transition: background 0.2s ease;
@@ -1068,7 +974,7 @@ main.dark .text { color: var(--color-light); }
 #project-list img {
   object-fit: contain;
   max-width: 80%;
-  max-height: 60px;
+  max-height: 3.75rem;
   height: auto;
   width: auto;
   transition: all 1.5s ease;
@@ -1078,7 +984,7 @@ main.dark .text { color: var(--color-light); }
 #project-list .grid-item-zenith-poker img {
   animation: spin 10s linear infinite;
 }
-#project-list .grid-item-intergalactic-helm img { max-height: 120px; }
+#project-list .grid-item-intergalactic-helm img { max-height: 7.5rem; }
 @keyframes spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
 #project-list .grid-item-tobrit img {
   animation: tobrit-fade 9.6s ease-in-out infinite;
@@ -1086,64 +992,6 @@ main.dark .text { color: var(--color-light); }
 @keyframes tobrit-fade {
   0%, 100% { opacity: 0.35; }
   8%, 92%  { opacity: 1; }
-}
-
-/* ─── Index "View Old Sites" link ───────────────────────────── */
-.sites-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border: 2px solid var(--color-dark);
-  border-radius: 6px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
-}
-.sites-link:hover {
-  background-color: var(--color-dark);
-  color: var(--color-light);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-.index-sites-link { display: flex; justify-content: center; margin: 2rem 0; }
-
-/* Button-style "Paintings" / "Moving Meditations" CTA centered over the
-   hero image. Transparent background, white text, with a blunt offset
-   drop-shadow for a chunky button feel. */
-.index-hero-cta {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.55);
-  color: var(--color-light);
-  font-family: "Neuropol", var(--font-bold);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 18px;
-  padding: 0.75rem 2rem;
-  text-decoration: none;
-  z-index: 2;
-  border: 2px solid var(--color-light);
-  box-shadow: 6px 6px 0 var(--color-light);
-  transition: color 0.2s ease, background 0.2s ease,
-    box-shadow 0.15s ease, transform 0.15s ease;
-}
-.index-hero-cta:active {
-  box-shadow: 2px 2px 0 var(--color-light);
-  transform: translate(-50%, -50%) translate(4px, 4px);
-}
-.index-emergence-cta {
-  padding: 1.5rem 2rem;
-}
-.index-hero-cta:hover {
-  background: var(--color-sidebar-accent);
-  color: var(--color-dark);
 }
 
 /* "Moving Meditations" section beneath the paintings hero — same height
@@ -1179,11 +1027,11 @@ main.dark .text { color: var(--color-light); }
    on their own length, leaving a ragged left edge). */
 .index-intro p {
   width: 100%;
-  max-width: 720px;
+  max-width: 45rem;
   text-align: left;
   margin: 0 0 1rem;
-  font-size: 16px;
-  line-height: 24px;
+  font-size: 1rem;
+  line-height: 1.5rem;
   letter-spacing: normal;
 }
 .index-intro p:last-child {
@@ -1206,7 +1054,7 @@ main.dark .text { color: var(--color-light); }
      the icons. Hard-coded (not via the icon CSS vars) so the cascade
      can't drop it. */
   .index-intro {
-    padding: 2rem 1.25rem 2rem 88px;
+    padding: 2rem 1.25rem 2rem 5.5rem;
   }
 }
 
@@ -1223,20 +1071,10 @@ main.dark .text { color: var(--color-light); }
     padding-left: calc(2rem + var(--spacing-nav-icon-w) * 2);
   }
 }
-
-/* ─── Project page: mobile masonry vs. desktop carousel ─ */
-.project-mobile-stack { display: none; }
-.ac-mobile-videos { display: none; }
 .project-mobile-bottom-nav { display: none; }
-.er-mobile { display: none; }
-.wave-mobile-stack { display: none; }
 /* Default (desktop) — wave canvas shell is square. Mobile flips it to
    1:2 inside the @media (max-width: 720px) block below. */
 .wave-canvas-shell { aspect-ratio: 1 / 1; }
-.roses-mobile-canvas { display: none; }
-.lissajous-mobile-stack { display: none; }
-.index-site-title-mobile { display: none; }
-.project-mobile-header-nav { display: none; }
 
 /* View Transitions for project navigation */
 ::view-transition-old(root),
@@ -1254,19 +1092,6 @@ main.dark .text { color: var(--color-light); }
   .nav-projects { view-transition-name: vt-nav-projects; }
   .project-mobile-bottom-nav { view-transition-name: vt-nav-bottom; }
   .mobile-header-frame { view-transition-name: vt-header-frame; }
-  .project-mobile-header-nav { view-transition-name: vt-header-nav; }
-}
-html.vt-prev::view-transition-old(root) {
-  animation-name: vt-slide-out-right;
-}
-html.vt-prev::view-transition-new(root) {
-  animation-name: vt-slide-in-from-left;
-}
-html.vt-next::view-transition-old(root) {
-  animation-name: vt-slide-out-left;
-}
-html.vt-next::view-transition-new(root) {
-  animation-name: vt-slide-in-from-right;
 }
 @keyframes vt-slide-out-right {
   from { transform: translateX(0); }
@@ -1285,67 +1110,6 @@ html.vt-next::view-transition-new(root) {
   to { transform: translateX(0); }
 }
 @media (max-width: 720px) {
-  .project-mobile-stack {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-    width: 100%;
-    padding: 0;
-    box-sizing: border-box;
-    position: relative;
-    z-index: 1;
-  }
-  .project-desktop-carousel { display: none; }
-  .project-mobile-slide--single { width: 100%; }
-  .project-mobile-slide--stack {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-    width: 100%;
-  }
-  .project-mobile-slide--pair {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1px;
-    width: 100%;
-  }
-  .project-mobile-slide--pair > * { min-width: 0; }
-  .project-mobile-slide--pair > img {
-    aspect-ratio: 4 / 5;
-    object-fit: cover;
-    height: auto;
-  }
-  .project-mobile-slide--pair-natural { align-items: start; }
-  .project-mobile-slide--pair-natural > img {
-    aspect-ratio: auto;
-    object-fit: contain;
-    height: auto;
-  }
-  .project-mobile-slide--grid-2x2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1px;
-    width: 100%;
-  }
-  .project-mobile-slide--grid-2x2 > * { min-width: 0; }
-  .project-mobile-slide--grid-2x2 > img {
-    aspect-ratio: 1 / 1;
-    object-fit: cover;
-    width: 100%;
-    height: auto;
-  }
-  /* Cover hero already lives in a full-bleed stack. */
-  .project-mobile-slide--cover {
-    width: 100%;
-    height: 65vh;
-    overflow: hidden;
-  }
-  .project-mobile-slide--cover > img {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
-  }
-  .project-mobile-slide--text { padding: 1.5rem var(--spacing-page-mobile); }
   main.image-below-title .project-mobile-stack {
     padding-top: 0;
     padding-left: 0;
@@ -1353,66 +1117,6 @@ html.vt-next::view-transition-new(root) {
     gap: 1px;
   }
   #EternalReturn_Unobserved_Canvas { display: none !important; }
-  .slide-indicators { display: none !important; }
-  .project-nav-arrows { display: none !important; }
-  .er-mobile {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    padding-top: 0;
-  }
-  .er-mobile-canvas {
-    width: 100%;
-    background: #000;
-  }
-  .er-mobile-image {
-    width: 100%;
-    padding: 0 !important;
-    margin-top: 1px !important;
-    box-sizing: border-box;
-  }
-  .er-mobile-image:last-child { padding-bottom: 0; }
-  .er-mobile-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1px !important;
-    padding: 0 !important;
-    margin-top: 1px !important;
-    box-sizing: border-box;
-  }
-  .er-mobile-grid > * { min-width: 0; }
-  .er-mobile-grid > img {
-    aspect-ratio: 1 / 1;
-    object-fit: cover;
-    height: auto;
-  }
-  /* On meta pages, the eternal-return entry should only show its
-     canvas — strip the install photo + diagram grids that accompany
-     it on the project's own page. */
-  /* And blow the canvas up to fill the viewport instead of the fixed
-     4-col × 7-row height the project page uses. The canvas itself
-     reads its container dimensions to redo its grid, so just enlarging
-     this wrapper is enough — !important is the only reliable way to
-     beat the inline height the EternalReturnCarousel computes for
-     mobile. */
-  /* Per-slide bg rules used to live HERE inside the mobile-only
-     `@media (max-width: 720px)` block (a remnant of when the meta-
-     carousel only rendered on mobile). The new MetaCarousel renders
-     at all viewports, so the bg rules were moved out of this block
-     to apply universally — see the standalone block below the
-     legacy mobile rules. */
-
-  /* On the animations meta page, the roses entry should only show its
-     two canvases — strip the photo stack that runs above them on the
-     project's own page. */
-  /* main has `align-items: center`, which collapses each meta-project
-     section to its intrinsic width when no explicit width is set —
-     leaving inner `width: 100%` elements (canvases, image stacks)
-     unable to reach 100vw. Force full-width on every meta section. */
-  .meta-project {
-    width: 100%;
-    align-self: stretch;
-  }
   /* TagCarousel — full-bleed horizontal pager. Each slide is one project,
      sized to the viewport area below the topbar. Square / short canvases
      are centered vertically; tall content scrolls within its slide. */
@@ -1435,170 +1139,20 @@ html.vt-next::view-transition-new(root) {
     height: 100%;
     background: inherit;
   }
-  .meta-carousel-slide {
-    flex-shrink: 0;
-    width: 100vw;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    overflow-y: auto;
-    overflow-x: hidden;
-    box-sizing: border-box;
-    /* Same fallback — slide paints page bg if its child content is
-       briefly transparent or smaller than 100vw. */
-    background: inherit;
-  }
-  .meta-carousel-project {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-  /* Slot for a single square canvas inside a carousel slide. Sized to
-     the smaller of viewport-width vs the slide's height so it always
-     fits and is centered by the parent slide's flex layout. */
-  .meta-carousel-canvas-square {
-    /* Full viewport in the smaller dimension — old subtraction for the
-       horizontal nav bar is no longer needed. */
-    width: min(100vw, 100vh);
-    aspect-ratio: 1;
-    background: #130c12;
-    overflow: hidden;
-    position: relative;
-  }
-  .meta-carousel-nav {
-    position: absolute;
-    bottom: 1rem;
-    left: 0;
-    right: 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 1rem;
-    z-index: 10;
-    pointer-events: none;
-    font-family: "Neuropol", var(--font-bold);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    font-size: 14px;
-  }
-  .meta-carousel-btn {
-    pointer-events: auto;
-    background: rgba(0, 0, 0, 0.55);
-    color: var(--color-light);
-    font-family: inherit;
-    text-transform: inherit;
-    letter-spacing: inherit;
-    font-size: inherit;
-    padding: 0.55rem 1rem;
-    border: 1px solid var(--color-light);
-    cursor: pointer;
-  }
-  .meta-carousel-btn:disabled {
-    opacity: 0.3;
-    cursor: default;
-  }
-  .meta-carousel-counter {
-    pointer-events: none;
-    color: var(--color-light);
-    text-shadow: 0 0 6px rgba(0, 0, 0, 0.6);
-  }
-  .wave-mobile-stack {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-    width: 100%;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  .wave-mobile-cell {
-    width: 100%;
-    /* Matches the new mobile 2×4 cell layout inside the wave canvases
-       — the canvas itself is now 1:2 (portrait), so the cell wrapper
-       on the project page mirrors that aspect to avoid letterboxing. */
-    aspect-ratio: 1 / 2;
-    background: #000;
-  }
   /* Wave canvas shell — fills its parent (which on the meta carousel
      is the full viewport, on the project page is a wave-mobile-cell
      of fixed aspect). Aspect-ratio is dropped so the canvas can
      match the parent's shape exactly. */
   .wave-canvas-shell { aspect-ratio: auto; height: 100%; }
-  .index-hero {
-    width: 100% !important;
-    height: auto !important;
-  }
-  .index-hero-cta { font-size: 16px; }
-  .index-hero img {
-    width: 100% !important;
-    height: auto !important;
-    max-width: 100% !important;
-    object-fit: contain !important;
-  }
-  .wave-mobile-canvas {
-    width: 100%;
-  }
-  .roses-mobile-canvas {
-    display: block;
-    width: 100%;
-  }
-  /* Second roses canvas (single morphing rose curve) — square box like
-     the lissajous mobile cells. */
-  .roses-mobile-portraits {
-    aspect-ratio: 1;
-    overflow: hidden;
-    background: #000d19;
-    margin-top: 1px;
-  }
-  .lissajous-mobile-stack {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    width: 100%;
-    padding: 0;
-    box-sizing: border-box;
-    background: #130c13;
-  }
-  .lissajous-mobile-cell {
-    width: 100%;
-    aspect-ratio: 1;
-    background: #130c12;
-    overflow: hidden;
-  }
-  .nav-site-title {
-    position: fixed;
-    top: 0;
-    left: calc(var(--spacing-sidebar-icon-w-mobile) * 2);
-    width: auto;
-    height: var(--spacing-sidebar-mobile);
-    padding: 0 0.9rem;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    z-index: 5000;
-    color: var(--color-dark);
-    font-family: "Neuropol", var(--font-bold);
-    font-size: 16px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
   .dark.nav-main .nav-site-title {
-    color: var(--color-light);
+    color: var(--color-ink-light);
   }
-  .nav-site-title-inner {
-    display: inline-block;
-  }
-  .index-site-title-mobile { display: none; }
   .project-mobile-bottom-nav {
     display: flex;
     align-items: stretch;
     gap: 0;
     padding: 0;
-    height: 56px;
+    height: 3.5rem;
     width: 100%;
     box-sizing: border-box;
     position: fixed;
@@ -1648,69 +1202,15 @@ html.vt-next::view-transition-new(root) {
     outline: none;
     min-width: 0;
   }
-  .project-mobile-bottom-nav-label { display: none; }
-  .project-mobile-bottom-nav-arrow { flex-shrink: 0; font-size: 18px; }
   button.project-mobile-bottom-nav-link {
     border: 0;
     padding: 0;
     cursor: pointer;
     font: inherit;
   }
-  /* Horizontal topbar: prev / next share the leftover space to the right
-     of grid + cv. Color follows the project theme — dark glyphs on light
-     pages, light glyphs on dark pages. */
-  .project-mobile-header-nav {
-    position: fixed;
-    top: 0;
-    left: calc(var(--spacing-sidebar-icon-w-mobile) * 2);
-    right: 0;
-    height: var(--spacing-sidebar-mobile);
-    display: flex;
-    flex-direction: row;
-    align-items: stretch;
-    z-index: 5000;
-    color: var(--color-dark);
-  }
   .project-mobile-header-nav.dark {
-    color: var(--color-light);
+    color: var(--color-ink-light);
   }
-  .project-mobile-header-nav-link,
-  .project-mobile-header-nav-link:link,
-  .project-mobile-header-nav-link:visited,
-  .project-mobile-header-nav-link:hover,
-  .project-mobile-header-nav-link:active,
-  .project-mobile-header-nav-link:focus,
-  .project-mobile-header-nav-link:focus-visible {
-    flex: 1 1 0;
-    min-width: 0;
-    height: var(--spacing-sidebar-mobile);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 0.75rem;
-    border: 0;
-    border-right: 2px solid currentColor;
-    color: inherit;
-    background: transparent;
-    text-decoration: none;
-    cursor: pointer;
-    font-family: "Neuropol", var(--font-bold);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    font-size: 16px;
-    -webkit-tap-highlight-color: transparent;
-    outline: none;
-  }
-  .project-mobile-header-nav-link:last-child,
-  .project-mobile-header-nav-link:last-child:link,
-  .project-mobile-header-nav-link:last-child:visited,
-  .project-mobile-header-nav-link:last-child:hover,
-  .project-mobile-header-nav-link:last-child:active,
-  .project-mobile-header-nav-link:last-child:focus,
-  .project-mobile-header-nav-link:last-child:focus-visible {
-    border-right: 0;
-  }
-  .project-mobile-header-nav-arrow { flex-shrink: 0; }
 }
 
 /* ─── About page (animated gradient + x-tile + centered hero) ── */
@@ -1763,31 +1263,33 @@ html.vt-next::view-transition-new(root) {
 #about-info h1 {
   font-family: var(--font-bold);
   text-transform: uppercase;
-  font-size: 22px;
+  font-size: 1.375rem;
   letter-spacing: 0.04em;
-  margin: 0 0 20px;
+  margin: 0 0 1.25rem;
 }
-#about-info ul.socials { display: flex; justify-content: center; gap: 10px; }
-#about-info ul.socials :is(a, button).icon-standard { font-size: 15px; }
-#about-info ul.socials li { border: 10px solid transparent; transition: border-color 0.2s; }
+#about-info ul.socials { display: flex; justify-content: center; gap: 0.625rem; }
+#about-info ul.socials :is(a, button).icon-standard { font-size: 0.9375rem; }
+/* Transparent border acts as spacing (colored in on hover), not as a
+   hairline, so it scales in rem with the rest of the layout. */
+#about-info ul.socials li { border: 0.625rem solid transparent; transition: border-color 0.2s; }
 #about-info ul.socials li:hover { border-color: var(--color-light); }
 #about-info ul.socials :is(a, button) {
   color: var(--color-dark);
   background: transparent;
-  padding: 80px;
+  padding: 5rem;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 @media (max-width: 720px) {
-  #about-info ul.socials :is(a, button) { padding: 40px; }
+  #about-info ul.socials :is(a, button) { padding: 2.5rem; }
   #about-info ul.socials li { margin: 0 2px; }
 }
 
 /* About page: two-column layout — fixed info column, page-level scroll */
 main.about {
   display: block;
-  max-width: 1030px;
+  max-width: 64.375rem;
   margin: 0 auto;
 }
 main.about #about-info {
@@ -1800,8 +1302,8 @@ main.about #about-info {
   top: calc(
     var(--spacing-nav-h) + 1.25rem + var(--piece-gap, 1.5vw)
   );
-  left: calc(max(0px, (100vw - 1030px) / 2) + var(--spacing-page));
-  width: 220px;
+  left: calc(max(0px, (100vw - 64.375rem) / 2) + var(--spacing-page));
+  width: 13.75rem;
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -1810,8 +1312,8 @@ main.about #about-info {
   text-align: left;
   padding: 0;
 }
-main.about #about-info h1 { margin-bottom: 12px; }
-main.about #about-info > p { margin: 0 0 1.25rem; max-width: 220px; }
+main.about #about-info h1 { margin-bottom: 0.75rem; }
+main.about #about-info > p { margin: 0 0 1.25rem; max-width: 13.75rem; }
 main.about #about-info > .multi-stack {
   display: grid;
   grid-template-columns: auto auto auto;
@@ -1830,14 +1332,14 @@ main.about #about-info ul.socials {
      adjacent borders overlap into a single seam). */
   gap: 0;
   width: 100%;
-  padding-left: 40px;
+  padding-left: 2.5rem;
 }
 /* Drop the hover transition's 4px transparent border on `<li>` — it
    added vertical padding around each chip and broke the flush stack. */
 main.about #about-info ul.socials li { border-width: 0; }
 main.about #about-info ul.socials :is(a, button) {
-  width: 56px;
-  height: 56px;
+  width: 3.5rem;
+  height: 3.5rem;
   padding: 0;
   min-width: 0;
   /* Borderless on desktop too — the chrome-chip 2px stroke was
@@ -1888,15 +1390,22 @@ main.about #about-info ul.socials li:not(:first-child) :is(a, button) {
   border-top: 0;
 }
 main.about #about-cv {
-  margin: 0 0 0 calc(220px + 2.5rem);
-  max-width: 650px;
+  margin: 0 0 0 calc(13.75rem + 2.5rem);
+  max-width: 40.625rem;
   /* Top padding bumped by `var(--piece-gap, 1.5vw)` so the right
      column matches the fixed `#about-info` column's new top offset
      (both shifted down by one standard piece-gap on desktop). */
   padding: calc(.5rem + var(--piece-gap, 1.5vw)) 0 3rem;
 }
 main.about #about-cv .about-tabs { margin: 0; }
-@media (max-width: 900px) {
+/* Stacked /about layout. Was `max-width: 900px`, moved to the standard
+   720 breakpoint: every rule in this block sizes itself off
+   `--spacing-nav-h-mobile` (padding-left, the social rail width, the
+   icon buttons), and that token only takes effect under the mobile
+   chrome regime at <= 720. Running this block up to 900 meant the
+   721-900 band drew a mobile-sized rail against desktop-sized chrome,
+   which is what the old 721-900 nav nudge was compensating for. */
+@media (max-width: 720px) {
   main.about {
     display: flex;
     flex-direction: column;
@@ -1923,13 +1432,13 @@ main.about #about-cv .about-tabs { margin: 0; }
   /* Socials become a fixed vertical rail under the flower icon */
   main.about #about-info ul.socials {
     position: fixed;
-    top: calc(var(--spacing-nav-h-mobile) * 2 + 92px);
-    left: 12px;
+    top: calc(var(--spacing-nav-h-mobile) * 2 + 5.75rem);
+    left: 0.75rem;
     width: var(--spacing-nav-h-mobile);
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    gap: 4px;
+    gap: 0.25rem;
     padding: 0;
     margin: 0;
     z-index: 100;
@@ -1981,27 +1490,26 @@ main.about #about-cv .about-tabs { margin: 0; }
 #about-cv {
   position: relative;
   z-index: 2;
-  max-width: 900px;
+  max-width: 56.25rem;
   margin: 0 auto;
   padding: 3rem 2rem;
 }
 #about-cv h3 {
   font-family: var(--font-bold);
   font-weight: 700;
-  font-size: 13px;
+  font-size: 0.8125rem;
   letter-spacing: 0.06em;
   line-height: 1.4;
   color: var(--color-dark);
   margin: 2.5rem 0 0.3rem;
 }
 #about-cv ul { padding-left: 0; }
-#about-cv li { padding: 4px 0; }
+#about-cv li { padding: 0.25rem 0; }
 #about-cv .date { font-family: var(--font-bold); margin-right: 0.5rem; opacity: 0.7; }
-#about-cv .copyright { text-align: center; margin-top: 3rem; opacity: 0.6; font-size: 11px; }
 
 /* ─── Sites archive page ────────────────────────────────────── */
 .sites-container {
-  max-width: 960px;
+  max-width: 60rem;
   width: 100%;
   margin: 0 auto;
   padding: 2rem 1rem;
@@ -2009,12 +1517,12 @@ main.about #about-cv .about-tabs { margin: 0; }
 .sites-container h1 {
   font-family: var(--font-bold);
   text-transform: uppercase;
-  font-size: 22px;
+  font-size: 1.375rem;
   margin-bottom: 0.5rem;
 }
 .sites-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(16.25rem, 1fr));
   gap: 1.5rem;
   margin-top: 2rem;
 }
@@ -2026,59 +1534,23 @@ main.about #about-cv .about-tabs { margin: 0; }
   gap: 0.75rem;
   background: white;
 }
-.site-card h2 { font-family: var(--font-bold); margin: 0; font-size: 18px; }
-.site-card p { margin: 0; font-size: 13px; }
+.site-card h2 { font-family: var(--font-bold); margin: 0; font-size: 1.125rem; }
+.site-card p { margin: 0; font-size: 0.8125rem; }
 .site-card .site-links { display: flex; flex-direction: column; gap: 0.5rem; margin-top: auto; }
 .site-card a {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  font-size: 13px;
+  font-size: 0.8125rem;
   text-transform: uppercase;
 }
 .site-card a:hover { color: var(--color-orchid); }
-
-/* ─── Project filter chips ─────────────────────────────────── */
-.project-filter {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  justify-content: center;
-  padding: 0 var(--spacing-page);
-  margin: 1.5rem auto 0.5rem;
-  width: calc(100% - var(--spacing-page));
-  box-sizing: border-box;
-}
 @media (max-width: 720px) {
-  .project-filter {
-    width: 100%;
-    margin-left: 0;
-    padding: 0 var(--spacing-page-mobile);
-  }
-}
-.tag-chip {
-  appearance: none;
-  border: 1px solid var(--color-dark);
-  background: transparent;
-  color: var(--color-dark);
-  padding: 4px 12px;
-  font-family: var(--font-body);
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  font-size: 11px;
-  line-height: 1.4;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
-}
-.tag-chip:hover {
-  color: var(--color-orchid);
-  border-color: var(--color-orchid);
 }
 .tag-chip.active {
   background: var(--color-orchid);
   border-color: var(--color-orchid);
-  color: var(--color-light);
+  color: var(--color-ink-light);
 }
 
 /* ─── About page tabs + timeline ───────────────────────────── */
@@ -2097,10 +1569,10 @@ main.about #about-cv .about-tabs { margin: 0; }
      content. Transparent for non-active tabs. */
   border-bottom: 2px solid transparent;
   display: inline-block;
-  font-family: "Neuropol", var(--font-bold);
+  font-family: var(--font-bold);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  font-size: 12px;
+  font-size: 0.75rem;
   /* More generous tap-area + breathing room: was `1rem 0 0.6rem`
      (vertical-only). Bumped to add horizontal padding so the tabs
      read as chunkier buttons, plus a bit more vertical for the
@@ -2114,14 +1586,14 @@ main.about #about-cv .about-tabs { margin: 0; }
 .about-tab::after {
   content: attr(data-label);
   display: block;
-  font-family: "Neuropol", var(--font-bold);
+  font-family: var(--font-bold);
   height: 0;
   overflow: hidden;
   visibility: hidden;
 }
-.about-tab:hover { font-family: "Neuropol", var(--font-bold); }
+.about-tab:hover { font-family: var(--font-bold); }
 .about-tab.active {
-  font-family: "Neuropol", var(--font-bold);
+  font-family: var(--font-bold);
   color: var(--color-dark);
   border-bottom-color: currentColor;
 }
@@ -2137,11 +1609,11 @@ main.about #about-cv .about-tabs { margin: 0; }
   padding: 0 0 2.5rem;
 }
 #about-cv .cv-timeline > li:last-child { padding-bottom: 0.25rem; }
-#about-cv .cv-timeline > li > ul > li { padding: 3px 0; }
+#about-cv .cv-timeline > li > ul > li { padding: 0.1875rem 0; }
 .cv-timeline h4 {
   font-family: var(--font-bold);
   font-weight: 700;
-  font-size: 13px;
+  font-size: 0.8125rem;
   letter-spacing: 0.06em;
   margin: 0 0 0.3rem;
   line-height: 1.4;
@@ -2153,12 +1625,14 @@ main.about #about-cv .about-tabs { margin: 0; }
   margin: 0;
 }
 .cv-timeline > li > ul > li {
-  padding: 3px 0;
+  padding: 0.1875rem 0;
 }
 .cv-timeline a { text-decoration: underline; }
-@media (max-width: 540px) {
+/* Was `max-width: 540px`, folded into the 720 breakpoint. The tighter
+   timeline spacing reads better across the whole mobile range. */
+@media (max-width: 720px) {
   .cv-timeline > li { padding-bottom: 1.4rem; }
-  .cv-timeline h4 { font-size: 15px; }
+  .cv-timeline h4 { font-size: 0.9375rem; }
 }
 
 /* ──────────────────────────────────────────────────────────────────
@@ -2395,7 +1869,7 @@ main.about #about-cv .about-tabs { margin: 0; }
      chrome inset (`1rem`) + the chip height (`56px`) above it. */
   .piece-layout--hero {
     width: 100%;
-    padding: calc(1rem + 56px) var(--piece-gap, 1.5vw) 0;
+    padding: calc(1rem + 3.5rem) var(--piece-gap, 1.5vw) 0;
     box-sizing: border-box;
   }
   .piece-layout--hero img {
@@ -2503,7 +1977,8 @@ main.about #about-cv .about-tabs { margin: 0; }
 
 /* Shape of time — pure black */
 
-/* Emergence (RadialsCanvas) — white (sketch paints `p.background(255)`) */
+/* Emergence (RadialsCanvas) — transparent canvas (`p.clear()`); the
+   wrapper carries #f8f7ff to match the default light page bg. */
 
 /* AC animations (ac-video-1, ac-video-2 — `<Video>` pieces, no
    Sketch bg) — explicit white per design intent so the video
@@ -2515,7 +1990,7 @@ main.about #about-cv .about-tabs { margin: 0; }
    there's a data-description, with a ▾ caret SVG glyph. */
 .meta-carousel-active-title {
   position: fixed;
-  top: 4px;
+  top: 0.25rem;
   right: 1rem;
   height: var(--spacing-nav-h-mobile);
   display: flex;
@@ -2524,10 +1999,10 @@ main.about #about-cv .about-tabs { margin: 0; }
   padding: 0.55rem 1rem;
   box-sizing: border-box;
   margin: 0;
-  max-width: calc(100vw - 2 * var(--spacing-nav-h-mobile) - 16px);
-  font-family: "Neuropol", var(--font-bold);
+  max-width: calc(100vw - 2 * var(--spacing-nav-h-mobile) - 1rem);
+  font-family: var(--font-bold);
   font-weight: normal;
-  font-size: 16px;
+  font-size: 1rem;
   /* Long slide titles wrap to a second line instead of getting
      ellipsised — `line-height: 1.2` keeps two lines tight enough
      to fit inside the chip's height + Neuropol baseline. */
@@ -2546,9 +2021,9 @@ main.about #about-cv .about-tabs { margin: 0; }
 /* Button variant — clickable to toggle description panel */
 button.meta-carousel-active-title {
   cursor: pointer;
-  font-family: "Neuropol", var(--font-bold);
+  font-family: var(--font-bold);
   font-weight: normal;
-  font-size: 16px;
+  font-size: 1rem;
   line-height: 1;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -2572,9 +2047,9 @@ button.meta-carousel-active-title {
    chevron is clicked. */
 .meta-carousel-description-panel {
   position: fixed;
-  top: calc(var(--spacing-nav-h-mobile) + 4px);
+  top: calc(var(--spacing-nav-h-mobile) + 0.25rem);
   right: 1rem;
-  max-width: calc(100vw - 2 * var(--spacing-nav-h-mobile) - 16px);
+  max-width: calc(100vw - 2 * var(--spacing-nav-h-mobile) - 1rem);
   z-index: 2999;
   box-sizing: border-box;
   overflow: hidden;
@@ -2584,8 +2059,8 @@ button.meta-carousel-active-title {
   border: 2px solid currentColor;
   border-top: 0;
   font-family: var(--font-body);
-  font-size: 16px;
-  line-height: 26px;
+  font-size: 1rem;
+  line-height: 1.625rem;
   white-space: pre-wrap;
   max-height: 0;
   opacity: 0;
@@ -2653,7 +2128,7 @@ button.meta-carousel-active-title {
     width: var(--spacing-nav-icon-w);
     height: var(--spacing-nav-h);
     box-sizing: border-box;
-    border: 2px solid currentColor;
+    border: none;
     margin-bottom: 0;
     background: transparent;
     color: inherit;
@@ -2667,7 +2142,7 @@ button.meta-carousel-active-title {
     width: var(--spacing-nav-icon-w);
     height: var(--spacing-nav-h);
     box-sizing: border-box;
-    border: 2px solid currentColor;
+    border: none;
     border-left: 0;
     background: transparent;
     color: inherit;
@@ -2696,14 +2171,14 @@ button.meta-carousel-active-title {
     text-align: center;
     background: transparent;
     color: inherit;
-    border: 2px solid currentColor;
+    border: none;
     border-left: 0;
     border-right: 0;
-    font-family: "Neuropol", var(--font-bold);
+    font-family: var(--font-bold);
     font-weight: normal;
     /* Uniform 14px header — matches `.nav-info-label` (CV) and
        `.project-nav-btn` (PREV/NEXT). */
-    font-size: 14px;
+    font-size: 0.875rem;
     /* Allow titles to wrap to a second line — `line-height: 1.2`
        keeps two lines compact enough to fit inside the chip. */
     line-height: 1.2;
@@ -2749,9 +2224,9 @@ button.meta-carousel-active-title {
     justify-content: center;
     background: transparent;
     color: inherit;
-    border: 2px solid currentColor;
+    border: none;
     border-right-width: 0;
-    font-family: "Neuropol", var(--font-bold);
+    font-family: var(--font-bold);
     font-weight: normal;
     /* Font size handled by `.nav-projects a { font-size: 12px }`
        in the base block — no per-button override needed. */
@@ -2762,7 +2237,7 @@ button.meta-carousel-active-title {
     cursor: pointer;
   }
   .project-nav-btn:last-child {
-    border-right-width: 2px;
+    border-right-width: 0;
   }
   /* Hover handled by the `::before` pseudo overlay block higher up
      (top-level, shared with `.nav-main a` and `.nav-info`). The
@@ -2792,12 +2267,12 @@ button.meta-carousel-active-title {
   }
   .nav-main a {
     box-sizing: border-box;
-    border: 2px solid currentColor;
+    border: none;
     margin-bottom: 0;
   }
   .nav-info {
     box-sizing: border-box;
-    border: 2px solid currentColor;
+    border: none;
     border-top: 0;
     color: inherit;
   }
@@ -2854,10 +2329,10 @@ button.meta-carousel-active-title {
     text-decoration: none;
     -webkit-tap-highlight-color: transparent;
     outline: none;
-    font-family: "Neuropol", var(--font-bold);
+    font-family: var(--font-bold);
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    font-size: 14px;
+    font-size: 0.875rem;
     padding: 0.55rem 1rem;
     border: 2px solid currentColor;
     box-sizing: border-box;
@@ -2919,7 +2394,7 @@ body:has(main.about) .project-mobile-bottom-nav {
   .meta-carousel-track > .project-track .piece-sketch[data-sketch-id^="wave-"],
   .project-track .piece-sketch[data-sketch-id^="wave-"] {
     width: 100vw !important;
-    height: calc(100dvh - 1rem - 56px) !important;
+    height: calc(100dvh - 1rem - 3.5rem) !important;
     margin: 0;
     align-self: stretch;
     display: flex;
@@ -2965,7 +2440,7 @@ body:has(main.about) .project-mobile-bottom-nav {
   .meta-carousel-track > .project-track .piece-sketch[data-sketch-id="jellyfish-grid"],
   .project-track .piece-sketch[data-sketch-id="jellyfish-grid"] {
     width: 100vw !important;
-    height: calc(100dvh - 1rem - 56px) !important;
+    height: calc(100dvh - 1rem - 3.5rem) !important;
     margin: 0;
   }
   .meta-carousel-track > .project-track .piece-sketch[data-sketch-id="jellyfish-grid"] .wave-canvas-shell,
@@ -3386,7 +2861,7 @@ body:has(main.about) .project-mobile-bottom-nav {
     width: var(--mobile-sidebar-icon-size);
     height: var(--mobile-sidebar-icon-size);
     box-sizing: border-box;
-    border: 2px solid currentColor;
+    border: none;
     border-top: 0;
     color: inherit;
     background: transparent;
@@ -3447,7 +2922,7 @@ body:has(main.about) .project-mobile-bottom-nav {
     padding: 0;
     background: transparent;
     color: inherit;
-    border: 2px solid currentColor;
+    border: none;
     /* `border-top: 0` so CV's bottom border is the single shared seam
        line between CV and the toggle. Without this, the toggle's top
        border overlaps CV's bottom border (the wrapper uses `top:
@@ -3570,15 +3045,15 @@ body:has(main.about) .project-mobile-bottom-nav {
     justify-content: center;
     background: transparent;
     color: inherit;
-    /* Was `border: 2px solid currentColor; border-left: 0` — outline
+    /* Was `border: none; border-left: 0` — outline
        dropped on mobile per user preference; the chip's fill (rainbow
        when open, transparent when collapsed) plus the description
        panel's fill below carry the dialogue weight. */
     border: 0;
     cursor: pointer;
-    font-family: "Neuropol", var(--font-bold);
+    font-family: var(--font-bold);
     font-weight: normal;
-    font-size: 12px;
+    font-size: 0.75rem;
     line-height: 1.2;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -3676,17 +3151,17 @@ body:has(main.about) .project-mobile-bottom-nav {
   .project-mobile-bottom-nav-link:focus,
   .project-mobile-bottom-nav-link:focus-visible {
     flex: 0 0 auto;
-    width: 96px;
+    width: 6rem;
     height: var(--mobile-sidebar-icon-size);
     box-sizing: border-box;
     border: 2px solid currentColor;
     background: transparent;
     color: inherit;
-    font-family: "Neuropol", var(--font-bold);
+    font-family: var(--font-bold);
     font-weight: normal;
     /* Match the rest of the mobile chrome — 12px CV label, 12px
        title chip — so PREV/NEXT at the bottom share the baseline. */
-    font-size: 12px;
+    font-size: 0.75rem;
     line-height: 1;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -3855,7 +3330,7 @@ body:has(main.about) .project-mobile-bottom-nav {
     padding-top: var(--mobile-sidebar-icon-inset);
   }
   main.about #about-info {
-    padding-top: 18px;
+    padding-top: 1.125rem;
   }
   main.about #about-info h1 {
     margin-top: 0;
@@ -3903,14 +3378,14 @@ button.project-title {
   overflow-wrap: anywhere;
   /* 16px reads as the prominent centre chip — flanked by the
      supporting 12px CV label + 12px PREV/NEXT chips. */
-  font-size: 16px;
+  font-size: 1rem;
 }
 @media (max-width: 720px) {
   /* On mobile the title chip is narrower and shares the top bar with
      the 12px CV label; drop the title to match so the strip reads
      consistently and long titles have more room before wrapping. */
   .project-title__text {
-    font-size: 12px;
+    font-size: 0.75rem;
   }
 }
 .project-title__glyph {
@@ -3963,8 +3438,8 @@ button.project-title {
   border: 2px solid currentColor;
   border-top: 0;
   font-family: var(--font-body);
-  font-size: 16px;
-  line-height: 26px;
+  font-size: 1rem;
+  line-height: 1.625rem;
   white-space: pre-wrap;
   max-height: 0;
   opacity: 0;
@@ -3981,10 +3456,10 @@ button.project-title {
 /* Inner wrapper — caps the description text at a readable 700px
    line-length and centres it inside the full-width panel. */
 .project-description-panel__inner {
-  max-width: 700px;
+  max-width: 43.75rem;
   margin: 0 auto;
-  font-size: 16px;
-  line-height: 24px;
+  font-size: 1rem;
+  line-height: 1.5rem;
 }
 
 /* Desktop — anchor to the desktop title chip slot. Left/right offsets
@@ -4229,8 +3704,8 @@ body.light-slide {
    CSS (CSS attributes win on `<svg>` despite the HTML width/height). */
 @media (max-width: 720px) {
   .nav-house-icon {
-    width: 18px;
-    height: 18px;
+    width: 1.125rem;
+    height: 1.125rem;
   }
 }
 
@@ -4373,7 +3848,7 @@ body.light-slide {
    re-apply them on `__chip` instead. */
 @media (max-width: 720px) {
   .project-mobile-bottom-nav {
-    --chip-h: 44px;
+    --chip-h: 2.75rem;
   }
   /* Button = full hit area; no visible chrome. `!important` beats the
      mobile-chip border/bg rules earlier in this file. */
@@ -4413,9 +3888,9 @@ body.light-slide {
     background-clip: padding-box;
     border: 2px solid color-mix(in srgb, currentColor 50%, transparent);
     color: inherit;
-    font-family: "Neuropol", var(--font-bold);
+    font-family: var(--font-bold);
     font-weight: normal;
-    font-size: 12px;
+    font-size: 0.75rem;
     line-height: 1;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -4467,89 +3942,84 @@ body.light-slide {
    canvas's `triggered` state. Chip styling matches the rest of the
    site's chrome family (translucent fill, eased border).
    ────────────────────────────────────────────────────────────────── */
+/* Stacked layout: a controls row on top, canvas filling everything
+   below. Was a single absolutely-positioned eye chip overlaid on the
+   canvas; split back into two explicitly labelled buttons because one
+   eye glyph left it ambiguous whether the icon showed the CURRENT
+   state or the one you'd switch to. */
 .eternal-return-toggle {
   position: relative;
   width: 100%;
   height: 100%;
-}
-/* Single toggle button — was two side-by-side (closed-eye / open-eye)
-   pressed-state chips; consolidated into one button whose icon
-   cross-fades between the two eyes based on `--active`. Click =
-   flip observation state. Positioned absolutely at the bottom-
-   center of the canvas slot (where the `__buttons` wrapper used
-   to sit). */
-.eternal-return-toggle__btn {
-  position: absolute;
-  bottom: clamp(1rem, 4vh, 2.5rem);
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
-  pointer-events: auto;
-  width: 52px;
-  height: 52px;
   display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.eternal-return-toggle__buttons {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  z-index: 10;
+}
+
+/* Canvas takes the remaining height. `min-height: 0` lets this shrink
+   below the canvas's intrinsic size inside the flex column, which is
+   what keeps the whole piece inside a media column that never
+   scrolls. `position: relative` anchors the canvas, which renders
+   `position: absolute; inset: 0` under `inFlow`. */
+.eternal-return-toggle__canvas {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+}
+
+.eternal-return-toggle__btn {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0.5rem;
+  padding: 0.4375rem 0.875rem;
   border-radius: 999px;
   border: 2px solid color-mix(in srgb, var(--color-light) 35%, transparent);
   background-color: color-mix(in srgb, #000 55%, transparent);
-  color: var(--color-light);
+  color: var(--color-ink-light);
   cursor: pointer;
-  padding: 0;
   font: inherit;
   transition: border-color 180ms ease, background-color 180ms ease,
-    color 180ms ease;
+    color 180ms ease, opacity 180ms ease;
   -webkit-tap-highlight-color: transparent;
+  /* Inactive state reads as available rather than disabled. */
+  opacity: 0.65;
 }
 .eternal-return-toggle__btn:hover {
   border-color: color-mix(in srgb, var(--color-light) 70%, transparent);
+  opacity: 1;
 }
 .eternal-return-toggle__btn--active {
   border-color: var(--color-light);
   background-color: color-mix(in srgb, var(--color-light) 18%, transparent);
+  opacity: 1;
 }
 .eternal-return-toggle__btn:focus-visible {
   outline: 2px solid var(--color-light);
   outline-offset: 2px;
 }
 
-/* Icon stack — closed-eye + open-eye SVGs overlaid in the same
-   22×22 slot. CSS toggles opacity + a tiny scaleY based on the
-   `data-observed` attribute so the swap reads as the eye lid
-   lifting rather than a hard cut. `transform-origin: center` keeps
-   the open-eye pupil aligned with the closed-eye centre during the
-   transition. */
-.eternal-return-toggle__icon-stack {
-  position: relative;
-  width: 22px;
-  height: 22px;
-  display: inline-block;
-}
 .eternal-return-toggle__icon {
-  position: absolute;
-  inset: 0;
-  transform-origin: center;
-  transition: opacity 220ms ease, transform 220ms ease;
+  flex: 0 0 auto;
 }
-.eternal-return-toggle__icon-stack[data-observed="false"]
-  .eternal-return-toggle__icon--closed {
-  opacity: 1;
-  transform: scaleY(1);
-}
-.eternal-return-toggle__icon-stack[data-observed="false"]
-  .eternal-return-toggle__icon--open {
-  opacity: 0;
-  transform: scaleY(0.3);
-}
-.eternal-return-toggle__icon-stack[data-observed="true"]
-  .eternal-return-toggle__icon--closed {
-  opacity: 0;
-  transform: scaleY(0.3);
-}
-.eternal-return-toggle__icon-stack[data-observed="true"]
-  .eternal-return-toggle__icon--open {
-  opacity: 1;
-  transform: scaleY(1);
+
+.eternal-return-toggle__label {
+  font-family: var(--font-bold);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 /* Shorter canvas heights for `lissajous*`, `wave-*`, and the
@@ -4580,22 +4050,11 @@ body.light-slide {
   .piece-sketch[data-sketch-id^="lissajous"],
   .piece-sketch[data-sketch-id^="wave-"],
   .piece-sketch[data-sketch-id="eternal-return-toggle"] {
-    height: calc(100svh - 56px) !important;
-  }
-  .eternal-return-toggle__buttons {
-    position: absolute;
-    bottom: 1rem;
-    left: 50%;
-    transform: translateX(-50%);
-    height: auto;
-    align-items: stretch;
-    padding-bottom: 0;
-    gap: 0.5rem;
-    z-index: 10;
+    height: calc(100svh - 3.5rem) !important;
   }
   .eternal-return-toggle__btn {
-    width: 44px;
-    height: 44px;
+    width: 2.75rem;
+    height: 2.75rem;
   }
 }
 
@@ -4689,7 +4148,7 @@ body.light-slide {
   padding: 0;
   background: transparent;
   color: var(--color-dark);
-  max-width: min(560px, calc(100vw - 2rem));
+  max-width: min(35rem, calc(100vw - 2rem));
   width: 100%;
   /* Bring the panel a bit above center so it reads against the
      fold-line rather than the absolute middle. */
@@ -4714,7 +4173,7 @@ body.light-slide {
   box-sizing: border-box;
   color: #fff;
   font-family: var(--font-body);
-  font-size: 14px;
+  font-size: 0.875rem;
   line-height: 1.5;
   min-height: 100%;
 }
@@ -4725,9 +4184,9 @@ body.light-slide {
      left-aligned column. */
   margin: 0;
   padding: 1.5rem 1.5rem 1rem;
-  font-family: "Neuropol", var(--font-bold);
+  font-family: var(--font-bold);
   font-weight: normal;
-  font-size: 18px;
+  font-size: 1.125rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -4741,8 +4200,8 @@ body.light-slide {
 .contact-modal__close {
   align-self: flex-end;
   flex-shrink: 0;
-  width: 44px;
-  height: 44px;
+  width: 2.75rem;
+  height: 2.75rem;
   display: flex !important;
   align-items: center;
   justify-content: center;
@@ -4778,9 +4237,9 @@ body.light-slide {
   padding: 0 1.5rem;
 }
 .contact-modal__label {
-  font-family: "Neuropol", var(--font-bold);
+  font-family: var(--font-bold);
   font-weight: normal;
-  font-size: 11px;
+  font-size: 0.6875rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -4846,11 +4305,11 @@ body.light-slide {
      with plenty of breathing room around the "Send" label. */
   padding: 1rem 5rem !important;
   text-align: center;
-  font-family: "Neuropol", var(--font-bold);
+  font-family: var(--font-bold);
   font-weight: normal;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  font-size: 14px;
+  font-size: 0.875rem;
   background: transparent;
   color: #fff !important;
   /* 2px white border on all four sides so the chip reads as a
@@ -4914,16 +4373,16 @@ body.light-slide {
 .contact-modal__success {
   margin: 0;
   padding: 0.5rem 0;
-  font-family: "Neuropol", var(--font-bold);
+  font-family: var(--font-bold);
   font-weight: normal;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  font-size: 13px;
+  font-size: 0.8125rem;
 }
 .contact-modal__error {
   margin: 0;
   color: var(--color-orchid);
-  font-size: 12px;
+  font-size: 0.75rem;
 }
 
 /* The `<ContactButton>` reuses the existing socials chip rule; just
@@ -5005,7 +4464,7 @@ body.light-slide {
   .meta-carousel-track
     > .project-track
     .piece-sketch[data-sketch-id="roses-portraits"] {
-    height: calc(100dvh - 1rem - 56px) !important;
+    height: calc(100dvh - 1rem - 3.5rem) !important;
   }
 
   /* Hook 2b — AC videos. The `<Video>` primitive emits
@@ -5039,14 +4498,14 @@ body.light-slide {
   bottom: 1rem;
   left: 50%;
   transform: translateX(-50%);
-  width: 56px;
-  height: 56px;
+  width: 3.5rem;
+  height: 3.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: var(--chrome-scrim, color-mix(in srgb, #000 55%, transparent));
   background-clip: padding-box;
-  color: var(--color-light);
+  color: var(--color-ink-light);
   border: 2px solid color-mix(in srgb, currentColor 50%, transparent);
   border-radius: 999px;
   padding: 0;
@@ -5102,8 +4561,8 @@ body.light-slide {
   .shape-of-time-refresh {
     top: auto;
     bottom: var(--mobile-sidebar-icon-inset, 1rem);
-    width: 44px;
-    height: 44px;
+    width: 2.75rem;
+    height: 2.75rem;
   }
 }
 
@@ -5130,4 +4589,154 @@ body.light-slide {
   main.about #about-info ul.socials :is(a, button) {
     border: 0 !important;
   }
+}
+
+/* ─── Flat nav chrome ───────────────────────────────────────────
+   No background fill on the top nav in ANY state, on any page.
+
+   The chips previously filled on `.active` (#b588ff on the current
+   section's chip) and carried a `::before` overlay whose
+   `background-color` was animated through the radials palette by the
+   `nav-grid-cycle` keyframes, wall-clock synced across the chrome.
+   With the bar now thin and borderless, those fills were the last
+   thing giving the chips a box; removing them leaves the nav as pure
+   glyph + label.
+
+   NOTE: this retires the rainbow chrome cycle as a visible effect.
+   The keyframes and the wall-clock sync in NavClient are untouched,
+   so it can be brought back by pointing the animation at `color`
+   instead of `background-color` if the motion is still wanted.
+
+   Declared last, with `!important`, so it overrides ~15 scattered
+   state rules rather than editing each one. */
+.nav-main,
+.nav-projects,
+.nav-main a,
+.nav-main a.active,
+.dark.nav-main a.active,
+.nav-info,
+.nav-info.active,
+.nav-info.dark.active,
+.nav-projects .project-title,
+.project-nav-btn,
+.project-nav-btn:hover,
+.project-title-toggle,
+.project-title-toggle--open {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.nav-main a::before,
+.nav-info::before,
+.project-nav-btn::before,
+.project-title-toggle::before {
+  display: none !important;
+}
+
+/* The Home chip is icon + wordmark, so it can no longer be a fixed
+   square. Size to content and sit the two on a shared baseline.
+
+   `.nav-info` (CV) is a fixed-positioned SIBLING whose `left` was
+   computed for a square Home chip, so widening Home made the two
+   overlap ("KCVBY"). It's offset by the Home chip's width via
+   `margin-left`, which shifts a fixed box regardless of which `left`
+   value the current breakpoint gave it, so this holds across all of
+   them without duplicating the offset per media query. */
+.nav-main a.icon-standard {
+  width: auto !important;
+  min-width: var(--spacing-nav-h);
+  gap: 0.5rem;
+  padding-inline: 0;
+}
+
+.nav-home-label {
+  font-family: var(--font-bold);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  /* Extra air between "Kiamora" and "Kirby". Letter-spacing already
+     opens the tracking, which closes up the word gap by comparison, so
+     the space between words is widened to match. */
+  word-spacing: 0.35em;
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+:root {
+  /* Clearance CV needs to sit clear of the Home chip: the icon plus
+     the wordmark plus a gap. Retune this if the wordmark text changes
+     length. It was 4.75rem for "Kirby"; "Kiamora Kirby" with its wider
+     word-spacing needs a good deal more. */
+  --spacing-nav-home-w: 10.5rem;
+}
+
+/* Desktop only. Home and CV sit side by side there, so CV has to clear
+   the Home chip's icon + "Kirby" wordmark. On mobile they STACK
+   vertically, so the same offset just shoved CV rightward into the
+   content column, where it collided with the rail's title. */
+@media (min-width: 721px) {
+  .nav-info {
+    margin-left: var(--spacing-nav-home-w);
+  }
+}
+
+/* ─── Eternal-return toggle: palette-matched ────────────────────
+   #b588ff is the exact colour the sketch draws its cells with
+   (`p.color(181, 136, 255)` in EternalReturnUnobservedCanvas), so the
+   control reads as part of the artwork rather than generic chrome.
+     active   → purple fill, black label
+     inactive → purple label, no fill
+   Borders removed on both. */
+.eternal-return-toggle__btn {
+  border: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  color: #b588ff !important;
+  opacity: 1;
+}
+
+/* Semi-transparent fill so the animation reads through the chip.
+   The label stays solid black: at 55% over a black canvas the fill
+   sits around #644B8C, which black text still clears comfortably. */
+.eternal-return-toggle__btn--active {
+  background-color: rgba(181, 136, 255, 0.55) !important;
+  color: #000 !important;
+}
+
+.eternal-return-toggle__btn:hover {
+  opacity: 0.8;
+}
+
+.eternal-return-toggle__btn:focus-visible {
+  outline: 2px solid #b588ff;
+  outline-offset: 2px;
+}
+
+/* ─── Nav text: one rule ────────────────────────────────────────
+   Every piece of text in the top chrome takes the same size and
+   tracking, matching the "Kirby" wordmark.
+
+   Previously this was spread across seven rules at three different
+   sizes (0.875 / 0.75 / 0.6875rem) and two letter-spacings, so the
+   wordmark rendered ~1px smaller than CV / PREV / NEXT beside it.
+   Declared last so it settles the ties with those earlier rules
+   (several share the same selectors inside media queries) without
+   needing `!important`. Tune the two tokens to move the whole bar. */
+:root {
+  --nav-text-size: 0.6875rem;
+  --nav-text-tracking: 0.08em;
+}
+
+.nav-main a,
+.nav-home-label,
+.nav-info,
+.nav-info-label,
+.nav-projects a,
+.project-nav-btn,
+.nav-projects .project-title,
+.project-title__text,
+.project-mobile-bottom-nav-link,
+.project-mobile-bottom-nav-link__chip {
+  font-size: var(--nav-text-size);
+  letter-spacing: var(--nav-text-tracking);
 }

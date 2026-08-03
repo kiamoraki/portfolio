@@ -1,0 +1,52 @@
+@font-face {
+    font-family: 'EK Roumald';
+    src: url('EKRoumald-BoldItalic.eot');
+    src: local('EK Roumald Bold Italic'), local('EKRoumald-BoldItalic'),
+        url('EKRoumald-BoldItalic.eot?#iefix') format('embedded-opentype'),
+        url('EKRoumald-BoldItalic.woff2') format('woff2'),
+        url('EKRoumald-BoldItalic.woff') format('woff'),
+        url('EKRoumald-BoldItalic.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'EK Roumald';
+    src: url('EKRoumald-Roman.eot');
+    src: local('EK Roumald Roman'), local('EKRoumald-Roman'),
+        url('EKRoumald-Roman.eot?#iefix') format('embedded-opentype'),
+        url('EKRoumald-Roman.woff2') format('woff2'),
+        url('EKRoumald-Roman.woff') format('woff'),
+        url('EKRoumald-Roman.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'EK Roumald';
+    src: url('EKRoumald-Bold.eot');
+    src: local('EK Roumald Bold'), local('EKRoumald-Bold'),
+        url('EKRoumald-Bold.eot?#iefix') format('embedded-opentype'),
+        url('EKRoumald-Bold.woff2') format('woff2'),
+        url('EKRoumald-Bold.woff') format('woff'),
+        url('EKRoumald-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'EK Roumald';
+    src: url('EKRoumald-Italic.eot');
+    src: local('EK Roumald Italic'), local('EKRoumald-Italic'),
+        url('EKRoumald-Italic.eot?#iefix') format('embedded-opentype'),
+        url('EKRoumald-Italic.woff2') format('woff2'),
+        url('EKRoumald-Italic.woff') format('woff'),
+        url('EKRoumald-Italic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+    font-display: swap;
+}
+

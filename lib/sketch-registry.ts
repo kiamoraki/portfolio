@@ -74,7 +74,7 @@ export const SKETCHES: Record<string, SketchEntry> = {
   "shape-of-time-v2": { Component: C(ShapeOfTimeV2Canvas), bg: "#000" },
 
   // ─── Animations: emergence (RadialsCanvas) ───
-  emergence: { Component: C(RadialsCanvas), bg: "#fff" },
+  emergence: { Component: C(RadialsCanvas), bg: "#f8f7ff" },
 
   // ─── Animations: lissajous family ───
   "lissajous-canvas": { Component: C(LissajousCanvas), bg: "#000" },

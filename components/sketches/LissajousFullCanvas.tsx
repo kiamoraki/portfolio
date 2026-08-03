@@ -57,8 +57,16 @@ const pickFreqPair = (): [number, number] => {
   return [a, b];
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const sketch = (p: any) => {
+// Sketch factory. Callers pass scale options; returned function is the
+// p5 sketch closure. Defaults preserve full-viewport behavior.
+const makeSketch = (opts: {
+  sizeScale?: number;
+  inFlow?: boolean;
+}) =>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (p: any) => {
+  const sizeScale = opts.sizeScale ?? 1;
+  const inFlow = opts.inFlow ?? false;
   // Current and next pair — particles are always interpolating between
   // them. When morphProgress hits 1, current becomes next and a fresh
   // next pair is picked, no pause.
@@ -105,24 +113,30 @@ const sketch = (p: any) => {
     return [window.innerWidth, window.innerHeight];
   };
 
+  // When inFlow the canvas fits a smaller container; amp scales with
+  // canvas dims. When !inFlow (full viewport) amp is derived from
+  // viewport-min (original behavior). sizeScale multiplies either.
+  const computeAmp = () => {
+    const dimBase = inFlow
+      ? Math.min(p.width, p.height)
+      : typeof window !== "undefined"
+        ? Math.min(window.innerWidth, window.innerHeight)
+        : Math.min(p.width, p.height);
+    return dimBase * ampRatio() * sizeScale;
+  };
+
   p.setup = () => {
     p.pixelDensity(1);
     const [cw, ch] = dims();
     p.createCanvas(cw, ch);
     p.frameRate(29);
-    amp =
-      (typeof window !== "undefined"
-        ? Math.min(window.innerWidth, window.innerHeight)
-        : Math.min(p.width, p.height)) * ampRatio();
+    amp = computeAmp();
   };
 
   p.windowResized = () => {
     const [cw, ch] = dims();
     p.resizeCanvas(cw, ch);
-    amp =
-      (typeof window !== "undefined"
-        ? Math.min(window.innerWidth, window.innerHeight)
-        : Math.min(p.width, p.height)) * ampRatio();
+    amp = computeAmp();
   };
 
   p.draw = () => {
@@ -251,12 +265,17 @@ type CanvasProps = {
   // default fixed 100vh — used by mobile stacks that render each canvas
   // in a constrained square box.
   inFlow?: boolean;
+  // Multiplier for amp (visible diameter of the curve). Default 1.
+  // Combined with the inFlow amp fix, callers can further shrink the
+  // drawing to fit even smaller containers.
+  sizeScale?: number;
 };
 
 export function LissajousFullCanvas({
   isActive = true,
   canvasRef,
   inFlow = false,
+  sizeScale = 1,
 }: CanvasProps = {}) {
   const containerRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -270,7 +289,10 @@ export function LissajousFullCanvas({
       const P5 = await loadP5();
       if (cancelled || !containerRef.current) return;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const instance = new P5(sketch as any, containerRef.current) as any;
+      const instance = new P5(
+        makeSketch({ sizeScale, inFlow }) as any,
+        containerRef.current,
+      ) as any;
       p5Ref.current = instance;
       if (canvasRef) canvasRef.current = instance.canvas as HTMLCanvasElement;
       // Honour the current isActive at the moment the sketch initializes,
@@ -283,8 +305,10 @@ export function LissajousFullCanvas({
       (p5Ref.current as any)?.remove?.();
       if (canvasRef) canvasRef.current = null;
     };
+    // Rebuild the p5 instance if scale props change (amp captured at
+    // sketch creation).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [sizeScale, inFlow]);
 
   useEffect(() => {
     const p5 = p5Ref.current;

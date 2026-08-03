@@ -7,8 +7,9 @@ import { useEffect, useRef, type MutableRefObject } from "react";
 const PROJECT_BLUE = { r: 42, g: 88, b: 255 };
 
 // Dense enough that even the highest-gcd curves (theta = 2π) read as a smooth
-// closed line rather than a polygon.
-const NUM_PARTICLES = 600;
+// closed line rather than a polygon. Callers can scale this via countScale
+// when the sketch renders in a smaller container.
+const DEFAULT_NUM_PARTICLES = 600;
 // Matches the grid slide's outermost-dot radius. On mobile the grid uses
 // sideRatio 0.95, so amp = 0.475 here makes the visible diameter line up
 // at the same width as the grid sketch.
@@ -60,8 +61,22 @@ const easeInOutCubic = (t: number) =>
 
 const LINE_WEIGHT = 3;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const sketch = (p: any) => {
+// Sketch factory. Callers pass scale options; the returned function is the
+// p5 sketch closure. Defaults preserve pre-refactor full-viewport behavior:
+// sizeScale=1 keeps amp on the viewport-min ratio, countScale=1 keeps the
+// original 600-particle density, inFlow=false keeps viewport-driven amp.
+const makeSketch = (opts: {
+  sizeScale?: number;
+  countScale?: number;
+  inFlow?: boolean;
+}) =>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (p: any) => {
+  const sizeScale = opts.sizeScale ?? 1;
+  const countScale = opts.countScale ?? 1;
+  const inFlow = opts.inFlow ?? false;
+  const NUM_PARTICLES = Math.max(3, Math.round(DEFAULT_NUM_PARTICLES * countScale));
+
   let cx = 0;
   let cy = 0;
   let amp = 100;
@@ -84,14 +99,16 @@ const sketch = (p: any) => {
   const recomputeSize = () => {
     cx = p.width / 2;
     cy = p.height / 2;
-    // Amp is computed from the viewport (not the canvas) so the visible
-    // diameter is always proportional to what the user actually sees,
-    // never overflowing because of an oversized container.
-    const viewportMin =
-      typeof window !== "undefined"
+    // When inFlow the canvas fits a smaller container, so amp scales with
+    // canvas dims. When !inFlow the canvas fills the viewport and amp is
+    // based on viewport-min (original behavior). sizeScale multiplies both
+    // for callers that want to shrink further.
+    const dimBase = inFlow
+      ? Math.min(p.width, p.height)
+      : typeof window !== "undefined"
         ? Math.min(window.innerWidth, window.innerHeight)
         : Math.min(p.width, p.height);
-    amp = viewportMin * ampRatio();
+    amp = dimBase * ampRatio() * sizeScale;
   };
 
   const dims = (): [number, number] => {
@@ -187,12 +204,19 @@ type CanvasProps = {
   isActive?: boolean;
   canvasRef?: MutableRefObject<HTMLCanvasElement | null>;
   inFlow?: boolean;
+  // Multiplier for amp (visible diameter). Default 1. Only applies when
+  // inFlow (viewport-mode amp is derived from viewport dims directly).
+  sizeScale?: number;
+  // Multiplier for particle density (default 600). Default 1.
+  countScale?: number;
 };
 
 export function LissajousPortraitsCanvas({
   isActive = true,
   canvasRef,
   inFlow = false,
+  sizeScale = 1,
+  countScale = 1,
 }: CanvasProps = {}) {
   const containerRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -206,7 +230,10 @@ export function LissajousPortraitsCanvas({
       const P5 = await loadP5();
       if (cancelled || !containerRef.current) return;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const instance = new P5(sketch as any, containerRef.current) as any;
+      const instance = new P5(
+        makeSketch({ sizeScale, countScale, inFlow }) as any,
+        containerRef.current,
+      ) as any;
       p5Ref.current = instance;
       if (canvasRef) canvasRef.current = instance.canvas as HTMLCanvasElement;
       if (!isActiveRef.current) instance.noLoop?.();
@@ -217,8 +244,10 @@ export function LissajousPortraitsCanvas({
       (p5Ref.current as any)?.remove?.();
       if (canvasRef) canvasRef.current = null;
     };
+    // Rebuild the p5 instance if scale props change (arrays sized to
+    // NUM_PARTICLES can't be resized mid-flight).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [sizeScale, countScale, inFlow]);
 
   useEffect(() => {
     const p5 = p5Ref.current;

@@ -8,7 +8,7 @@
     "indexInProject": 0,
     "sketch": {
       "id": "emergence",
-      "bg": "#fff"
+      "bg": "#f8f7ff"
     }
   },
   {
@@ -575,7 +575,7 @@
   },
   {
     "projectSlug": "fake-rekordz",
-    "pieceId": "fake-rekordz-spanky-claireshort",
+    "pieceId": "fake-rekordz-spanky",
     "tags": [
       "design"
     ],
@@ -584,7 +584,7 @@
   },
   {
     "projectSlug": "fake-rekordz",
-    "pieceId": "fake-rekordz-popelaz-lynxyx",
+    "pieceId": "fake-rekordz-claire-short",
     "tags": [
       "design"
     ],
@@ -592,7 +592,7 @@
   },
   {
     "projectSlug": "fake-rekordz",
-    "pieceId": "fake-rekordz-claireshort-casualt",
+    "pieceId": "fake-rekordz-popelaz",
     "tags": [
       "design"
     ],
@@ -600,7 +600,7 @@
   },
   {
     "projectSlug": "fake-rekordz",
-    "pieceId": "fake-rekordz-spaceout-bbbiennale",
+    "pieceId": "fake-rekordz-lynxyx",
     "tags": [
       "design"
     ],
@@ -608,11 +608,35 @@
   },
   {
     "projectSlug": "fake-rekordz",
-    "pieceId": "fake-rekordz-goldify",
+    "pieceId": "fake-rekordz-claireshort-casualt",
     "tags": [
       "design"
     ],
     "indexInProject": 4
+  },
+  {
+    "projectSlug": "fake-rekordz",
+    "pieceId": "fake-rekordz-spaceout",
+    "tags": [
+      "design"
+    ],
+    "indexInProject": 5
+  },
+  {
+    "projectSlug": "fake-rekordz",
+    "pieceId": "fake-rekordz-bb-biennale",
+    "tags": [
+      "design"
+    ],
+    "indexInProject": 6
+  },
+  {
+    "projectSlug": "fake-rekordz",
+    "pieceId": "fake-rekordz-goldify",
+    "tags": [
+      "design"
+    ],
+    "indexInProject": 7
   },
   {
     "projectSlug": "moon-raves",

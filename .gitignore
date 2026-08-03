@@ -51,3 +51,8 @@ npm-debug.log*
 # portfolio remote if it lands in a ./cv/ folder here.
 /cv/
 
+
+# Superpowers plan docs. These describe work in the PRIVATE ~/Dev/cv
+# repo and embed personal contact details (phone, email) that must not
+# reach this public remote.
+/docs/superpowers/

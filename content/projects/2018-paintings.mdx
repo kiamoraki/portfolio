@@ -1,6 +1,7 @@
 ---
 title: Paintings
 slug: paintings
+layout: split
 year: 2018
 tags: [painting]
 thumb: portals.png
@@ -15,9 +16,32 @@ legacyPath: /mandalas.html
 <Figure src="/img/mars/22-mural-zenbus.jpg" />
 <Figure src="/img/220909-Mural-Kreuzberg-Berlin/220909_mural_kreuzberg_01.jpeg" />
 <Figure src="/img/220909-Mural-Kreuzberg-Berlin/220909_mural_kreuzberg_00.JPG" />
-<Figure src="/img/TOBRIT/Kirby_TOBRIT_jakob_markus_heer-3.jpg" />
-<Figure src="/img/TOBRIT/Kirby_TOBRIT_disgaux-1.jpg" />
-<Figure src="/img/TOBRIT/Kirby_TOBRIT_tobrit_dot_com-2.jpg" />
+
+{/* These two videos are 640×360 (16:9 landscape) — leave the
+    `<Video>` without an `aspect` prop so the default `.video iframe
+    { aspect-ratio: 16/9 }` CSS rule paints them at their natural
+    landscape shape. The earlier `aspect="1"` forced a square wrapper,
+    which Vimeo's player then letterboxed with big black bars top +
+    bottom. Distinct from the portrait Vimeo on `ac-install` (9:16)
+    — that piece uses the `<Iframe>` primitive with `aspect="9 / 16"`. */}
+
+<Figure src="/img/drawings/20181113-kirby-littledude-01-min.jpg" caption={`Portal — 18" x 18"`} />
+<Figure src="/img/drawings/20181113-kirby-littledude-04-min.jpg" caption={`Portal — 18" x 18"`} />
+
+<Row>
+  <Figure src="/img/drawings/20181113-kirby-littledude-03-min.jpg" caption={`Portal — 18" x 18"`} />
+  {/* Hidden for now, kept for reference:
+      <Video src="https://player.vimeo.com/video/311493973?autoplay=1&autopause=0&loop=1&title=0&portrait=0&byline=0" /> */}
+</Row>
+
+<Row>
+  {/* Hidden for now, kept for reference:
+      <Video src="https://player.vimeo.com/video/311494599?autoplay=1&autopause=0&loop=1&title=0&portrait=0&byline=0" /> */}
+  <Figure src="/img/drawings/20181113-kirby-littledude-02-min.jpg" caption={`Portal — 18" x 18"`} />
+</Row>
+
+<Figure src="/img/drawings/20181113-kirby-littledude-05-min.jpg" caption={`Portal — 18" x 18"`} />
+<Figure src="/img/drawings/20181113-kirby-littledude-06-min.jpg" caption={`Portal — 18" x 18"`} />
 <Row>
   <Figure src="/img/helm-dyc/energyskeleton-2.JPG" />
   <Figure src="/img/helm-dyc/rainbowroad-vertical.JPG" />
@@ -29,32 +53,6 @@ legacyPath: /mandalas.html
 
 <Figure src="/img/drawings/20181217-kirby-jay-oceanwithnobottomandnosurface-min.jpg" caption="An Ocean with No Bottom and No Surface — 3' x 3'" />
 
-<Row>
-  <Figure src="/img/drawings/20181113-kirby-littledude-01-min.jpg" caption={`Portal — 18" x 18"`} />
-  <Figure src="/img/drawings/20181113-kirby-littledude-04-min.jpg" caption={`Portal — 18" x 18"`} />
-</Row>
-
-{/* These two videos are 640×360 (16:9 landscape) — leave the
-    `<Video>` without an `aspect` prop so the default `.video iframe
-    { aspect-ratio: 16/9 }` CSS rule paints them at their natural
-    landscape shape. The earlier `aspect="1"` forced a square wrapper,
-    which Vimeo's player then letterboxed with big black bars top +
-    bottom. Distinct from the portrait Vimeo on `ac-install` (9:16)
-    — that piece uses the `<Iframe>` primitive with `aspect="9 / 16"`. */}
-<Row>
-  <Figure src="/img/drawings/20181113-kirby-littledude-03-min.jpg" caption={`Portal — 18" x 18"`} />
-  <Video src="https://player.vimeo.com/video/311493973?autoplay=1&autopause=0&loop=1&title=0&portrait=0&byline=0" />
-</Row>
-
-<Row>
-  <Video src="https://player.vimeo.com/video/311494599?autoplay=1&autopause=0&loop=1&title=0&portrait=0&byline=0" />
-  <Figure src="/img/drawings/20181113-kirby-littledude-02-min.jpg" caption={`Portal — 18" x 18"`} />
-</Row>
-
-<Row>
-  <Figure src="/img/drawings/20181113-kirby-littledude-05-min.jpg" caption={`Portal — 18" x 18"`} />
-  <Figure src="/img/drawings/20181113-kirby-littledude-06-min.jpg" caption={`Portal — 18" x 18"`} />
-</Row>
 
 <Figure src="/img/drawings/20180920-kirby-everythingandnothing_01-min.jpg" caption="Everything & Nothing — 3' x 3'" />
 
@@ -67,18 +65,22 @@ legacyPath: /mandalas.html
 
 <Video src="https://player.vimeo.com/video/127563017?autoplay=0&autopause=0&loop=1&title=0&portrait=0&byline=0" />
 
-<Figure src="/img/drawings/20150415-kirby-jesse-min.jpg" caption="Gremlin — 3' x 3'" />
-<Figure src="/img/drawings/20160503-kirby-jonah-min.jpg" caption="Gremlin — 3' x 3'" />
+{/* Hidden for now, kept for reference:
+    <Figure src="/img/drawings/20150415-kirby-jesse-min.jpg" caption="Gremlin — 3' x 3'" /> */}
+{/* Hidden for now, kept for reference:
+    <Figure src="/img/drawings/20160503-kirby-jonah-min.jpg" caption="Gremlin — 3' x 3'" /> */}
 
-<Row>
-  <Figure src="/img/drawings/20150410-kirby-maegan-min.jpg" caption="Gremlin — 3' x 3'" />
-  <Figure src="/img/drawings/20150915-kirby-maggie-min.jpg" caption="Gremlin — 3' x 3'" />
-</Row>
+{/* Hidden for now, kept for reference:
+    <Row>
+      <Figure src="/img/drawings/20150410-kirby-maegan-min.jpg" caption="Gremlin — 3' x 3'" />
+      <Figure src="/img/drawings/20150915-kirby-maggie-min.jpg" caption="Gremlin — 3' x 3'" />
+    </Row> */}
 
-<Row>
-  <Figure src="/img/drawings/20200714-kirby-jtree-creature-min.jpg" caption={`Creature — 18" x 18"`} />
-  <Figure src="/img/drawings/20200715-kirby-jtree-creature-min.jpg" caption={`Creature — 18" x 18"`} />
-  <Figure src="/img/drawings/20200716-kirby-jtree-creature-min.jpg" caption={`Creature — 18" x 18"`} />
-</Row>
+{/* Hidden for now, kept for reference:
+    <Row>
+      <Figure src="/img/drawings/20200714-kirby-jtree-creature-min.jpg" caption={`Creature — 18" x 18"`} />
+      <Figure src="/img/drawings/20200715-kirby-jtree-creature-min.jpg" caption={`Creature — 18" x 18"`} />
+      <Figure src="/img/drawings/20200716-kirby-jtree-creature-min.jpg" caption={`Creature — 18" x 18"`} />
+    </Row> */}
 
 

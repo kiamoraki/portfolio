@@ -32,6 +32,11 @@ export type ProjectFrontmatter = {
   // Drives chrome (page bg, sidebar icons, prev/next, pinned title) via
   // CSS variables. Falls back to `theme` for backward compatibility.
   colorMode?: "light" | "dark";
+  /* Page template. Omitted = the default full-bleed piece sequence.
+     "split" = the 1/3 text rail + 2/3 content column template (see
+     app/project-split.css). Opting a project in is a one-line
+     frontmatter change; no dedicated route file needed. */
+  layout?: "split";
   // Project-default credit. Individual pieces may override.
   credit?: string;
 };
@@ -107,6 +112,7 @@ export function getAllProjects(): Project[] {
           ? data.colorMode
           : undefined,
       credit: data.credit ? String(data.credit) : undefined,
+      layout: data.layout === "split" ? "split" : undefined,
       content,
     };
   });

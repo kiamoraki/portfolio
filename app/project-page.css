@@ -21,16 +21,6 @@
   }
 }
 @media (max-width: 720px) {
-  .meta-project[data-slug="eternal-return"] .er-mobile-image,
-  .meta-project[data-slug="eternal-return"] .er-mobile-grid {
-    display: none;
-  }
-  .meta-project[data-slug="eternal-return"] .er-mobile-canvas--unobserved {
-    height: 100vh !important;
-  }
-  .meta-project[data-slug="roses"] .project-mobile-stack {
-    display: none;
-  }
 }
 .meta-carousel-track
   > .project-track:has(
@@ -91,7 +81,7 @@
 }
 @media (min-width: 721px) {
   .project-track-content[data-slug="fake-rekordz"] {
-    padding-top: calc(1rem + 56px + var(--piece-gap, 1.5vw));
+    padding-top: calc(1rem + 3.5rem + var(--piece-gap, 1.5vw));
   }
   .project-track-content[data-slug="fake-rekordz"] .piece-layout--pair {
     height: auto;
@@ -107,11 +97,16 @@
 }
 @media (min-width: 721px) {
   .project-track-content[data-slug="lissajous"] {
-    padding-top: calc((1rem + 56px) / 2 + 10vh);
+    padding-top: calc((1rem + 3.5rem) / 2 + 10vh);
   }
-  .project-track-content[data-slug="lissajous"] > .piece:first-child:has(.piece-sketch) .piece-sketch {
-    height: 80dvh !important;
-  }
+  /* Was `height: 80dvh !important`, which singled out lissajous's
+     FIRST sketch while its four siblings took the shared 90dvh. In the
+     split template that made slide 1 render 720px tall against the
+     others at 803. Lissajous now renders only through the split
+     template (its dedicated route was removed), where the sketch fills
+     its column, so the override has no remaining purpose. Kept as a
+     no-op comment rather than deleted so the intent is traceable if
+     the first-slide treatment is ever wanted back. */
   .project-track-content[data-slug="lissajous"] > .piece:first-child:has(.piece-sketch) {
     margin-bottom: var(--piece-gap, 1.5vw);
   }
@@ -441,8 +436,8 @@ main[data-project-slug="paintings"] .row:has(img[src*="energyskeleton-2"]) > fig
   top: 50%;
   left: 50%;
   width: 18vw;
-  min-width: 120px;
-  max-width: 240px;
+  min-width: 7.5rem;
+  max-width: 15rem;
   height: auto;
   transform: translate(-50%, -50%);
   z-index: 2;
@@ -459,7 +454,7 @@ main[data-project-slug="paintings"] .row:has(img[src*="energyskeleton-2"]) > fig
 }
 @media (min-width: 721px) {
   .project-track-content[data-slug="artificial-consciousness"] {
-    padding-top: calc(1rem + 56px + var(--piece-gap, 1.5vw));
+    padding-top: calc(1rem + 3.5rem + var(--piece-gap, 1.5vw));
   }
 }
 @media (min-width: 721px) {
@@ -475,7 +470,7 @@ main[data-project-slug="paintings"] .row:has(img[src*="energyskeleton-2"]) > fig
   }
   main[data-project-slug="paintings"],
   main[data-project-slug="intergalactic-helm"] {
-    padding-top: calc(1rem + 56px + var(--piece-gap, 1.5vw));
+    padding-top: calc(1rem + 3.5rem + var(--piece-gap, 1.5vw));
   }
 }
 main[data-project-slug="intergalactic-helm"] {
@@ -849,7 +844,7 @@ body:is(
        edges, which is exactly the symptom that left ~30vw of dead
        space between each tile and the video. */
     width: 25vw;
-    max-width: 540px;
+    max-width: 33.75rem;
     height: auto;
     aspect-ratio: 1;
     object-fit: cover;
@@ -972,8 +967,8 @@ main[data-project-slug="multiverse"] .project-track-content {
 @media (min-width: 721px) {
   main[data-project-slug="shape-of-time"]
     .piece-sketch[data-sketch-id="shape-of-time"] {
-    margin-top: calc(1rem + 56px) !important;
-    height: calc(100dvh - 1rem - 56px) !important;
+    margin-top: calc(1rem + 3.5rem) !important;
+    height: calc(100dvh - 1rem - 3.5rem) !important;
     display: flex !important;
     align-items: center;
     justify-content: center;
@@ -1012,12 +1007,12 @@ main[data-project-slug="multiverse"] .project-track-content {
   .project-track:has(
     > .project-track-content[data-slug="wave"]
   ) {
-    padding-top: calc(1rem + 56px);
+    padding-top: calc(1rem + 3.5rem);
   }
   .meta-carousel-track
     > .project-track
     > .project-track-content[data-slug^="ac-video"] {
-    height: calc(100dvh - 1rem - 56px);
+    height: calc(100dvh - 1rem - 3.5rem);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1051,7 +1046,7 @@ main[data-project-slug="multiverse"] .project-track-content {
     ) {
     padding-bottom: calc(
       var(--mobile-sidebar-icon-inset, 1rem) +
-        var(--mobile-sidebar-icon-size, 56px)
+        var(--mobile-sidebar-icon-size, 3.5rem)
     );
   }
 }
@@ -1140,10 +1135,10 @@ body[data-meta-active-slug="shape-of-time"] .shape-of-time-refresh {
      Desktop override below pulls them back to the right edge. */
   top: calc(
     var(--mobile-sidebar-icon-inset, 1rem) +
-      var(--mobile-sidebar-icon-size, 56px) * 3 + 1rem
+      var(--mobile-sidebar-icon-size, 3.5rem) * 3 + 1rem
   );
   left: var(--mobile-sidebar-icon-inset, 1rem);
-  width: var(--mobile-sidebar-icon-size, 56px);
+  width: var(--mobile-sidebar-icon-size, 3.5rem);
   z-index: 4500;
   display: flex;
   flex-direction: column;
@@ -1159,8 +1154,8 @@ body[data-meta-active-slug="shape-of-time"] .shape-of-time-refresh {
 .slide-dots__dot {
   pointer-events: auto;
   appearance: none;
-  width: 8px;
-  height: 8px;
+  width: 0.5rem;
+  height: 0.5rem;
   padding: 0;
   border-radius: 50%;
   background: transparent;
@@ -1195,8 +1190,8 @@ body[data-meta-active-slug="shape-of-time"] .shape-of-time-refresh {
     gap: 0.6rem;
   }
   .slide-dots__dot {
-    width: 10px;
-    height: 10px;
+    width: 0.625rem;
+    height: 0.625rem;
   }
 }
 

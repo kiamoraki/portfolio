@@ -65,27 +65,21 @@ export default function RootLayout({
             `font-display: swap` (set per @font-face in globals.css)
             this means text renders in the fallback font for ~0ms
             instead of waiting on a font request that doesn't start
-            until CSS parsing reaches the rule. Limited to the body
-            + bold faces (DroidSans is the system text font; Neuropol
-            is the chrome / heading font) — the other 7 faces aren't
-            on the first viewport of any page and load on demand. */}
+            until CSS parsing reaches the rule. Limited to the two EK
+            Roumald cuts that appear above the fold on some page:
+            Roman (body copy) and Bold (chrome chips, headings). The
+            Italic and BoldItalic cuts are not on any first viewport,
+            so they load on demand. */}
         <link
           rel="preload"
-          href="/fonts/DroidSans.woff2"
+          href="/fonts/EKRoumald/EKRoumald-Roman.woff2"
           as="font"
           type="font/woff2"
           crossOrigin="anonymous"
         />
         <link
           rel="preload"
-          href="/fonts/DroidSans-Bold.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="preload"
-          href="/fonts/neuropol.woff2"
+          href="/fonts/EKRoumald/EKRoumald-Bold.woff2"
           as="font"
           type="font/woff2"
           crossOrigin="anonymous"

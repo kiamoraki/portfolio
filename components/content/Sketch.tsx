@@ -30,9 +30,14 @@ type SketchProps = {
   id: string;
   bg?: string;
   colorMode?: ColorModeValue;
+  /** Ask the canvas to contain its composition inside the frame rather
+   *  than bleeding past it. Settable per-instance from MDX
+   *  (`<Sketch id="…" fitInside />`). Canvases that don't declare a
+   *  `fitInside` prop ignore it, exactly like `inFlow`. */
+  fitInside?: boolean;
 };
 
-export function Sketch({ id, bg, colorMode }: SketchProps) {
+export function Sketch({ id, bg, colorMode, fitInside }: SketchProps) {
   const entry = SKETCHES[id];
   // IntersectionObserver gate: don't render the inner Component (which
   // mounts a p5 instance + starts its draw loop) until the wrapper is
@@ -98,7 +103,7 @@ export function Sketch({ id, bg, colorMode }: SketchProps) {
           track. Without it, position: fixed re-anchors to the
           transformed ancestor and slides off-screen as you page.
           Canvases that don't define an `inFlow` prop just ignore it. */}
-      {visible ? <Component inFlow /> : null}
+      {visible ? <Component inFlow fitInside={fitInside} /> : null}
     </div>
   );
 }

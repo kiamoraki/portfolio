@@ -9,10 +9,11 @@ const ANGLE_ADDER = 0.1;
 const PCT_INCREMENT = 0.01;
 const AMP_RATIO = 15 / 90; // amp / cellSize from original 810x810 / 9
 
-// Rose curve shape depends on the *reduced* petal ratio p/q (e.g., 2:4
-// and 1:2 trace the same curve). Build the deduplicated list of pairs
-// from the full 9×9 source — gives 55 unique shapes — so the grid
-// shows each rose exactly once with no visual repeats.
+// Rose curve shape depends on the *reduced* petal ratio n/d: 2/4 and
+// 1/2 trace the same curve. The grid deliberately shows the FULL 9x9
+// matrix rather than deduplicating, so a cell's position encodes its
+// (n, d) directly and the axes are meaningful. Reducible pairs are
+// still identified, and drawn white, so the repeats read as repeats.
 function gcdRose(a: number, b: number): number {
   let x = Math.abs(a) || 1;
   let y = Math.abs(b) || 1;
@@ -22,49 +23,6 @@ function gcdRose(a: number, b: number): number {
     x = t;
   }
   return x;
-}
-const UNIQUE_ROSE_PAIRS: Array<[number, number]> = (() => {
-  const seen = new Set<string>();
-  const out: Array<[number, number]> = [];
-  for (let x = 1; x <= GRID; x++) {
-    for (let y = 1; y <= GRID; y++) {
-      const g = gcdRose(x, y);
-      const key = `${x / g},${y / g}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      out.push([x / g, y / g]);
-    }
-  }
-  return out;
-})();
-
-// Pick the grid (cols, rows) that holds at least `count` cells AND has
-// cells as close to square as possible for the given viewport aspect.
-// Lightly penalises unused cells so we prefer factorisations that fill
-// exactly (e.g. 5×11 = 55 for the rose set on portrait viewports).
-function pickRoseGridShape(
-  count: number,
-  w: number,
-  h: number,
-): [number, number] {
-  let bestCols = 1;
-  let bestRows = count;
-  let bestScore = Infinity;
-  for (let cols = 1; cols <= count; cols++) {
-    const rows = Math.ceil(count / cols);
-    if (cols * rows < count) continue;
-    const cellW = w / cols;
-    const cellH = h / rows;
-    const aspectDiff = Math.abs(cellW / cellH - 1);
-    const unused = cols * rows - count;
-    const score = aspectDiff + unused * 0.05;
-    if (score < bestScore) {
-      bestScore = score;
-      bestCols = cols;
-      bestRows = rows;
-    }
-  }
-  return [bestCols, bestRows];
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -78,6 +36,12 @@ const sketch = (p: any) => {
     color: { r: number; g: number; b: number };
     theta: number;
     amp: number;
+    // Reducible (n, d) pairs repeat a curve drawn elsewhere in the
+    // matrix. They run the same pink-cyan sweep as everything else but
+    // enter it half a cycle out of phase, so at any instant they sit on
+    // the opposite side of the gradient from their coprime neighbours
+    // and the repeats read as a distinct family.
+    isDuplicate: boolean;
 
     constructor(
       ox: number,
@@ -87,12 +51,18 @@ const sketch = (p: any) => {
       initR: number,
       initG: number,
       initB: number,
-      amp: number
+      amp: number,
+      isDuplicate = false
     ) {
       this.origin = { x: ox, y: oy };
       this.petal = { x: px, y: py };
       this.color = { r: initR, g: initG, b: initB };
-      this.pct = initG / 255;
+      this.isDuplicate = isDuplicate;
+      // `pct` is the position in the pink-cyan cycle. Seeding it from
+      // the cell's gradient value keeps the sweep travelling across the
+      // grid; duplicates are pushed half a cycle on so they read as
+      // counter-phase to the coprime cells around them.
+      this.pct = ((initG / 255) + (isDuplicate ? 0.5 : 0)) % 1;
       this.theta = this.petal.x / this.petal.y !== 1 ? 2 * this.petal.y * 180 : 360;
       this.amp = amp;
     }
@@ -111,7 +81,10 @@ const sketch = (p: any) => {
         this.increment *= -1;
       }
 
-      // Interpolate between pink (255, 0, 255) and cyan (0, 255, 255)
+      // Interpolate between pink (255, 0, 255) and cyan (0, 255, 255).
+      // Every rose sweeps, duplicates included: what sets them apart is
+      // WHERE in the cycle they start (see the constructor), not
+      // whether they animate.
       this.color.r = (1 - this.pct) * 255 + this.pct * 0;
       this.color.g = (1 - this.pct) * 0 + this.pct * 255;
       this.color.b = 255;
@@ -141,34 +114,77 @@ const sketch = (p: any) => {
   }
 
   const roses: Rose[] = [];
+  // Axis ticks, rebuilt by `layoutRoses` so they track any resize.
+  // Per-cell n/d labels were replaced by these: with the full matrix
+  // restored, position already encodes (n, d), so labelling all 81
+  // cells would repeat what the axes say.
+  type Tick = { x: number; y: number; text: string };
+  let axisN: Tick[] = [];
+  let axisD: Tick[] = [];
+  let corner: Tick | null = null;
+  let labelSize = 10;
 
   const layoutRoses = () => {
-    // Lay out only the 55 visually-unique rose shapes (no repeats), in
-    // a grid sized so cells are as close to square as possible for the
-    // current viewport aspect — fills the canvas evenly.
-    const [cols, rows] = pickRoseGridShape(
-      UNIQUE_ROSE_PAIRS.length,
-      p.width,
-      p.height,
+    // Fixed GRID x GRID matrix: column = n, row = d. Gutters on the top
+    // and left hold the axis labels, so the cells start inset.
+    const axis = Math.max(
+      14,
+      Math.min(26, Math.min(p.width, p.height) * 0.035),
     );
-    const cellW = p.width / cols;
-    const cellH = p.height / rows;
+    labelSize = Math.max(8, Math.min(13, axis * 0.55));
+    // The left gutter holds "d=9" (three glyphs) rather than a bare
+    // digit, so it needs more room than the top one, which only has to
+    // clear the text's height.
+    const gridX = axis * 2.1;
+    const gridY = axis;
+    const cellW = (p.width - gridX) / GRID;
+    const cellH = (p.height - gridY) / GRID;
     const amp = Math.min(cellW, cellH) * AMP_RATIO;
 
     roses.length = 0;
-    for (let i = 0; i < UNIQUE_ROSE_PAIRS.length; i++) {
-      const [px, py] = UNIQUE_ROSE_PAIRS[i];
-      const gx = i % cols;
-      const gy = Math.floor(i / cols);
-      const cx = cellW / 2 + cellW * gx;
-      const cy = cellH / 2 + cellH * gy;
-      // Color gradient keyed to grid position — preserves the original
-      // sketch's pink → cyan sweep across the grid.
-      const sum = gx + gy;
-      const r = 255 - 15 * sum;
-      const g = 0 + 15 * sum;
-      const b = 255;
-      roses.push(new Rose(cx, cy, px, py, r, g, b, amp));
+    axisN = [];
+    axisD = [];
+
+    for (let gx = 0; gx < GRID; gx++) {
+      for (let gy = 0; gy < GRID; gy++) {
+        const n = gx + 1;
+        const d = gy + 1;
+        const cx = gridX + cellW / 2 + cellW * gx;
+        const cy = gridY + cellH / 2 + cellH * gy;
+        // A reducible pair draws the same curve as its reduced form
+        // elsewhere in the matrix. It takes the same positional gradient
+        // as everything else; the flag only shifts its phase.
+        const isDuplicate = gcdRose(n, d) > 1;
+        const sum = gx + gy;
+        const r = 255 - 15 * sum;
+        const g = 0 + 15 * sum;
+        const b = 255;
+        roses.push(new Rose(cx, cy, n, d, r, g, b, amp, isDuplicate));
+      }
+    }
+
+    // Corner key in the gutter intersection, naming the relationship
+    // the two axes describe.
+    corner = {
+      x: gridX * 0.5,
+      y: gridY * 0.5,
+      text: "k=n/d",
+    };
+
+    // Axis ticks: n across the top, d down the left edge.
+    for (let gx = 0; gx < GRID; gx++) {
+      axisN.push({
+        x: gridX + cellW / 2 + cellW * gx,
+        y: gridY - labelSize * 0.4,
+        text: `n=${gx + 1}`,
+      });
+    }
+    for (let gy = 0; gy < GRID; gy++) {
+      axisD.push({
+        x: gridX * 0.5,
+        y: gridY + cellH / 2 + cellH * gy,
+        text: `d=${gy + 1}`,
+      });
     }
   };
 
@@ -208,6 +224,23 @@ const sketch = (p: any) => {
       r.update();
       r.draw();
     }
+
+    // Axis ticks: n across the top, d down the left. Drawn last so no
+    // curve paints over them, and dimmed so they read as annotation.
+    p.push();
+    p.noStroke();
+    p.fill(255, 255, 255, 140);
+    p.textSize(labelSize);
+    p.textAlign(p.CENTER, p.BASELINE);
+    for (const t of axisN) p.text(t.text, t.x, t.y);
+    p.textAlign(p.CENTER, p.CENTER);
+    for (const t of axisD) p.text(t.text, t.x, t.y);
+    if (corner) {
+      // Slightly brighter than the ticks: it's a key, not a value.
+      p.fill(255, 255, 255, 190);
+      p.text(corner.text, corner.x, corner.y);
+    }
+    p.pop();
   };
 };
 

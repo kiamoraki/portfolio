@@ -32,6 +32,14 @@ type Props = {
   // exactly, may leave vertical space). Default: cells overflow to fully
   // cover the canvas area.
   fitWidth?: boolean;
+  // When true, the whole grid is contained INSIDE the canvas: cell size
+  // is derived from whichever axis is tighter, and the row count is
+  // floored, so `offX`/`offY` stay >= 0 and any leftover shows as even
+  // borders. Default (false) keeps the cover behaviour, where cells
+  // overflow the canvas and the outer ring is clipped.
+  // Needed by the 16:9 split-layout frame, where a clipped outer ring
+  // reads as broken rather than as full-bleed.
+  fitInside?: boolean;
   // Force the grid to this exact column count instead of deriving it from
   // TARGET_CELL_SIZE. Used by the mobile layout to lock a 4-up grid.
   cols?: number;
@@ -41,7 +49,14 @@ export const EternalReturnUnobservedCanvas = forwardRef<
   EternalReturnCanvasController,
   Props
 >(function EternalReturnUnobservedCanvas(
-  { controlled = false, inFlow = false, initialTriggered = false, fitWidth = false, cols },
+  {
+    controlled = false,
+    inFlow = false,
+    initialTriggered = false,
+    fitWidth = false,
+    fitInside = false,
+    cols,
+  },
   ref,
 ) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -51,6 +66,10 @@ export const EternalReturnUnobservedCanvas = forwardRef<
   useEffect(() => {
     fitWidthRef.current = fitWidth;
   }, [fitWidth]);
+  const fitInsideRef = useRef(fitInside);
+  useEffect(() => {
+    fitInsideRef.current = fitInside;
+  }, [fitInside]);
   const inFlowRef = useRef(inFlow);
   useEffect(() => {
     inFlowRef.current = inFlow;
@@ -347,12 +366,40 @@ export const EternalReturnUnobservedCanvas = forwardRef<
             ? Math.max(1, Math.floor(colsRef.current))
             : Math.max(1, Math.round(p.width / TARGET_CELL_SIZE));
           const approxRows = Math.max(1, Math.round(p.height / TARGET_CELL_SIZE));
+          // `Math.max` = COVER: cells overflow the canvas so the grid
+          // bleeds past both edges and the outer ring is clipped.
+          // `Math.min` = CONTAIN: the tighter axis sets the cell size,
+          // so `cols * cellSize <= width` and the remainder becomes an
+          // even border.
           cellSize = fitWidthRef.current
             ? p.width / cols
-            : Math.max(p.width / cols, p.height / approxRows);
-          const rows = Math.max(1, Math.round(p.height / cellSize));
-          const offX = (p.width - cellSize * cols) / 2;
-          const offY = (p.height - cellSize * rows) / 2;
+            : fitInsideRef.current
+              ? Math.min(p.width / cols, p.height / approxRows)
+              : Math.max(p.width / cols, p.height / approxRows);
+          // Floor (not round) when containing, or a rounded-up row count
+          // would push the last row back past the bottom edge and
+          // reintroduce the clipping this prop exists to avoid.
+          const rows = fitInsideRef.current
+            ? Math.max(1, Math.floor(p.height / cellSize))
+            : Math.max(1, Math.round(p.height / cellSize));
+          let offX = (p.width - cellSize * cols) / 2;
+          let offY = (p.height - cellSize * rows) / 2;
+          if (fitInsideRef.current) {
+            // Trim the CANVAS to the grid's exact extent so its edge
+            // lands on the last cell instead of leaving an even border
+            // of empty black around it. With the buffer resized the
+            // offsets become zero by definition.
+            const gridW = cellSize * cols;
+            const gridH = cellSize * rows;
+            if (
+              Math.abs(p.width - gridW) > 0.5 ||
+              Math.abs(p.height - gridH) > 0.5
+            ) {
+              p.resizeCanvas(gridW, gridH);
+            }
+            offX = 0;
+            offY = 0;
+          }
           origins.length = 0;
           for (let i = 0; i < cols; i++) {
             for (let j = 0; j < rows; j++) {
@@ -733,7 +780,14 @@ export const EternalReturnUnobservedCanvas = forwardRef<
               position: "relative",
               width: "100%",
               height: "100%",
-              background: "#000",
+              // Transparent, NOT "#000": the canvas paints its own
+              // black and is now trimmed to the grid, so a black
+              // container would go on filling the whole box and hide
+              // the trim. Centred so the shrunken canvas sits mid-box.
+              background: "transparent",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
               overflow: "hidden",
             }
           : {
