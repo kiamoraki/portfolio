@@ -40,18 +40,54 @@ description: |
   <Single src="/img/artificial_consciousness/interference.jpg" alt="Interference" />
 </Piece>
 
-{/* 6 square OC tiles arranged 3×2 on desktop and 2×3 on mobile — see
-    scoped `.piece[data-piece-id="ac-oc-tiles"]` rules in app/globals.css
-    for the responsive grid layout. Tiles are rendered uncropped at
-    natural square aspect. */}
-<Piece id="ac-oc-tiles" tags="activation">
+<Piece id="ac-install-tiles" tags="activation">
   <Grid>
+    <Img src="/img/artificial_consciousness/tile-pornj-playa.jpg" alt="Tile — PORNJ" />
+    <Img src="/img/artificial_consciousness/tile-blue-playa.jpg" alt="Tile — Blue" />
+  </Grid>
+</Piece>
+
+{/* Split in two: the film gets a slide of its own, and the two playa
+    tiles get theirs, side by side. They used to share one Grid with
+    the video sandwiched between them. */}
+<Piece id="ac-install-video" tags="activation">
+  <Grid>
+    {/* Was a Vimeo <Iframe>; now the self-hosted cut. `<Video>` gives
+        a real <video> that autoplays muted, loops and plays inline,
+        so it behaves like the other two AC clips on this page instead
+        of loading a third-party player. The poster paints while the
+        file streams. */}
+    <Video
+      src="/img/artificial_consciousness/artificial_consciousness-web.mp4"
+      poster="/img/artificial_consciousness/artificial_consciousness-web-poster.jpg"
+    />
+  </Grid>
+</Piece>
+
+{/* The eight PORNJ tiles, two rows of four. They used to hang off the
+    two glamtech install slides, four apiece; gathered here so the
+    series reads as one grid and the install photos get their slides
+    to themselves. */}
+<Piece id="ac-pornj-tiles" tags="activation">
+  <Grid>
+    {/* The six OC tiles, merged in from their own slide, sit in a row
+        above the eight PORNJ tiles. Placement is by CSS: a 12-column
+        grid where an OC tile spans 2 and a PORNJ tile spans 3, giving
+        6-across then 4-across. */}
     <Img src="/img/artificial_consciousness/ac-oc-tile-1.png" alt="OC tile 1" />
     <Img src="/img/artificial_consciousness/ac-oc-tile-2.png" alt="OC tile 2" />
     <Img src="/img/artificial_consciousness/ac-oc-tile-3.png" alt="OC tile 3" />
     <Img src="/img/artificial_consciousness/ac-oc-tile-4.png" alt="OC tile 4" />
     <Img src="/img/artificial_consciousness/ac-oc-tile-5.png" alt="OC tile 5" />
     <Img src="/img/artificial_consciousness/ac-oc-tile-6.png" alt="OC tile 6" />
+    <Img src="/img/artificial_consciousness/pornj-tile-1.jpg" alt="PORNJ tile" />
+    <Img src="/img/artificial_consciousness/pornj-tile-2.jpg" alt="PORNJ tile" />
+    <Img src="/img/artificial_consciousness/pornj-tile-3.jpg" alt="PORNJ tile" />
+    <Img src="/img/artificial_consciousness/pornj-tile-4.jpg" alt="PORNJ tile" />
+    <Img src="/img/artificial_consciousness/pornj-tile-5.jpg" alt="PORNJ tile" />
+    <Img src="/img/artificial_consciousness/pornj-tile-6.jpg" alt="PORNJ tile" />
+    <Img src="/img/artificial_consciousness/pornj-tile-7.jpg" alt="PORNJ tile" />
+    <Img src="/img/artificial_consciousness/pornj-tile-8.jpg" alt="PORNJ tile" />
   </Grid>
 </Piece>
 
@@ -82,25 +118,15 @@ description: |
     one square tile each. CSS scoped via `data-piece-id` sizes the
     grid so the tile height pair adds up to the main image's height,
     and tiles render uncropped at their natural square aspect. */}
-<Piece id="ac-glamtech-3" tags="activation">
+{/* The two glamtech install photos on one slide, stacked. They were
+    separate slides (7 and 9) with the film between them. */}
+<Piece id="ac-glamtech-installs" tags="activation">
   <Grid>
     <Img src="/img/artificial_consciousness/glamtech-install-3.jpg" alt="Glamtech install" />
-    <Img src="/img/artificial_consciousness/pornj-tile-1.jpg" alt="PORNJ tile" />
-    <Img src="/img/artificial_consciousness/pornj-tile-2.jpg" alt="PORNJ tile" />
-    <Img src="/img/artificial_consciousness/pornj-tile-3.jpg" alt="PORNJ tile" />
-    <Img src="/img/artificial_consciousness/pornj-tile-4.jpg" alt="PORNJ tile" />
+    <Img src="/img/artificial_consciousness/glamtech-install-4.jpg" alt="Glamtech install" />
   </Grid>
 </Piece>
 
-<Piece id="ac-glamtech-4" tags="activation">
-  <Grid>
-    <Img src="/img/artificial_consciousness/glamtech-install-4.jpg" alt="Glamtech install" />
-    <Img src="/img/artificial_consciousness/pornj-tile-5.jpg" alt="PORNJ tile" />
-    <Img src="/img/artificial_consciousness/pornj-tile-6.jpg" alt="PORNJ tile" />
-    <Img src="/img/artificial_consciousness/pornj-tile-7.jpg" alt="PORNJ tile" />
-    <Img src="/img/artificial_consciousness/pornj-tile-8.jpg" alt="PORNJ tile" />
-  </Grid>
-</Piece>
 
 {/* `ac-install` — closing Vimeo iframe flanked by the two square
     playa tiles (one each side). Renders as a 3-col `Grid`; CSS
@@ -108,14 +134,3 @@ description: |
     `1 : 1.78 : 1` so the iframe (16:9) and the two square tiles
     share the same row height. Mobile collapses to a vertical
     stack (tile, video, tile). */}
-<Piece id="ac-install" tags="activation">
-  <Grid>
-    <Img src="/img/artificial_consciousness/tile-pornj-playa.jpg" alt="Tile — PORNJ" />
-    {/* `aspect="9 / 16"` (string, not `{9/16}` expression) — next-mdx-
-        remote v6 silently drops JSX expression attributes; same gotcha
-        as `tags={[...]}` having to be a comma string. CSS aspect-ratio
-        accepts the string form. */}
-    <Iframe aspect="9 / 16" src="https://player.vimeo.com/video/319065134?autoplay=1&autopause=0&loop=1&title=0&portrait=0&byline=0&muted=true" />
-    <Img src="/img/artificial_consciousness/tile-blue-playa.jpg" alt="Tile — Blue" />
-  </Grid>
-</Piece>

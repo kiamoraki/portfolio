@@ -1,0 +1,35 @@
+---
+title: Murals
+slug: murals
+layout: split
+year: 2018
+tags: [painting]
+thumb: paintings-newport-beach.jpg
+legacyPath: /mandalas.html
+---
+
+<Figure src="/img/211117-Mural_Newport_Beach/5-min.jpg" caption="Newport Beach, 6'x6'" />
+<Figure src="/img/211117-Mural_Newport_Beach/1-min.jpg" caption="Newport Beach, 6'x6'" />
+<Figure src="/img/mars/20-mural-container-2.jpg" caption="Mars College, 8'x8'" />
+<Figure src="/img/mars/20-mural-container-1.JPG" caption="Mars College, 8'x8'" />
+<Figure src="/img/220909-Mural-Kreuzberg-Berlin/220909_mural_kreuzberg_00.JPG" caption="Kreuzberg, Berlin, 4'x4'" />
+<Figure src="/img/220909-Mural-Kreuzberg-Berlin/220909_mural_kreuzberg_01.jpeg" caption="Kreuzberg, Berlin, 4'x4'" />
+<Figure src="/img/mars/22-mural-zenbus.jpg" caption="Zen Bus" />
+
+{/* These two videos are 640×360 (16:9 landscape) — leave the
+    `<Video>` without an `aspect` prop so the default `.video iframe
+    { aspect-ratio: 16/9 }` CSS rule paints them at their natural
+    landscape shape. The earlier `aspect="1"` forced a square wrapper,
+    which Vimeo's player then letterboxed with big black bars top +
+    bottom. Distinct from the portrait Vimeo on `ac-install` (9:16)
+    — that piece uses the `<Iframe>` primitive with `aspect="9 / 16"`. */}
+
+{/* Stacked rather than side by side (see `row--stack` in
+    project-split.css). Both frames share the height evenly and the
+    images `contain`, so neither is cropped. */}
+<Row className="row--stack">
+  <Figure src="/img/helm-dyc/energyskeleton-2.JPG" caption='"Prosperity Wheel" Desert Yacht Club' />
+  <Figure src="/img/helm-dyc/rainbowroad-vertical.JPG" />
+</Row>
+<Figure src="/img/helm-dyc/rainbowroad-blessings.JPG" caption='"Prosperity Wheel" Desert Yacht Club' />
+<Figure src="/img/helm-dyc/spacecaptain3.JPG" caption='"Prosperity Wheel" Desert Yacht Club' />

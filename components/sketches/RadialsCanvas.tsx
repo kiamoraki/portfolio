@@ -37,6 +37,9 @@ type Props = {
   // Multiplier for animation speed — both the radials' wandering
   // velocity AND particle velocity (linear and rotational). Default 1.
   speedScale?: number;
+  // Multiplier for how far a radial's radius grows each frame — the
+  // spacing between successive rings. Default 1 (the base 10px step).
+  ringStepScale?: number;
 };
 
 export function RadialsCanvas({
@@ -45,6 +48,7 @@ export function RadialsCanvas({
   radialCountScale = 1,
   particleCountScale = 1,
   speedScale = 1,
+  ringStepScale = 1,
 }: Props = {}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const inFlowRef = useRef(inFlow);
@@ -286,7 +290,7 @@ export function RadialsCanvas({
                   part.hasRadial = true;
                   part.radialRef = r;
                   r.velocity = p.createVector(0, 0);
-                  r.radius += 10;
+                  r.radius += 10 * ringStepScale;
                   r.color = colorForRadius(r.radius);
 
                   part.radius = r.radius;

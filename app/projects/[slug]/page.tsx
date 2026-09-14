@@ -296,27 +296,29 @@ export default async function ProjectPage({
         <div className="split">
           <aside className="split-text">
             <h1 className="split-title">{project.title}</h1>
-            {/* Destination for the carousel's "N/M" counter, which
-                portals itself here (components/SplitMediaCarousel.tsx).
-                Stays empty on single-slide projects. */}
-            <div id="split-count-slot" />
+            {/* No placeholder when a project has no `description` in
+                its frontmatter — the rail just shows the title. The
+                stand-in ("Add description here.") was authoring
+                scaffolding and read as real copy on the live page. */}
             {splitParagraphs.length > 0 ? (
               <div className="split-description">
                 {splitParagraphs.map((p, i) => (
                   <p key={i}>{p}</p>
                 ))}
               </div>
-            ) : (
-              <div className="split-description split-description--placeholder">
-                <p>Add description here.</p>
-              </div>
-            )}
+            ) : null}
             {/* Destination for a project's <Credits> block, which
                 portals itself here on split pages so the credits sit
                 with the rest of the prose instead of taking a slide in
                 the media carousel. Empty on projects without one. */}
             <div id="split-credits-slot" />
           </aside>
+          {/* Destination for the carousel's "fig. N/M" counter, which
+              portals itself here (components/SplitMediaCarousel.tsx).
+              A grid sibling rather than a child of the rail, so it can
+              take its own row directly above the media column. Stays
+              empty on single-slide projects. */}
+          <div id="split-count-slot" />
           {mainEl}
         </div>
       ) : (

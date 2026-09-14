@@ -19,7 +19,6 @@ Read this in full at the start of every session. Also see `STYLEGUIDE.md` for vi
 
 Same rules as the cv + opportunities repos:
 
-- **NEVER use em-dashes anywhere.**
 - **NEVER use en-dashes as sentence connectors** (parentheticals, continuations, elaborations). Use commas, colons, parentheses, or split into shorter sentences. See `STYLEGUIDE.md` for the replacement patterns.
 - En-dashes still legitimate for year ranges (`2020–2026`) and as bullet markers.
 

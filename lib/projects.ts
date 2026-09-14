@@ -48,6 +48,8 @@ export type Project = ProjectFrontmatter & {
 const CONTENT_DIR = path.join(process.cwd(), "content", "projects");
 
 const CUSTOM_ORDER = [
+  "murals",
+  "paintings",
   "lissajous",
   "emergence",
   "fake-rekordz",
@@ -60,7 +62,6 @@ const CUSTOM_ORDER = [
   "multiverse",
   "roses",
   "shape-of-time",
-  "paintings",
 ];
 
 const PIN_LAST = ["dojo"];

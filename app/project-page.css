@@ -345,7 +345,14 @@
   max-width: 100% !important;
   max-height: 100% !important;
   object-fit: contain !important;
-  align-self: center;
+  /* TOP, not centre. These two keep their natural ratios (the sketch
+     is tall, the 8-panel plan is wide), so with `center` the shorter
+     one floated 135px below the taller and the pair read as
+     misaligned. `start` puts both on the media frame's top edge,
+     matching every other slide. This `align-self` sits at (0,3,1) and
+     beats the container's `align-items` either way, so it has to be
+     changed here rather than on the layout. */
+  align-self: start;
   justify-self: center;
 }
 .piece:has(+ .piece[data-piece-id$="-credits"]) .piece-layout,
@@ -496,6 +503,21 @@ main[data-project-slug="intergalactic-helm"] .row {
   .project-track-content[data-slug="radioactivitea"] .piece-layout--grid-2x2 {
     height: auto;
     aspect-ratio: 1 / 1;
+    /* Columns sized to the images, not to half the box. All four
+       sources are square and `object-fit: contain`, so a `1fr 1fr`
+       track left ~79px of dead space on each side of every image: the
+       gap READ as ~180px between the columns while the stacked images
+       were the plain 22px `gap` apart. `auto` tracks collapse to the
+       painted width, so both gaps are now the same `gap`. */
+    grid-template-columns: repeat(2, auto);
+    justify-content: center;
+  }
+  .project-track-content[data-slug="radioactivitea"] .piece-layout--grid-2x2 > img {
+    /* Height drives the size (the row track); width follows the
+       intrinsic ratio so the track has nothing spare to pad with. */
+    height: 100%;
+    width: auto;
+    max-width: 100%;
   }
 }
 @media (max-width: 720px) {
@@ -669,10 +691,11 @@ body:is(
   }
 }
 @media (max-width: 720px) {
-  .project-track-content[data-slug="lissajous"] > .piece:first-child:has(.piece-sketch) .piece-sketch {
-    transform: scale(0.9);
-    transform-origin: center center;
-  }
+  /* Was `transform: scale(0.9)` on lissajous's FIRST sketch only, the
+     mobile half of the 80dvh desktop special-case removed earlier. In
+     the split template every sketch is a square keyed to the media
+     width, so scaling one of them down left slide 1 at 309px against
+     its four siblings at 343. */
 }
 @media (max-width: 720px) {
   .piece[data-piece-id="moon-raves-quad-seva"] .piece-layout--pair > img:nth-of-type(2) {

@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
+import { useEffect, useRef, useState } from "react";
 import { ShapeOfTimeCanvas } from "@/components/sketches/ShapeOfTimeCanvas";
 
 /**
@@ -13,25 +12,13 @@ import { ShapeOfTimeCanvas } from "@/components/sketches/ShapeOfTimeCanvas";
  * tick and calls `buildParticles()` (which re-rolls the pair via
  * `pickFreqPair` and clears the canvas) the next frame.
  *
- * Position: a fixed, viewport-pinned chip centered horizontally
- * between the chrome PREV / NEXT slots — top-right on desktop,
- * bottom-center above the mobile PREV/NEXT bar. The CSS scope
- * (`.shape-of-time-refresh`) handles both layouts.
- *
- * Portal: the button is rendered into `document.body` via
- * `createPortal` so it escapes the meta-carousel's `transform`
- * ancestor — `position: fixed` inside a transformed ancestor is
- * spec'd to use that ancestor as the containing block (per the
- * CSS Transforms spec), which would make `left: 50%; bottom: 1rem`
- * resolve against the multi-slide track (width = N × 100vw) rather
- * than the viewport, parking the chip off-screen horizontally.
- * Rendering to body sidesteps that entirely — the chip lives at
- * the document root with no transformed ancestor, so the fixed
- * positioning resolves against the viewport in both standalone
- * and meta-carousel contexts. Visibility is gated by CSS on
- * `body[data-meta-active-slug]` and `body:has(main[data-project-
- * slug])` so the chip only shows for the shape-of-time slide
- * (carousel) or page (standalone).
+ * Position: an absolutely-positioned row at the top of the sketch
+ * box, on both breakpoints — the two equations with the refresh
+ * control between them, centred over the canvas. The CSS scope
+ * (`.shape-of-time-cta-row`) handles the per-breakpoint differences,
+ * which are colour (light ink over the black desktop canvas, page ink
+ * on the white mobile page) and whether the row overlays the canvas
+ * (desktop) or sits in a reserved band above it (mobile).
  */
 type Props = {
   /** Forwarded by the `Sketch` primitive so the underlying canvas
@@ -41,15 +28,32 @@ type Props = {
 };
 
 export function ShapeOfTimeWithRefresh({ inFlow = false }: Props) {
-  // Portal target only exists after mount (no SSR for `document.body`).
-  // Track a mounted flag and render the portal only after first effect
-  // runs — otherwise hydration mismatches between server (no portal)
-  // and client (portal).
-  const [mounted, setMounted] = useState(false);
+  // Mobile reserves a band above the sketch for the row; desktop
+  // overlays it on the canvas. Read in an effect so server and first
+  // client render agree.
+  const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
-    setMounted(true);
+    const mq = window.matchMedia("(max-width: 720px)");
+    const sync = () => setIsMobile(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
   }, []);
 
+  // Live (a, b) pair, published by the canvas on every re-roll.
+  const [pair, setPair] = useState<[number, number] | null>(null);
+  useEffect(() => {
+    const onPair = (e: Event) => {
+      const d = (e as CustomEvent<{ a: number; b: number }>).detail;
+      if (d) setPair([d.a, d.b]);
+    };
+    window.addEventListener("shape-of-time:pair", onPair);
+    const cfg = globalThis.__shapeOfTimeConfig;
+    if (cfg?.currentA !== undefined && cfg?.currentB !== undefined) {
+      setPair([cfg.currentA, cfg.currentB]);
+    }
+    return () => window.removeEventListener("shape-of-time:pair", onPair);
+  }, []);
   const onRefresh = () => {
     if (typeof window === "undefined") return;
     const cfg = globalThis.__shapeOfTimeConfig ?? {};
@@ -88,10 +92,57 @@ export function ShapeOfTimeWithRefresh({ inFlow = false }: Props) {
     </button>
   );
 
+  /* Reserve the band the row occupies. Done from JS, on the element,
+     because CSS could not: every `.piece-sketch` margin rule added to
+     globals.css or project-split.css failed to reach the served
+     stylesheet (a scan of `document.styleSheets` found NO rule setting
+     margin on `.piece-sketch` at all, while the selector matched), so
+     the row kept overlapping the prose above it. An inline style is
+     the one lever the build pipeline cannot drop. */
+  const rowRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const host = rowRef.current?.closest<HTMLElement>(".piece-sketch");
+    if (!host) return;
+    if (isMobile) {
+      // `important` priority: the template sets `margin: 0 !important`
+      // on `.piece-sketch`, and a plain inline style loses to a
+      // stylesheet `!important`. Inline + important wins.
+      host.style.setProperty("margin-top", "3.5rem", "important");
+      return () => {
+        host.style.removeProperty("margin-top");
+      };
+    }
+    host.style.removeProperty("margin-top");
+  }, [isMobile]);
+
+  /* BOTH breakpoints render this row now: the control between the two
+     equations, centred above the canvas. Desktop used to portal a bare
+     chip to `document.body` and pin it to the viewport bottom; the
+     portal only existed so `position: fixed` would resolve against the
+     viewport rather than the meta-carousel's transformed track. An
+     absolutely-positioned row inside the sketch box has no such
+     problem, so the portal (and its body-level visibility gating) is
+     no longer needed. */
+  const inlineRow = (
+    <div className="shape-of-time-cta-row" ref={rowRef}>
+      {pair ? (
+        <span className="shape-of-time-pair" aria-live="polite">
+          x = sin(<strong>{pair[0]}</strong>t)
+        </span>
+      ) : null}
+      {button}
+      {pair ? (
+        <span className="shape-of-time-pair" aria-live="polite">
+          y = sin(<strong>{pair[1]}</strong>t)
+        </span>
+      ) : null}
+    </div>
+  );
+
   return (
     <>
+      {inlineRow}
       <ShapeOfTimeCanvas inFlow={inFlow} />
-      {mounted ? createPortal(button, document.body) : null}
     </>
   );
 }

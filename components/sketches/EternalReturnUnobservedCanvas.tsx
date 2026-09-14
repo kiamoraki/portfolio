@@ -74,9 +74,26 @@ export const EternalReturnUnobservedCanvas = forwardRef<
   useEffect(() => {
     inFlowRef.current = inFlow;
   }, [inFlow]);
+  // Holds the live p5 instance so effects outside the mount effect can
+  // ask it to re-lay-out.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const p5Ref = useRef<any>(null);
+
   const colsRef = useRef(cols);
   useEffect(() => {
     colsRef.current = cols;
+    // RE-LAYOUT on change. `cols` arrives from a `matchMedia` effect in
+    // `EternalReturnToggleCanvas`, which can resolve AFTER p5 has
+    // already run `setup` → `layoutGrid`. When it lost that race the
+    // grid kept the column count derived from `TARGET_CELL_SIZE` (3
+    // columns, 2 rows on a phone) and nothing re-ran the layout,
+    // because the container never resized — so the same page rendered
+    // 4x3 or 3x2 depending on effect ordering. `windowResized` is the
+    // sketch's re-layout entry point.
+    const inst = p5Ref.current;
+    if (inst && typeof inst.windowResized === "function") {
+      inst.windowResized();
+    }
   }, [cols]);
 
   useImperativeHandle(
@@ -721,6 +738,24 @@ export const EternalReturnUnobservedCanvas = forwardRef<
        `setRacing` / `setTriggered` refs exposed on the imperative
        handle, so those remain unaffected. */
 
+    // Publish the instance so the `cols` effect above can trigger a
+    // re-layout when the viewport class resolves late.
+    p5Ref.current = p5Instance;
+
+    /* Belt and braces for the same race: re-lay-out on the next frame,
+       by which point React has flushed its effects and `colsRef` holds
+       the resolved value even if `setup` ran first. Cheap — one extra
+       `layoutGrid` call on mount. */
+    if (typeof requestAnimationFrame !== "undefined") {
+      requestAnimationFrame(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const inst = p5Ref.current as any;
+        if (inst && typeof inst.windowResized === "function") {
+          inst.windowResized();
+        }
+      });
+    }
+
     // Detect container size changes (e.g. when parent computes inFlow height
     // post-mount) and re-fit the canvas accordingly.
     let resizeObserver: ResizeObserver | null = null;
@@ -766,6 +801,7 @@ export const EternalReturnUnobservedCanvas = forwardRef<
       if (resizeObserver) resizeObserver.disconnect();
       io?.disconnect();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      p5Ref.current = null;
       (p5Instance as any)?.remove?.();
     };
   }, [controlled]);

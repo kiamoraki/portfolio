@@ -1,7 +1,9 @@
 {
   "aliases": {},
   "display": {},
-  "hidden": ["website"],
+  "hidden": [
+    "website"
+  ],
   "order": [
     "animations",
     "activation",
@@ -22,6 +24,9 @@
     "emergence": [
       "animations"
     ],
+    "energy": [
+      "design"
+    ],
     "eternal-return": [
       "animations"
     ],
@@ -37,9 +42,6 @@
     "lissajous-canvas": [
       "animations"
     ],
-    "paintings": [
-      "painting"
-    ],
     "mars": [
       "activation"
     ],
@@ -48,6 +50,12 @@
     ],
     "multiverse": [
       "animations"
+    ],
+    "murals": [
+      "painting"
+    ],
+    "paintings": [
+      "painting"
     ],
     "precarity-a-domestic-tale": [
       "activation"
@@ -70,7 +78,8 @@
       "animations"
     ],
     "zenith-poker": [
-      "website"    ]
+      "website"
+    ]
   },
   "_untagged": []
 }

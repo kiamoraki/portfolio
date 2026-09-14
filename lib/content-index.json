@@ -191,7 +191,7 @@
   },
   {
     "projectSlug": "precarity-a-domestic-tale",
-    "pieceId": "precarity-01-04",
+    "pieceId": "precarity-01-04-05-02",
     "tags": [
       "activation"
     ],
@@ -199,7 +199,7 @@
   },
   {
     "projectSlug": "precarity-a-domestic-tale",
-    "pieceId": "precarity-05-02",
+    "pieceId": "precarity-06-07",
     "tags": [
       "activation"
     ],
@@ -207,7 +207,7 @@
   },
   {
     "projectSlug": "precarity-a-domestic-tale",
-    "pieceId": "precarity-06-07",
+    "pieceId": "precarity-rooms-to-let",
     "tags": [
       "activation"
     ],
@@ -215,19 +215,11 @@
   },
   {
     "projectSlug": "precarity-a-domestic-tale",
-    "pieceId": "precarity-rooms-to-let",
-    "tags": [
-      "activation"
-    ],
-    "indexInProject": 5
-  },
-  {
-    "projectSlug": "precarity-a-domestic-tale",
     "pieceId": "precarity-sketch",
     "tags": [
       "activation"
     ],
-    "indexInProject": 6
+    "indexInProject": 5
   },
   {
     "projectSlug": "multiverse",
@@ -328,7 +320,7 @@
   },
   {
     "projectSlug": "artificial-consciousness",
-    "pieceId": "ac-oc-tiles",
+    "pieceId": "ac-install-tiles",
     "tags": [
       "activation"
     ],
@@ -336,7 +328,7 @@
   },
   {
     "projectSlug": "artificial-consciousness",
-    "pieceId": "ac-glamtech-trio",
+    "pieceId": "ac-install-video",
     "tags": [
       "activation"
     ],
@@ -344,7 +336,7 @@
   },
   {
     "projectSlug": "artificial-consciousness",
-    "pieceId": "ac-glamtech-3",
+    "pieceId": "ac-pornj-tiles",
     "tags": [
       "activation"
     ],
@@ -352,7 +344,7 @@
   },
   {
     "projectSlug": "artificial-consciousness",
-    "pieceId": "ac-glamtech-4",
+    "pieceId": "ac-glamtech-trio",
     "tags": [
       "activation"
     ],
@@ -360,7 +352,7 @@
   },
   {
     "projectSlug": "artificial-consciousness",
-    "pieceId": "ac-install",
+    "pieceId": "ac-glamtech-installs",
     "tags": [
       "activation"
     ],

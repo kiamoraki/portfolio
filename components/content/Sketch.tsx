@@ -1,5 +1,7 @@
 "use client";
 
+import type { ReactNode } from "react";
+
 /**
  * Sketch & SketchOverlay — render p5 canvases inside the unified
  * content model.
@@ -35,9 +37,15 @@ type SketchProps = {
    *  (`<Sketch id="…" fitInside />`). Canvases that don't declare a
    *  `fitInside` prop ignore it, exactly like `inFlow`. */
   fitInside?: boolean;
+  /** Optional label rendered over the canvas's bottom edge. A sibling
+   *  in the flow would force the sketch box to shrink by the caption's
+   *  height, and that box is what the split template sizes to the
+   *  media column — so the caption is absolutely positioned inside the
+   *  wrapper instead and changes no layout. */
+  caption?: ReactNode;
 };
 
-export function Sketch({ id, bg, colorMode, fitInside }: SketchProps) {
+export function Sketch({ id, bg, colorMode, fitInside, caption }: SketchProps) {
   const entry = SKETCHES[id];
   // IntersectionObserver gate: don't render the inner Component (which
   // mounts a p5 instance + starts its draw loop) until the wrapper is
@@ -104,6 +112,9 @@ export function Sketch({ id, bg, colorMode, fitInside }: SketchProps) {
           transformed ancestor and slides off-screen as you page.
           Canvases that don't define an `inFlow` prop just ignore it. */}
       {visible ? <Component inFlow fitInside={fitInside} /> : null}
+      {caption ? (
+        <figcaption className="piece-sketch-caption">{caption}</figcaption>
+      ) : null}
     </div>
   );
 }

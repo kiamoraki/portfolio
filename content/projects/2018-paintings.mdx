@@ -1,62 +1,57 @@
 ---
-title: Paintings
+title: Drawings
 slug: paintings
 layout: split
 year: 2018
 tags: [painting]
-thumb: portals.png
-hidden: true
-legacyPath: /mandalas.html
+thumb: paintings-portal.jpg
 ---
 
-<Figure src="/img/211117-Mural_Newport_Beach/5-min.jpg" />
-<Figure src="/img/211117-Mural_Newport_Beach/1-min.jpg" />
-<Figure src="/img/mars/20-mural-container-1.JPG" />
-<Figure src="/img/mars/20-mural-container-2.jpg" />
-<Figure src="/img/mars/22-mural-zenbus.jpg" />
-<Figure src="/img/220909-Mural-Kreuzberg-Berlin/220909_mural_kreuzberg_01.jpeg" />
-<Figure src="/img/220909-Mural-Kreuzberg-Berlin/220909_mural_kreuzberg_00.JPG" />
-
-{/* These two videos are 640×360 (16:9 landscape) — leave the
-    `<Video>` without an `aspect` prop so the default `.video iframe
-    { aspect-ratio: 16/9 }` CSS rule paints them at their natural
-    landscape shape. The earlier `aspect="1"` forced a square wrapper,
-    which Vimeo's player then letterboxed with big black bars top +
-    bottom. Distinct from the portrait Vimeo on `ac-install` (9:16)
-    — that piece uses the `<Iframe>` primitive with `aspect="9 / 16"`. */}
+{/* The "Portal" series, split out of the murals project: those are
+    wall-scale works on location, these are 18" x 18" panels. Slide
+    order is unchanged from where they sat in that project. */}
 
 <Figure src="/img/drawings/20181113-kirby-littledude-01-min.jpg" caption={`Portal — 18" x 18"`} />
 <Figure src="/img/drawings/20181113-kirby-littledude-04-min.jpg" caption={`Portal — 18" x 18"`} />
 
-<Row>
+{/* Self-hosted cuts instead of the Vimeo embeds. `<VideoFile>` is a
+    real <video> (autoplay, muted, loop, inline); `<Video>` would have
+    put the local file inside an iframe.
+
+    `row--stack` puts the video UNDER the drawing rather than beside
+    it (see project-split.css). */}
+<Row className="row--stack">
   <Figure src="/img/drawings/20181113-kirby-littledude-03-min.jpg" caption={`Portal — 18" x 18"`} />
-  {/* Hidden for now, kept for reference:
-      <Video src="https://player.vimeo.com/video/311493973?autoplay=1&autopause=0&loop=1&title=0&portrait=0&byline=0" /> */}
+  <VideoFile
+    src="/img/drawings/20181113-kirby-littledude-03-web.mp4"
+    poster="/img/drawings/20181113-kirby-littledude-03-web-poster.jpg"
+  />
 </Row>
 
-<Row>
-  {/* Hidden for now, kept for reference:
-      <Video src="https://player.vimeo.com/video/311494599?autoplay=1&autopause=0&loop=1&title=0&portrait=0&byline=0" /> */}
+<Row className="row--stack">
   <Figure src="/img/drawings/20181113-kirby-littledude-02-min.jpg" caption={`Portal — 18" x 18"`} />
+  <VideoFile
+    src="/img/drawings/20181113-kirby-littledude-02-web.mp4"
+    poster="/img/drawings/20181113-kirby-littledude-02-web-poster.jpg"
+  />
 </Row>
 
 <Figure src="/img/drawings/20181113-kirby-littledude-05-min.jpg" caption={`Portal — 18" x 18"`} />
 <Figure src="/img/drawings/20181113-kirby-littledude-06-min.jpg" caption={`Portal — 18" x 18"`} />
-<Row>
-  <Figure src="/img/helm-dyc/energyskeleton-2.JPG" />
-  <Figure src="/img/helm-dyc/rainbowroad-vertical.JPG" />
-</Row>
-<Figure src="/img/helm-dyc/rainbowroad-blessings.JPG" />
-<Figure src="/img/helm-dyc/spacecaptain3.JPG" />
+
+{/* Moved over from the murals project: these are studio works, not
+    wall pieces. Order preserved from where they sat there. */}
 
 <Figure src="/img/drawings/20201201-kirby-affinityforinfinity-vibrance.jpg" caption="Affinity for Infinity — 3' x 3'" />
 
 <Figure src="/img/drawings/20181217-kirby-jay-oceanwithnobottomandnosurface-min.jpg" caption="An Ocean with No Bottom and No Surface — 3' x 3'" />
 
-
-<Figure src="/img/drawings/20180920-kirby-everythingandnothing_01-min.jpg" caption="Everything & Nothing — 3' x 3'" />
-
-<Row>
+{/* Was two slides: the full piece, then a Row of four details.
+    Merged into one — the full piece on the left, the four details as
+    a 2x2 beside it. The grid placement lives in project-split.css,
+    keyed off `row--eandn`. */}
+<Row className="row--eandn">
+  <Figure src="/img/drawings/20180920-kirby-everythingandnothing_01-min.jpg" caption="Everything & Nothing — 3' x 3'" />
   <Figure src="/img/drawings/20180920-kirby-everythingandnothing_02-min.jpg" />
   <Figure src="/img/drawings/20180920-kirby-everythingandnothing_03-min.jpg" />
   <Figure src="/img/drawings/20180920-kirby-everythingandnothing_05-min.jpg" />
@@ -82,5 +77,3 @@ legacyPath: /mandalas.html
       <Figure src="/img/drawings/20200715-kirby-jtree-creature-min.jpg" caption={`Creature — 18" x 18"`} />
       <Figure src="/img/drawings/20200716-kirby-jtree-creature-min.jpg" caption={`Creature — 18" x 18"`} />
     </Row> */}
-
-

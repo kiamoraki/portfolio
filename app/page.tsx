@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Nav } from "@/components/Nav";
 import { ProjectGrid } from "@/components/ProjectGrid";
 import { getAllProjects } from "@/lib/projects";
@@ -19,15 +18,7 @@ export default function Home() {
       <Nav />
       <main className="index">
         <section className="index-intro">
-          <p>Hi,</p>
-          <p>I&rsquo;m Kirby, an interdisciplinary artist and visual systems thinker. </p>
-          <p>I render the invisible, visible through{" "}
-            <Link href="/projects/animations/">moving meditations</Link>,{" "}
-            <Link href="/projects/paintings/">paintings</Link>,{" "}
-            <Link href="/projects/activations/">activations</Link>, and{" "}
-            <Link href="/projects/design/">posters</Link>. </p>
-          <p>I freelance as a full-stack designer and UX engineer, work samples available at the bottom of my <Link href="/about">cv</Link>.</p>
-          
+          <p>Interdisciplinary artist and visual systems thinker.</p>
         </section>
         <ProjectGrid projects={projects} />
       </main>

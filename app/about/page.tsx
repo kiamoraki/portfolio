@@ -15,7 +15,6 @@ export default function AboutPage() {
         <AboutTabs
           header={
             <>
-              <h1>Kirby</h1>
               <div className="multi-stack">
                 <span className="multi-prefix">Multi</span>
                 <span className="multi-dash">—</span>
@@ -247,7 +246,6 @@ export default function AboutPage() {
                   <h4>2018</h4>
                   <ul>
                     <li>Joined Disorient &amp; attended Burning Man</li>
-                    <li>Bartender @ Dick &amp; Jane&rsquo;s</li>
                     <li>Digital Creative Director @ Audiofemme</li>
                     <li>&ldquo;Artificial Consciousnesse&rdquo; installed in Chelsea Music Venue for GlamTech</li>
                     <li>&ldquo;Portals&rdquo; solo show @ The West, Brooklyn</li>
@@ -257,7 +255,6 @@ export default function AboutPage() {
                   <h4>2017</h4>
                   <ul>
                     <li>Summer in Europe</li>
-                    <li>Craft Cocktail Bartender at Dick &amp; Jane&rsquo;s</li>
                   </ul>
                 </li>
                 <li>
@@ -273,14 +270,12 @@ export default function AboutPage() {
                     <li>Producer for The Open Mic Tour, a traveling troupe of comedians</li>
                     <li>Traveled across the country, twice</li>
                     <li>Sound design & animation for &ldquo;Precarity: A Domestic Tale&rdquo; an installation part of Rooms to Let in Cleveland, OH</li>
-                    <li>Product Designer @ Nasdaq OMX</li>
                   </ul>
                 </li>
                 <li>
                   <h4>2014</h4>
                   <ul>
                     <li>After studying Portuguese for 2 years, traveled to Brazil and explored Sao Paulo and Rio</li>
-                    <li>Product Designer @ Nasdaq OMX</li>
                   </ul>
                 </li>
                 <li>

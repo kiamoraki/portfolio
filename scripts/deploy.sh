@@ -44,7 +44,14 @@ rsync -avz --delete \
 # so the same set of files the dev tree has gets pushed.
 echo ""
 echo "▶ Syncing additive image siblings (avif / webp / new uploads)..."
+# Raw video sources (.mov/.MOV/.m4v) are excluded to mirror `.vercelignore`:
+# they're leftover originals from the local capture workflow, nothing on the
+# site links to them, and they're huge (energy_sigils-og.mov alone is 76MB).
+# Git ignores them too, so they'd otherwise be uploaded once and sit on the
+# server forever as public dead weight. Web-encoded `.mp4`s are NOT excluded —
+# those are what the pages actually play.
 rsync -avz --ignore-existing --exclude='.DS_Store' \
+  --exclude='*.mov' --exclude='*.MOV' --exclude='*.m4v' \
   out/img/ \
   "$SSH_TARGET:$REMOTE_PATH/img/"
 

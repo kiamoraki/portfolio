@@ -2,7 +2,7 @@
 
 Visual design decisions for Kirby's portfolio. Captures the "why" behind values in the codebase. When we change a design decision, update the code AND this doc together.
 
-Last updated: 2026-08-01
+Last updated: 2026-08-10
 
 ---
 
@@ -54,7 +54,6 @@ Only `.woff2` is referenced. The `.woff` / `.ttf` / `.eot` siblings, `demo.html`
 
 Same rules the cv + opportunities repos use:
 
-- **NEVER use em-dashes anywhere.**
 - **NEVER use en-dashes as sentence connectors** (parentheticals, continuations, elaborations). Restructure:
   - Parenthetical mid-sentence break, use parentheses: `X (Y, Z) A` instead of `X – Y, Z – A`
   - Elaboration or list follow-up, use a colon: `X: Y` instead of `X – Y`
@@ -85,6 +84,120 @@ Breakpoints stay in **px, never rem**. They must remain in lockstep with the har
 ---
 
 ## Iteration decisions
+
+### 2026-08-10: Mobile has no carousel
+
+Below 720px every slide is shown, stacked, and the page scrolls. `SplitMediaCarousel` reads `matchMedia("(max-width: 720px)")` **in an effect** (not during render — a `window` read in the render body mismatches on hydration) and marks *every* slide `data-carousel-active="true"`. That single flag does two jobs: it satisfies the visibility rules, and it makes the dozens of per-slide layout rules keyed on `[data-carousel-active="true"]` apply to all slides instead of just one. Click-paging, caret cursors, the counter portal and the carousel ARIA roles are all skipped when stacked.
+
+**The desktop slide machinery does not survive stacking.** It is built for one slide locked to a viewport-height column: fixed 75/25 splits, size containers, `height: 100%` on media. Measured on paintings at 375 before the fix: slides 3–4 collapsed to 0px, slide 9's grid rendered images at 1×1, every single-image slide squashed to 343×128. There is one mobile reset that flattens slides to plain blocks with full-width, natural-height media, rather than re-scoping a dozen blocks to `min-width: 721px`.
+
+**Spacing rhythm.** One value, `--chrome-inset-x` (1rem on mobile), is the gap between slides, between media inside a slide, and from media to the viewport edge. Two traps, both found by measuring:
+
+- The rhythm must live on the **slides**, not on a flex `gap` on `.split-carousel`. In a v2 body the slides are grandchildren (`.split-carousel > .project-track > .project-track-content > .piece`), so a carousel gap never reaches them — the measured gap was a stray 6px while the carousel reported 16px. But in a **legacy** body the slides *are* direct children, so a gap there applied *on top of* the slide margin and murals/paintings measured 32px. The gap is now `0` and the margin does all the work, which is correct for both shapes.
+- The generic "space between adjacent media" rule needs `:not([data-carousel-slide])` on both sides. In a legacy body the slide IS the `figure.image`, so without it a slide picked up that margin as well.
+
+Per-piece mobile grids (`ac-oc-tiles` 2×3, `ac-glamtech-3/4`, `ac-install`, `row--eandn`) must **repeat their layout class** — e.g. `.piece-layout--stack.piece-layout--stack`. The reset's `:is(...)` carries `figure.image`'s (0,1,1), putting it at (0,4,2); a plain per-piece override sits at (0,6,2) and still loses to the generic sibling rule at (0,6,3). `!important` does not help when both sides have it.
+
+### 2026-08-10: The `<html>` rainbow variables are gone
+
+`NavClient` no longer runs a `requestAnimationFrame` loop writing `--rainbow-now`, `--rainbow-now-rgb` and `--rainbow-delay` onto `documentElement` 60×/sec. Nothing visible depended on it once the nav bar went flat; the mobile bottom nav that used it is `display: none` on split pages. The contact modal still references `var(--rainbow-now, #ff1fe0)` and falls back to the static magenta.
+
+
+### 2026-08-10: Never set card backgrounds with the `background` shorthand
+
+`#project-list a:hover` used the shorthand to layer a gradient over the rainbow gif. The shorthand resets `background-color` to `transparent` and lets the gradient carry the card colour — which is invisible on hover, and wrong on the way out: image lists of different lengths are **not interpolable**, so the gif drops instantly while `background-color` animates transparent → card colour across the 200ms transition. For those 200ms the page's near-white background showed straight through a black card. That was the white flash on mouse-out.
+
+Measured, mid-transition on a `#000` card: `rgba(0,0,0,0.22)` → `0.706` → `0.925`.
+
+Write it in longhand and hold `background-color` at the card colour in **both** states, so the transition has nothing to fade:
+
+```css
+#project-list a:hover {
+  background-color: var(--card-bg, #fff);
+  background-image: linear-gradient(var(--card-bg,#fff), var(--card-bg,#fff)), url("…gif");
+  background-repeat: no-repeat, round;
+  background-origin: padding-box, border-box;
+  background-clip: padding-box, border-box;
+}
+```
+
+### 2026-08-10: Uneven-looking gaps are almost always letterboxing
+
+Three slides read as having unequal spacing (`ac-oc-tiles`, `precarity-01-04-05-02`, murals' `row--eandn`). In every case the *grid* gap was already equal — what differed was the empty space `object-fit: contain` left inside each cell when the cell's aspect didn't match the source's. Measure the painted content, not the element rect.
+
+Two fixes, pick by whether cropping is acceptable:
+
+- **Square sources** (`ac-oc-tiles`): make the cells match the source instead of cropping. `auto` rows + `aspect-ratio: 1` on the image, with the layout's width capped so the stack can't overflow. Requires a size container on the slide to express "the width at which the stacked height exactly fills the column": from `height = 2c + g` and `width = 3c + 2g`, that is `width = 1.5 × height + 0.5 × gap`.
+- **Landscape sources** (precarity, `row--eandn`): `object-fit: cover`. The cells can't be made to match four different aspects, and a few percent off the sides of an interior shot is acceptable.
+
+### 2026-08-10: Viewport units don't survive the split template
+
+A recurring bug class, now found five more times: `max-height: 90dvh`, `width: 25vw`, `min(70vh, 44vw)`, `height: 100dvh`. All were written for the full-bleed template where the piece *is* the viewport. In the split template the media column is inset from the viewport on every side, so a viewport-relative size overflows it — by 31px on `ac-video-1`, 316px on murals' later slides, 382px on `ac-install`.
+
+When a piece misbehaves in the column, grep its rules for `vw` / `vh` / `dvh` first. The column-scoped fix is `main.split-content .split-carousel …` at (0,4,1), which clears the (0,3,1) `!important` sources without depending on source order between `project-page.css` and `project-split.css`.
+
+
+### 2026-08-07: One horizontal gutter site-wide (`--chrome-inset-x`)
+
+Every left/right page inset is now the same token:
+
+```css
+:root { --chrome-inset-x: 1.5rem; }          /* 24–27px, fluid with the root */
+@media (max-width: 720px) { :root { --chrome-inset-x: 1rem; } }
+```
+
+It drives, in one value:
+
+| Consumer | Property |
+| --- | --- |
+| Top bar (wordmark, CV, `< projects >`, title chip, description panels) | `left` / `right` |
+| Homepage intro sentence | `padding-inline` (and its `right` once it moved into the bar) |
+| Homepage project grid | `padding-inline` **and** `gap` |
+| Split project template | `--split-gap` (outer padding **and** column gap) |
+| Generic `main` wrapper (`/about`) | `padding-inline` |
+
+Before this there were four different "page edge" values in play: 1rem chrome, `--split-gap`'s own `clamp(1rem, 1.6vw, 1.75rem)`, an asymmetric `2.75rem / 3.75rem` on `main`, and 1.875rem card margins on the grid.
+
+Two things worth keeping in mind when touching it:
+
+- **The grid uses `gap`, not card margins.** A margin of X gives X at the viewport edge but 2X between neighbours, so edge spacing and inter-card spacing can never be equal with margins. Card width is `calc((100% - 3 * var(--chrome-inset-x)) / 4)` so four still fill a row exactly.
+- **The split template's chrome corrections must subtract the same token.** `body:has(.split) .nav-main` translates by `calc(var(--split-gap) - var(--chrome-inset-x))`. Since `--split-gap` is now an alias for `--chrome-inset-x`, that evaluates to zero; it is kept as a formula so alignment survives if `--split-gap` is ever given its own value again. Hardcoding `1rem` there is what broke mobile alignment by 8px when the token first went to 1.5rem.
+
+### 2026-08-07: One top line across the site
+
+`.split`'s `padding-top` and `.index-intro`'s `padding-top` are both `calc(2rem + var(--spacing-nav-h))`, and `main.index #project-list` reserves the same. So a project's title, the homepage's first card, and (before it moved into the bar) the homepage sentence all start on the same y. Measured: 68.3px at 1440, 63.6px at 900.
+
+Different type sizes mean the first-line *boxes* align exactly while the rendered text tops differ by ~1.6px. That is the intended trade: one shared expression beats a hand-tuned per-page offset that drifts the moment a font size changes.
+
+### 2026-08-07: Homepage sentence lives in the top bar
+
+Desktop only (`min-width: 721px`), scoped to `main.index`. The intro line is `position: fixed` at `top: 1rem; right: var(--chrome-inset-x)`, opposite the wordmark, in the slot project pages give to `< projects >`. It already carried `--nav-text-size` / `--nav-text-tracking`, so it reads as chrome rather than as body copy.
+
+Below 720px it stays in flow: the mobile bar is already wordmark + CV across the full width.
+
+### 2026-08-07: Wave canvas fills the media box; grid scales to the tight axis
+
+Two problems, one fix.
+
+1. `computeWaveLayout()` used a hardcoded 700×700 desktop canvas that CSS then stretched — 744px on a 1440×900 split page, 920px at 1920×1080. The grid was drawn at one scale and resampled to another.
+2. The shell was a square at the media column's height, horizontally centred, so the column's leftover width showed as two bands of PAGE background either side of the piece (180px each at 1440×900).
+
+Now: `.wave-canvas-shell` is `width: 100%; height: 100%` (desktop), so the canvas covers the whole media area and paints the leftover in its own background. `computeWaveLayout()` sizes the cell from `min(W/COLS, H/ROWS)`, derives the gap from the TIGHT axis, and centres the block via new `origin_x` / `origin_y` fields that `cellPos()` reads. Spreading the leftover into the gaps (the even-slot distribution mobile uses) was wrong here — it pulls the cells apart into a stretched lattice instead of scaling the grid.
+
+The cell keeps its legacy proportion (225-in-700, expressed as a ratio). Desktop's old fixed 4px gap left 4px of margin on the left and 13px on the right, so the grid sat slightly off-centre inside its own canvas; the centred block fixes that too.
+
+Plumbing: `WaveCanvasShell` measures its own element, publishes it via `setWaveBox()`, and re-fires `windowResized` from a `ResizeObserver` (a container resize never fires a window resize, and `windowResized` is the sketches' only re-layout entry point).
+
+**Trap:** p5's `resizeCanvas` rewrites the canvas element's INLINE width/height to the new pixel dimensions, wiping the `100%` sizing each sketch sets in `setup`. On mobile the buffer is the viewport (375×800) while the box is a 343×343 square, so the first `ResizeObserver` tick blew the canvas out of its container. The observer re-asserts `display: block; width: 100%; height: 100%` after every re-layout.
+
+Mobile is unchanged: it still sizes from the viewport and spreads the leftover evenly, because there the canvas *is* the viewport.
+
+### 2026-08-07: `fig.` counter sits on the media frame
+
+`#split-count-slot` is right-aligned (`justify-content: flex-end`) so the counter lands on the media column's right edge, in line with `< projects >` above it, and it is flush against the media frame's top edge: `.split-count` has no bottom margin and `.split { row-gap: 0 }`.
+
+That `row-gap: 0` **must stay inside `@media (min-width: 721px)`**. Mobile stacks text, counter and media into one column where `gap: 1.5rem` is the vertical rhythm between all three, and this longhand ties with that shorthand at (0,1,0) — with `project-page.css` and `project-split.css` merging in an order that does not follow source order, an unscoped `row-gap: 0` could win there and collapse the mobile stack.
+
 
 ### 2026-08-01: Fluid root font-size + rem migration
 

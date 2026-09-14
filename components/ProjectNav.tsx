@@ -47,6 +47,30 @@ function neighborsFromList(
   };
 }
 
+/* PREV / NEXT carets. These are the whole visible control now: the
+   top-right group reads `‹ project ›`, with the word as a static
+   label between two caret buttons rather than each button spelling
+   out its own direction. The buttons carry descriptive `aria-label`s,
+   so the glyphs lose nothing to assistive tech. */
+function NavCaret({ dir }: { dir: "prev" | "next" }) {
+  return (
+    <svg
+      className="project-nav-btn__caret"
+      viewBox="0 0 24 24"
+      width="14"
+      height="14"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {dir === "prev" ? <path d="M15 5 L8 12 L15 19" /> : <path d="M9 5 L16 12 L9 19" />}
+    </svg>
+  );
+}
+
 export function ProjectNav({
   slug,
   title,
@@ -290,15 +314,22 @@ export function ProjectNav({
               onClick={() => controlsRef.current?.prev()}
               aria-label="Previous slide"
             >
-              prev
+              <NavCaret dir="prev" />
             </button>
+            {/* Static label between the carets. On meta-carousel pages
+                the carets page slides rather than projects, so the
+                word tracks what they actually move. `aria-hidden`
+                because each button's own label already says it. */}
+            <span className="project-nav-word" aria-hidden="true">
+              slide
+            </span>
             <button
               type="button"
               className="project-nav-btn project-nav-next"
               onClick={() => controlsRef.current?.next()}
               aria-label="Next slide"
             >
-              next
+              <NavCaret dir="next" />
             </button>
           </>
         ) : (
@@ -308,14 +339,17 @@ export function ProjectNav({
               className="project-nav-btn project-nav-prev"
               aria-label={`Previous project: ${activePrev.title}`}
             >
-              prev
+              <NavCaret dir="prev" />
             </Link>
+            <span className="project-nav-word" aria-hidden="true">
+              projects
+            </span>
             <Link
               href={`/projects/${activeNext.slug}${suffix}`}
               className="project-nav-btn project-nav-next"
               aria-label={`Next project: ${activeNext.title}`}
             >
-              next
+              <NavCaret dir="next" />
             </Link>
           </>
         )}

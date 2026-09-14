@@ -158,6 +158,10 @@ type GlobalConfig = {
   // boundary). External UI bumps this and the sketch's draw loop
   // detects the change → `buildParticles()` + background clear.
   refreshTick?: number;
+  /** Live frequency pair, written by the canvas on every re-roll so
+   *  external chrome can display it. Read-only from outside. */
+  currentA?: number;
+  currentB?: number;
 };
 declare global {
   // eslint-disable-next-line no-var
@@ -256,6 +260,21 @@ const sketch = (p: any) => {
     }
     const gcd = calculateGCD(freqA, freqB);
     theta = (2 * Math.PI) / gcd;
+
+    /* Publish the live pair so chrome outside the canvas can print it.
+       The refresh CTA reads these to label itself; a plain event keeps
+       the canvas from having to know about React. */
+    if (typeof window !== "undefined") {
+      const live = globalThis.__shapeOfTimeConfig ?? {};
+      live.currentA = freqA;
+      live.currentB = freqB;
+      globalThis.__shapeOfTimeConfig = live;
+      window.dispatchEvent(
+        new CustomEvent("shape-of-time:pair", {
+          detail: { a: freqA, b: freqB },
+        }),
+      );
+    }
 
     // Reference pair is 1:2 (sum = 3); higher-sum ratios get a smaller step
     // so the on-curve dot spacing stays roughly constant.

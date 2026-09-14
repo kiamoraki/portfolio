@@ -33,18 +33,36 @@
      `.nav-main a`, `.nav-info`, and the title chip's `left` calc
      so all three move in lock-step. */
   --spacing-nav-icon-w: var(--spacing-nav-h);
-  /* PREV/NEXT button width — referenced both by `.project-nav-btn`
-     (fixed width per button) and by `.project-title`'s `right` calc
-     so the title chip ends exactly at the PREV button's left edge.
-     At 100px, "PREV"/"NEXT" (~50px text) centers with ~25px of
-     breathing room on each side — compact next to the icon chips. */
-  --spacing-nav-prev-w: 6.25rem;
+  /* Caret hit box in the top-right `‹ project ›` control. The words
+     PREV / NEXT were replaced by two caret buttons flanking a static
+     label, so each button only has to hold a 14px glyph; the rest of
+     the value is tap area. */
+  --spacing-nav-prev-w: 1.75rem;
+  /* Total width of that group (caret + word + caret). `.project-title`
+     and the meta-carousel title reserve this much on their `right` so
+     the title chip ends exactly at the left caret. The group is pinned
+     to this width and right-aligned inside it, so the two stay in
+     sync no matter which word is showing. */
+  --spacing-nav-projectnav-w: 7.625rem;
   --spacing-nav-h-mobile: 2.75rem;
   --spacing-sidebar-mobile: 2.75rem;
   --spacing-sidebar-icon-w-mobile: 4.5rem;
   --color-sidebar-accent: #b588ff;
+  /* Horizontal inset for the top chrome (wordmark, CV, the
+     `< projects >` group) and for anything that lines up with it:
+     the homepage intro sentence and the project grid's outer
+     gutters. Bumped from a flat 1rem so the bar sits off the edge a
+     little more. Vertical chrome offsets stay at 1rem — this token
+     is the X axis only. */
+  --chrome-inset-x: 1.5rem;
   --spacing-page: 3.75rem;
   --spacing-page-mobile: 1.25rem;
+  /* Default page background. `[slug]/page.tsx` overrides this per
+     project; without a root default the var resolved to an EMPTY
+     string on routes that don't set it (/about), and an empty value
+     wins over a `var()` fallback — the mobile bar backdrop came out
+     transparent there. */
+  --page-bg: var(--color-light);
 
   --font-body: "EK Roumald", Georgia, "Times New Roman", serif;
   /* Resolves to the Bold cut at normal weight (see the alias
@@ -54,6 +72,19 @@
   --font-icon-std: "SSStandard";
   --font-icon-social: "SSSocial";
 }
+/* Mobile keeps the 1rem inset. The mobile bar is positioned from
+   `--mobile-sidebar-icon-inset` (1rem), and the split template
+   translates the bar by `--split-gap - --chrome-inset-x` to sit on
+   the grid gutter; with the desktop 1.5rem here that subtraction
+   over-corrected and pushed the bar 8px LEFT of the rail at 375.
+   The homepage grid is edge-to-edge on mobile via its own explicit
+   `padding: 0`, so this only governs the chrome. */
+@media (max-width: 720px) {
+  :root {
+    --chrome-inset-x: 1rem;
+  }
+}
+
 
 /* ─── Fonts ─────────────────────────────────────────────────────
    The site now runs on ONE typeface, EK Roumald, in four cuts.
@@ -246,8 +277,11 @@ main {
   align-items: center;
   width: 100%;
   min-height: 100vh;
-  padding: var(--spacing-page);
-  padding-left: 2.75rem;
+  /* Vertical stays on `--spacing-page`; the horizontal gutter is the
+     site-wide standard. The left was 2.75rem against a 3.75rem right,
+     so every non-split, non-index page sat visibly off-centre (48px
+     vs 66px at 1440). */
+  padding: var(--spacing-page) var(--chrome-inset-x);
 }
 @media (max-width: 720px) {
   /* No more top padding for a horizontal nav bar — the icon buttons
@@ -321,7 +355,6 @@ figure.image figcaption {
 @media (max-width: 720px) {
   main { gap: 1px; }
   figure.image { margin: 0; }
-  figure.image figcaption { display: none; }
   .row { flex-direction: column; gap: 1px; margin: 0; }
   .row > figure.image { flex: 0 0 auto; overflow: visible; }
   /* Rows that contain a video stay horizontal on mobile so the video
@@ -435,9 +468,9 @@ main.dark .text { color: var(--color-ink-light); }
 }
 
 /* ─── Nav ───────────────────────────────────────────────────── */
-/* mobile-header-frame is no longer used now that the icon buttons are
-   stacked vertically on the left — each button carries its own border
-   square, and there's nothing to enclose at the top anymore. */
+/* mobile-header-frame: hidden on desktop, where the bar sits over
+   full-bleed artwork by design. On mobile it becomes the bar's
+   backdrop — see the rule in the mobile block below. */
 .mobile-header-frame { display: none; }
 
 .nav-main, .nav-projects {
@@ -698,8 +731,11 @@ main.dark .text { color: var(--color-ink-light); }
   /* CV page: transparent topbar, no outlines on the icons, hide the CV
      cell, force grid + socials to dark so they read on the about page's
      light gradient. */
+  /* /about keeps the bar transparent: that page has its own layered
+     background and a solid strip across the top reads as a seam. The
+     backdrop stays on every other route. */
   body:has(main.about) .mobile-header-frame {
-    background: transparent;
+    background: transparent !important;
     border-bottom: 0;
     color: var(--color-dark);
   }
@@ -910,35 +946,60 @@ main.dark .text { color: var(--color-ink-light); }
 #project-list {
   display: flex;
   flex-wrap: wrap;
-  align-content: space-between;
   justify-content: center;
-  width: calc(100% - var(--spacing-page));
-  margin-left: var(--spacing-page);
+  /* ONE spacing value everywhere: the gutter to the viewport and the
+     gap between cards are both `--chrome-inset-x`, which is also the
+     top bar's inset, so the grid's outer edges line up with the
+     wordmark on the left and the `< projects >` group on the right.
+
+     Driven by `gap` + `padding`, not per-card margins. Margins can't
+     express this: a margin of X on every card yields X at the edges
+     but 2X between neighbours, so the two can never be equal.
+
+     `align-content: flex-start` (was `space-between`) so the row gap
+     is exactly `gap` rather than whatever is left over after the
+     `min-height` is filled. */
+  align-content: flex-start;
+  width: 100%;
   min-height: 100vh;
+  gap: var(--chrome-inset-x);
+  padding-inline: var(--chrome-inset-x);
   padding-bottom: var(--spacing-page);
 }
 @media (max-width: 720px) {
   #project-list {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0;
+    /* Same single value as desktop: the gap between cards, the gutter
+       to the viewport edge, and the space under the intro sentence are
+       all `--chrome-inset-x`. Was `gap: 0; padding: 0` — the cards ran
+       edge to edge and touched each other. */
+    gap: var(--chrome-inset-x);
     width: 100%;
     margin-left: 0;
-    padding: 0;
+    padding: 0 var(--chrome-inset-x) var(--chrome-inset-x);
     box-sizing: border-box;
   }
 }
 #project-list li {
-  width: calc(25% - 3.75rem);
-  aspect-ratio: 1;
-  margin: 1.875rem;
+  /* Four per row: 4 cards + 3 gaps == the content box exactly.
+     `100%` here resolves against the ul's content box, which already
+     excludes the outer padding. */
+  width: calc((100% - 3 * var(--chrome-inset-x)) / 4);
+  /* The SQUARE lives on the card link, not here. The caption is a
+     child of this <li>, so an `aspect-ratio: 1` on the li forced card
+     + caption into one square and the card's height then varied with
+     the caption's content: at 1000w four cards came out 172x214 while
+     the rest sat at 172x172. Sizing to content lets every card be an
+     identical square with its caption beneath. */
+  height: auto;
+  margin: 0;
   box-sizing: border-box;
 }
 @media (max-width: 720px) {
   #project-list li {
     width: auto;
     height: auto;
-    aspect-ratio: 1;
     margin: 0;
   }
 }
@@ -948,7 +1009,12 @@ main.dark .text { color: var(--color-ink-light); }
   justify-content: center;
   position: relative;
   width: 100%;
-  height: 100%;
+  /* Portrait 3:4, keyed to the column width, so every card matches
+     regardless of its caption's length. Was a square; the taller box
+     gives the artwork more room to breathe without changing how many
+     cards fit a row (the width is still driven by the li). */
+  aspect-ratio: 3 / 4;
+  height: auto;
   font-family: var(--font-body);
   letter-spacing: 0.02em;
   text-transform: uppercase;
@@ -961,10 +1027,26 @@ main.dark .text { color: var(--color-ink-light); }
   box-sizing: border-box;
   transition: background 0.2s ease;
 }
+/* Longhand, NOT the `background` shorthand. The shorthand reset
+   `background-color` to its initial `transparent` and let the
+   gradient layer carry the card colour. On un-hover the image list
+   drops instantly (image lists of different lengths are not
+   interpolable, so they switch discretely) while `background-color`
+   animated transparent -> card colour over the 200ms transition —
+   for 200ms the page's near-white background showed straight through
+   a black card. That was the white flash on mouse-out.
+
+   Holding `background-color` at the card colour in BOTH states leaves
+   nothing for the transition to fade, so only the border-band gif
+   appears and disappears. */
 #project-list a:hover {
-  background:
-    linear-gradient(var(--card-bg, #fff), var(--card-bg, #fff)) no-repeat padding-box,
-    url("/img/soslippery-BIG-1-d3.gif") round border-box;
+  background-color: var(--card-bg, #fff);
+  background-image:
+    linear-gradient(var(--card-bg, #fff), var(--card-bg, #fff)),
+    url("/img/soslippery-BIG-1-d3.gif");
+  background-repeat: no-repeat, round;
+  background-origin: padding-box, border-box;
+  background-clip: padding-box, border-box;
 }
 @media (max-width: 720px) {
   #project-list a {
@@ -979,7 +1061,11 @@ main.dark .text { color: var(--color-ink-light); }
   width: auto;
   transition: all 1.5s ease;
 }
-#project-list span { display: none; }
+/* Hides the fallback `<span>{title}</span>` that stands in when a card
+   has neither a thumbnail nor a sketch. Scoped to direct children of
+   the link so it no longer swallows the `.grid-item-title` caption,
+   which is also a span. */
+#project-list a > span:not(.grid-item-title) { display: none; }
 
 #project-list .grid-item-zenith-poker img {
   animation: spin 10s linear infinite;
@@ -1007,9 +1093,26 @@ main.dark .text { color: var(--color-ink-light); }
      into separate `<p>` elements, which default flex-row would lay
      side-by-side. */
   flex-direction: column;
-  align-items: center;
+  /* Left-aligned to the page gutter, not centred: the intro's left
+     edge now lines up with the Home icon in the bar above it. */
+  align-items: flex-start;
   justify-content: center;
-  padding: 4rem 2rem;
+  /* The gap under the nav text equals the gap ABOVE it (nav text to
+     viewport top), so the bar sits in a symmetric band.
+
+     That target reduces to a clean expression. The wordmark is
+     centred in the chip, so its top offset is
+       inset + (chipHeight - textHeight) / 2
+     and the sentence wants to start one of those below the text:
+       2 x (inset + (chipH - textH)/2) + textH  ==  2*inset + chipH
+     The text height cancels out entirely.
+
+     BOTTOM: the grid's first card already sits 1.875rem below the
+     grid's top edge, so that is subtracted; `max()` floors it at 0
+     since the target is smaller than the card's own offset. */
+  padding-top: calc(2rem + var(--spacing-nav-h));
+  padding-bottom: var(--index-gap);
+  padding-inline: var(--chrome-inset-x);
   box-sizing: border-box;
 }
 /* Homepage intro paragraph — bumped from body-default `14px/22px` up
@@ -1030,12 +1133,62 @@ main.dark .text { color: var(--color-ink-light); }
   max-width: 45rem;
   text-align: left;
   margin: 0 0 1rem;
-  font-size: 1rem;
-  line-height: 1.5rem;
-  letter-spacing: normal;
+  /* Same size and tracking as the nav bar, off the shared tokens, so
+     the line reads as a continuation of the chrome above it rather
+     than as body copy. Was 1rem / normal tracking. */
+  font-size: var(--nav-text-size);
+  letter-spacing: var(--nav-text-tracking);
+  line-height: 1.5;
 }
 .index-intro p:last-child {
   margin-bottom: 0;
+}
+
+/* ─── Homepage sentence sits IN the top bar ─────────────────────
+   Desktop only. The intro line moves out of the page flow and into
+   the chrome strip's right half, opposite the wordmark, where the
+   project pages put their `< projects >` group. It already carries
+   the nav's type tokens (`--nav-text-size` / `--nav-text-tracking`),
+   so in the bar it reads as another chrome item rather than as body
+   copy that happens to be near it.
+
+   Scoped to `main.index`, and `.index-intro` only exists on the
+   homepage, so no other route is touched. Left in flow below 720px:
+   the mobile bar is already the wordmark plus CV across the full
+   width, with no room for a sentence beside them.
+
+   The grid then has to reserve the clearance the intro used to
+   provide — `calc(2rem + var(--spacing-nav-h))` is the same
+   expression the split template's `padding-top` uses, so the first
+   card's top edge, the project title, and the homepage sentence all
+   sit on one line across the site. */
+@media (min-width: 721px) {
+  main.index .index-intro {
+    position: fixed;
+    top: 1rem;
+    right: var(--chrome-inset-x);
+    left: auto;
+    z-index: 3001;
+    width: auto;
+    /* Never let a longer sentence run under the wordmark / CV. */
+    max-width: calc(100vw - var(--chrome-inset-x) * 2 - var(--spacing-nav-icon-w) * 4);
+    height: var(--spacing-nav-h);
+    padding: 0;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+  }
+  main.index .index-intro p {
+    width: auto;
+    max-width: none;
+    margin: 0;
+    text-align: right;
+  }
+  main.index #project-list {
+    /* Same expression as `.split`'s `padding-top`, so the first card
+       and a project's title sit on one line across the site. */
+    padding-top: calc(1.5rem + var(--spacing-nav-h));
+  }
 }
 .index-intro p a {
   color: inherit;
@@ -1054,23 +1207,28 @@ main.dark .text { color: var(--color-ink-light); }
      the icons. Hard-coded (not via the icon CSS vars) so the cascade
      can't drop it. */
   .index-intro {
-    padding: 2rem 1.25rem 2rem 5.5rem;
+    /* Same derivation as desktop, with a tighter gap and the mobile
+       bar's height. The old flat `padding: 2rem` sat ABOVE the 44px
+       bar's lower edge, so the sentence overlapped the chrome.
+       `--spacing-nav-h` is not used here: the mobile bar is taller
+       (44px touch minimum) and pinned to top: 0. */
+    /* Mobile bar is pinned to top: 0, so the inset term is zero and
+       the expression collapses to just the bar's height. */
+    --index-gap: calc((2.75rem - var(--nav-text-size)) / 2);
+    padding-top: 2.75rem;
+    /* The space under the sentence matches the gap between cards and
+       the gutter to the viewport edge — one value for all three. */
+    padding-bottom: var(--chrome-inset-x);
+    padding-inline: var(--chrome-inset-x);
   }
 }
 
-/* Desktop — the Home + CV chrome chips form a horizontal block at
-   top:1rem left:1rem spanning `2 × --spacing-nav-icon-w` of width
-   (Home + CV side-by-side). Set the intro's `padding-left` to that
-   block's right edge + 1rem breathing room so the paragraph's left
-   edge always begins past the icons, even when the viewport is
-   narrow enough that the centered text would otherwise tuck up
-   under them. The flex container's `justify-content: center` then
-   re-centers the paragraph inside whatever space remains. */
-@media (min-width: 721px) {
-  .index-intro {
-    padding-left: calc(2rem + var(--spacing-nav-icon-w) * 2);
-  }
-}
+/* The desktop `padding-left: calc(2rem + var(--spacing-nav-icon-w) * 2)`
+   was removed here. It pushed the intro clear of a Home + CV chip block
+   sitting at the top-LEFT, which the centred text could otherwise tuck
+   under. The chrome is a thin top bar now, so text beneath it needs
+   vertical clearance only, and the horizontal push was the thing
+   holding the intro 339px off the nav's left edge. */
 .project-mobile-bottom-nav { display: none; }
 /* Default (desktop) — wave canvas shell is square. Mobile flips it to
    1:2 inside the @media (max-width: 720px) block below. */
@@ -1302,7 +1460,10 @@ main.about #about-info {
   top: calc(
     var(--spacing-nav-h) + 1.25rem + var(--piece-gap, 1.5vw)
   );
-  left: calc(max(0px, (100vw - 64.375rem) / 2) + var(--spacing-page));
+  /* Inset from the centred column's left edge by the same gutter the
+     wrapper uses, so the fixed info rail lines up with the flowing
+     content beside it. */
+  left: calc(max(0px, (100vw - 64.375rem) / 2) + var(--chrome-inset-x));
   width: 13.75rem;
   display: flex;
   flex-direction: column;
@@ -1613,7 +1774,9 @@ main.about #about-cv .about-tabs { margin: 0; }
 .cv-timeline h4 {
   font-family: var(--font-bold);
   font-weight: 700;
-  font-size: 0.8125rem;
+  /* Year markers, stepped down so they read as labels against the
+     entries rather than competing with them. Was 0.8125rem. */
+  font-size: 0.6875rem;
   letter-spacing: 0.06em;
   margin: 0 0 0.3rem;
   line-height: 1.4;
@@ -1632,7 +1795,7 @@ main.about #about-cv .about-tabs { margin: 0; }
    timeline spacing reads better across the whole mobile range. */
 @media (max-width: 720px) {
   .cv-timeline > li { padding-bottom: 1.4rem; }
-  .cv-timeline h4 { font-size: 0.9375rem; }
+  .cv-timeline h4 { font-size: 0.75rem; }
 }
 
 /* ──────────────────────────────────────────────────────────────────
@@ -2085,8 +2248,8 @@ button.meta-carousel-active-title {
 @media (min-width: 721px) {
   .meta-carousel-active-title {
     top: 1rem;
-    left: calc(1rem + var(--spacing-nav-icon-w) * 2);
-    right: calc(1rem + var(--spacing-nav-prev-w) * 2);
+    left: calc(var(--chrome-inset-x) + var(--spacing-nav-icon-w) * 2);
+    right: calc(var(--chrome-inset-x) + var(--spacing-nav-projectnav-w));
     width: auto;
     max-width: none;
     height: var(--spacing-nav-h);
@@ -2098,8 +2261,8 @@ button.meta-carousel-active-title {
   }
   .meta-carousel-description-panel {
     top: calc(1rem + var(--spacing-nav-h));
-    left: calc(1rem + var(--spacing-nav-icon-w) * 2 - 2px);
-    right: calc(1rem + var(--spacing-nav-prev-w) * 2);
+    left: calc(var(--chrome-inset-x) + var(--spacing-nav-icon-w) * 2 - 2px);
+    right: calc(var(--chrome-inset-x) + var(--spacing-nav-projectnav-w));
     max-width: none;
   }
 }
@@ -2119,7 +2282,7 @@ button.meta-carousel-active-title {
    whole strip consistently. */
 @media (min-width: 721px) {
   .nav-main {
-    left: 1rem;
+    left: var(--chrome-inset-x);
     top: 1rem;
     flex-direction: column;
     padding-top: 0;
@@ -2137,7 +2300,7 @@ button.meta-carousel-active-title {
      pages). Shares its left border with Home's right border. */
   .nav-info {
     top: 1rem;
-    left: calc(1rem + var(--spacing-nav-icon-w));
+    left: calc(var(--chrome-inset-x) + var(--spacing-nav-icon-w));
     right: auto;
     width: var(--spacing-nav-icon-w);
     height: var(--spacing-nav-h);
@@ -2157,8 +2320,8 @@ button.meta-carousel-active-title {
   .nav-projects .project-title {
     position: fixed;
     top: 1rem;
-    left: calc(1rem + var(--spacing-nav-icon-w) * 2);
-    right: calc(1rem + var(--spacing-nav-prev-w) * 2);
+    left: calc(var(--chrome-inset-x) + var(--spacing-nav-icon-w) * 2);
+    right: calc(var(--chrome-inset-x) + var(--spacing-nav-projectnav-w));
     height: var(--spacing-nav-h);
     margin: 0;
     padding: 0.5rem 1rem;
@@ -2196,7 +2359,16 @@ button.meta-carousel-active-title {
        so PREV/NEXT slot in at the same baseline as Home/CV/title and
        the four chips read as one continuous bordered strip. */
     top: 1rem;
-    right: 1rem;
+    /* The GLYPH, not the button box, lines up with the wordmark's
+       inset on the left. Each caret is a `--spacing-nav-prev-w` touch
+       box holding a 0.875rem chevron, so the chevron sits half the
+       difference in from the box edge; pulling the group right by that
+       amount puts the visible stroke at `--chrome-inset-x` from the
+       viewport, matching "KIAMORA" on the other side. The box's own
+       edge stops flush with the viewport, never past it. */
+    right: calc(
+      var(--chrome-inset-x) - (var(--spacing-nav-prev-w) - 0.875rem) / 2
+    );
     z-index: 3001;
     display: flex;
     gap: 0;
@@ -2216,6 +2388,15 @@ button.meta-carousel-active-title {
     width: var(--spacing-nav-prev-w);
     height: var(--spacing-nav-h);
     color: inherit;
+  }
+  /* Pin the group so the title chip's `right` reservation matches it
+     exactly, and right-align inside so the NEXT caret still lands on
+     the chrome's right edge (which the split template aligns to the
+     media column). */
+  .project-nav-buttons {
+    width: var(--spacing-nav-projectnav-w);
+    justify-content: flex-end;
+    align-items: center;
   }
   .project-nav-btn {
     box-sizing: border-box;
@@ -2419,14 +2600,17 @@ body:has(main.about) .project-mobile-bottom-nav {
   }
   .meta-carousel-track > .project-track .piece-sketch[data-sketch-id^="wave-"] .wave-canvas-shell,
   .project-track .piece-sketch[data-sketch-id^="wave-"] .wave-canvas-shell {
-    /* Square at the wrapper's HEIGHT — `width: auto` lets
-       `aspect-ratio: 1` compute the width from the explicit
-       `height: 100%`. The wrapper's `display: flex; justify-content:
-       center` then horizontally centres this square inside the
-       full-width wrapper. */
-    width: auto !important;
+    /* FILLS the wrapper on both axes. It used to be a square at the
+       wrapper's height, horizontally centred, which left the media
+       column's leftover width as two bands of PAGE background either
+       side of the canvas (180px each at 1440x900). The canvas now
+       covers the whole media area and paints those bands in its own
+       background; `computeWaveLayout()` scales the cell grid to the
+       tighter axis and centres the block, so the grid reads the same
+       size it did while the surrounding space belongs to the piece. */
+    width: 100% !important;
     height: 100% !important;
-    aspect-ratio: 1;
+    aspect-ratio: auto;
   }
   /* Jellyfish — uses the `below-nav` pattern (height matches the
      live area under the navbar) on both carousel and standalone.
@@ -2608,13 +2792,14 @@ body:has(main.about) .project-mobile-bottom-nav {
      so the falling faces overlay the photo stack. */
 }
 
-/* tobrit-sketch Pair — uncropped images centered vertically.
+/* tobrit-sketch Pair — uncropped images, top-aligned.
    The two source images differ wildly in aspect (a tall sketch on
    the left, a wide 8-panel build plan on the right), so cover-crop
    would either chop the sketch or smush the plan. `object-fit:
    contain` + `width/height: auto` + `max-*: 100%` keeps each at
-   its natural ratio; `align-self: center` centers them vertically
-   in the row so both read as floating side-by-side. Universal —
+   its natural ratio; `align-self: start` puts both on the media
+   frame's top edge (was `center`, which left the shorter of the two
+   floating 135px down). Universal —
    applies on both desktop and mobile (mobile keeps its base 2-col
    `.piece-layout--pair` grid; we just swap the image fit from the
    default cover-crop to contain). */
@@ -3471,8 +3656,8 @@ button.project-title {
 @media (min-width: 721px) {
   .project-description-panel {
     top: calc(1rem + var(--spacing-nav-h) - 2px);
-    left: calc(1rem + var(--spacing-nav-icon-w) * 2 - 2px);
-    right: calc(1rem + var(--spacing-nav-prev-w) * 2 - 2px);
+    left: calc(var(--chrome-inset-x) + var(--spacing-nav-icon-w) * 2 - 2px);
+    right: calc(var(--chrome-inset-x) + var(--spacing-nav-projectnav-w) - 2px);
   }
 }
 
@@ -3698,16 +3883,6 @@ body.light-slide {
 }
 
 /* Mobile — scale the Home icon down from 22×22 to 18×18 so it sits
-   with more breathing room inside the 44×44 chip (was looking heavy
-   at the desktop-targeted 22×22 inside the smaller mobile chip).
-   Overrides the inline `width="22" height="22"` on the `<svg>` via
-   CSS (CSS attributes win on `<svg>` despite the HTML width/height). */
-@media (max-width: 720px) {
-  .nav-house-icon {
-    width: 1.125rem;
-    height: 1.125rem;
-  }
-}
 
 /* AC `ac-oc-tiles` — 6 square OC tiles. Uses the `<Grid>` primitive
    (which renders as `.piece-layout--stack`) and overrides with an
@@ -4052,9 +4227,45 @@ body.light-slide {
   .piece-sketch[data-sketch-id="eternal-return-toggle"] {
     height: calc(100svh - 3.5rem) !important;
   }
-  .eternal-return-toggle__btn {
-    width: 2.75rem;
-    height: 2.75rem;
+  /* Size to the label, with a 44px touch floor. Was a hard
+     `2.75rem` square, which is the right box for an ICON-only button
+     — but these still render their "UNOBSERVED" / "OBSERVED" text, so
+     the labels overflowed their 44px boxes and printed on top of each
+     other. */
+  /* Match the shape-of-time control: hollow, thin 1px border, small
+     radius, drawn in the page ink. The ACTIVE one inverts to a dark
+     fill with light text so the current state is unmistakable. */
+  /* Selector carries `main.split-content .eternal-return-toggle` so it
+     outweighs BOTH the palette rule that paints these purple and the
+     blanket `border: none !important` the mobile icon-chrome block
+     applies — measured `border-width: 0` and a purple label before
+     this was specific enough. */
+  main.split-content
+    .eternal-return-toggle
+    .eternal-return-toggle__btn.eternal-return-toggle__btn {
+    width: auto;
+    min-width: 0;
+    height: auto;
+    min-height: 2.75rem;
+    padding: 0.4rem 0.65rem;
+    gap: 0.4rem;
+    border: 1px solid var(--chrome-scrim, #1a1a3a) !important;
+    border-radius: 0.25rem;
+    background-color: transparent !important;
+    color: var(--chrome-scrim, #1a1a3a) !important;
+  }
+
+  main.split-content .eternal-return-toggle .eternal-return-toggle__btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  main.split-content
+    .eternal-return-toggle
+    .eternal-return-toggle__btn.eternal-return-toggle__btn--active {
+    background-color: var(--chrome-scrim, #1a1a3a) !important;
+    border-color: var(--chrome-scrim, #1a1a3a) !important;
+    color: var(--color-light) !important;
   }
 }
 
@@ -4482,6 +4693,39 @@ body.light-slide {
    `below-nav` pattern — it just happens to share the
    chrome-aware-padding mechanism. */
 
+/* Eternal-return toggle, DESKTOP — same treatment as the mobile
+   control: hollow, 1px border, small radius, page ink; the active one
+   inverts to a dark fill with light text. These sit on the page above
+   the canvas, so the dark ink reads. Replaces the purple pill.
+
+   Doubled class + `main.split-content` so it clears the palette rule
+   that paints them purple. */
+@media (min-width: 721px) {
+  main.split-content
+    .eternal-return-toggle
+    .eternal-return-toggle__btn.eternal-return-toggle__btn {
+    padding: 0.4rem 0.7rem;
+    gap: 0.4rem;
+    border: 1px solid var(--chrome-scrim, #1a1a3a) !important;
+    border-radius: 0.25rem !important;
+    background-color: transparent !important;
+    color: var(--chrome-scrim, #1a1a3a) !important;
+  }
+
+  main.split-content
+    .eternal-return-toggle
+    .eternal-return-toggle__btn.eternal-return-toggle__btn--active {
+    background-color: var(--chrome-scrim, #1a1a3a) !important;
+    border-color: var(--chrome-scrim, #1a1a3a) !important;
+    color: var(--color-light) !important;
+  }
+
+  main.split-content .eternal-return-toggle .eternal-return-toggle__btn svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
 /* ──────────────────────────────────────────────────────────────────
    Shape-of-time refresh chip — circular icon button that bumps the
    canvas's `refreshTick` to re-roll the freqA:freqB pair. Pinned to
@@ -4524,6 +4768,34 @@ body.light-slide {
 .shape-of-time-refresh:focus-visible {
   outline: 2px solid var(--color-light);
   outline-offset: 2px;
+}
+
+/* Desktop adopts the mobile control styling: hollow, 1px border,
+   small radius, icon in the border colour.
+
+   COLOUR DIFFERS BY CONTEXT and has to. The mobile control sits on the
+   white page, so it draws in the page ink. This one floats over the
+   black canvas, where that ink is invisible — measured dark-on-dark —
+   so it keeps the light ink it already had. Same shape, legible
+   against what is actually behind it. */
+@media (min-width: 721px) {
+  .shape-of-time-refresh {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 0.25rem;
+    background-color: transparent;
+    border: 1px solid var(--color-ink-light);
+    color: var(--color-ink-light);
+  }
+
+  .shape-of-time-refresh svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .shape-of-time-refresh:hover {
+    border-color: var(--color-light);
+  }
 }
 
 /* Portal gating — `ShapeOfTimeWithRefresh` portals the chip to
@@ -4670,6 +4942,20 @@ body.light-slide {
   --spacing-nav-home-w: 10.5rem;
 }
 
+/* Mobile tightens it. Home and CV sit side by side on mobile too, but
+   the desktop value left a 61px hole between them — the wordmark ends
+   at 123px while WHOIS started at 184px — and that hole is exactly
+   the width the `< projects >` group needs on the right at 375.
+
+   MUST come after the `:root` above: media queries add no specificity,
+   so an earlier mobile `:root` ties at (0,1,0) and loses on source
+   order. That is what silently defeated the first attempt at this. */
+@media (max-width: 720px) {
+  :root {
+    --spacing-nav-home-w: 8.25rem;
+  }
+}
+
 /* Desktop only. Home and CV sit side by side there, so CV has to clear
    the Home chip's icon + "Kirby" wordmark. On mobile they STACK
    vertically, so the same offset just shoved CV rightward into the
@@ -4723,6 +5009,9 @@ body.light-slide {
    (several share the same selectors inside media queries) without
    needing `!important`. Tune the two tokens to move the whole bar. */
 :root {
+  /* Visual gap around the index sentence: the same distance the nav
+     text sits from the top of the viewport. */
+  --index-gap: calc(1rem + (var(--spacing-nav-h) - var(--nav-text-size)) / 2);
   --nav-text-size: 0.6875rem;
   --nav-text-tracking: 0.08em;
 }
@@ -4739,4 +5028,370 @@ body.light-slide {
 .project-mobile-bottom-nav-link__chip {
   font-size: var(--nav-text-size);
   letter-spacing: var(--nav-text-tracking);
+}
+
+/* ─── Mobile top nav matches desktop ────────────────────────────
+   Was a stacked column of 56px chips with PREV/NEXT exiled to a bottom
+   bar. Now the same single row as desktop: house glyph, wordmark, CV.
+
+   Touch targets are NOT sacrificed to do it. The chips carry no
+   background and no border, so their box height is invisible; the row
+   keeps a 44px minimum (iOS HIG) while reading identically to the
+   30px desktop bar. Only the layout and type had to change, not the
+   hit area.
+
+   PREV/NEXT stay in the bottom bar: at 375px the wordmark alone is
+   ~107px, and the two chips are 110px each on desktop, so a single row
+   holding all of it would overflow. */
+@media (max-width: 720px) {
+  .nav-main {
+    flex-direction: row !important;
+    align-items: center;
+    /* Inset to the page gutter, as on desktop, rather than hard
+       against the viewport edge. */
+    left: var(--mobile-sidebar-icon-inset, 1rem);
+    top: 0;
+  }
+
+  .nav-main a.icon-standard {
+    width: auto !important;
+    min-width: var(--spacing-nav-h);
+    /* Visual height is the desktop bar; the extra to 44px is padding,
+       which enlarges the tap area without showing. */
+    height: auto !important;
+    min-height: 2.75rem;
+    gap: 0.5rem;
+    justify-content: flex-start;
+  }
+
+  .nav-info {
+    /* Beside the wordmark on the same baseline, not stacked beneath. */
+    top: 0 !important;
+    left: var(--mobile-sidebar-icon-inset, 1rem) !important;
+    width: auto !important;
+    min-width: var(--spacing-nav-h);
+    height: auto !important;
+    min-height: 2.75rem;
+    margin-left: var(--spacing-nav-home-w);
+  }
+}
+
+/* The caret IS the button — no direction word inside it at any
+   breakpoint. The word between the two carets is `.project-nav-word`.
+
+   `flex: none` so the glyph keeps its 14px box inside the flex
+   button instead of being shrunk by it. */
+.project-nav-btn__caret {
+  display: block;
+  flex: none;
+}
+
+/* Static label between the two carets. Same type tokens as the rest
+   of the bar (see the shared nav-text rule above), so `‹ project ›`
+   reads at the same weight as KIAMORA KIRBY and CV. Not a button:
+   it does nothing on click, and the carets on either side carry the
+   navigation. */
+.project-nav-word {
+  font-family: var(--font-bold);
+  font-weight: normal;
+  font-size: var(--nav-text-size);
+  letter-spacing: var(--nav-text-tracking);
+  line-height: 1;
+  text-transform: uppercase;
+  color: inherit;
+  white-space: nowrap;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* ─── Mobile: the top bar gets the page's background ────────────
+   Mobile stacks and scrolls, so page content ran under the fixed bar
+   and printed through the chips. The frame element already exists in
+   the markup (`aria-hidden`, unused since the icons stopped being
+   enclosed), so it becomes the backdrop rather than adding a node.
+
+   `--page-bg` is set per project in `[slug]/page.tsx`, so the bar
+   always matches whatever the route paints; `--color-light` is the
+   fallback for routes that don't set it. `z-index: 4999` puts it
+   directly under the chips, which sit at 5000. */
+@media (max-width: 720px) {
+  .mobile-header-frame {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2.75rem;
+    background: var(--page-bg, var(--color-light));
+    z-index: 4999;
+    pointer-events: none;
+  }
+}
+
+/* ─── Mobile PREV/NEXT in the top bar ───────────────────────────
+   Moved up from `.project-mobile-bottom-nav`, which is retired on
+   split pages. The chips show a caret instead of "prev" / "next":
+   at 375px the wordmark is ~107px and the two words are ~110px each,
+   so the words cannot share a row with the name. The glyphs fit.
+   `aria-label` on each button already names the action, so nothing is
+   lost by dropping the visible word. */
+@media (max-width: 720px) {
+  /* The buttons sit inside a `.project-nav-buttons` wrapper that is
+     `display: none` on mobile; unhiding only the nav and the chips
+     left them measuring 0x0. */
+  .project-nav-buttons {
+    display: flex !important;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  /* Same glyph-flush correction as desktop, but the mobile caret box
+     is a 2.75rem touch target rather than `--spacing-nav-prev-w`, so
+     the offset is bigger — without it the chevron sat 31px from the
+     edge against the wordmark's 16px.
+
+     TRANSFORM, not `right`: `.nav-projects` computes to zero width, so
+     `right` does not move the chips inside it (the same reason the
+     split template nudges this element with a translate). `!important`
+     because `body:has(.split) .nav-projects` sets its own transform at
+     equal specificity, and the two stylesheets do not merge in a
+     predictable order. */
+  .nav-projects {
+    transform: translateX(calc((2.75rem - 0.875rem) / 2)) !important;
+  }
+
+  .nav-projects {
+    display: flex !important;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.25rem;
+    top: 0;
+    right: var(--mobile-sidebar-icon-inset, 1rem);
+    left: auto;
+  }
+
+  .project-nav-btn {
+    width: auto !important;
+    min-width: 2.75rem;
+    height: auto !important;
+    min-height: 2.75rem;
+    padding: 0;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* The bottom bar duplicated this navigation; with the chips in the
+     top bar it is redundant and eats a strip of the media column. */
+  body:has(.split) .project-mobile-bottom-nav {
+    display: none !important;
+  }
+}
+
+/* ─── Narrow phones drop the word, keep the carets ──────────────
+   The top bar is one row: wordmark, CV, then the `< projects >`
+   group hard against the right gutter. The group's 44px touch boxes
+   make it 160px wide, and "KIAMORA KIRBY" + CV already run to 214px,
+   so below ~390px the two collide — at 375 the left caret's hit box
+   overlapped CV's by 15px and swallowed taps meant for it
+   (`elementFromPoint` on the CV label returned the caret), and by
+   320 the glyph sat on top of the letters.
+
+   Dropping just the word gets the group back to 88px, which clears
+   CV at every width down to 320. The carets keep their `aria-label`s
+   and their full 44px targets, so nothing is lost but the noun.
+
+   The cutoff is 370px, not the site's usual 720px breakpoint,
+   because this is an overflow guard rather than a layout switch.
+   With the tightened wordmark-to-WHOIS gap above, the word fits from
+   375 up; below that the three items genuinely cannot share a row. */
+@media (max-width: 370px) {
+  .project-nav-word {
+    display: none;
+  }
+}
+
+/* Mobile-only credit inside moon-raves' VideoTopLeft. Hidden on
+   desktop, where that piece is a tuned 3x3 with no room for it. */
+@media (min-width: 721px) {
+  .moon-raves-snays-credit {
+    display: none;
+  }
+}
+
+/* ─── Sketch caption ────────────────────────────────────────────
+   Sits BELOW the canvas, in the same ink as the project title.
+
+   Pinned to the wrapper's bottom edge, with the canvas above it
+   capped so it stops short of that band (see the `:has()` rules in
+   project-split.css). The wrapper itself cannot shrink — the split
+   template pins it to the column height in two places — so the room
+   is taken from the artwork instead. */
+.piece-sketch-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding-top: 0.5rem;
+  font-family: var(--font-body);
+  font-size: var(--nav-text-size);
+  letter-spacing: var(--nav-text-tracking);
+  line-height: 1.5;
+  text-align: left;
+  /* Same ink as `.split-title`, which inherits the page colour. */
+  color: var(--color-dark);
+  pointer-events: none;
+}
+
+/* Reserve the band. On desktop the media column is a fixed height, so
+   the sketch has to SHRINK to make room; on mobile it flows, so a
+   bottom margin is enough. */
+@media (max-width: 720px) {
+  .split-carousel .piece-sketch:has(.piece-sketch-caption) {
+    margin-bottom: 2.75rem !important;
+  }
+}
+
+/* ─── Homepage card captions ────────────────────────────────────
+   Project name under each thumbnail. Same type as the nav and the
+   index sentence, off the shared tokens, so the page reads in one
+   voice. Rendered as a sibling of the card link, not a child, so it
+   never inherits a dark `--card-bg`. */
+
+.grid-item-title {
+  display: block;
+  margin-top: 0.75rem;
+  font-family: var(--font-body);
+  font-size: var(--nav-text-size);
+  letter-spacing: var(--nav-text-tracking);
+  line-height: 1.3;
+  text-transform: uppercase;
+  color: var(--color-dark);
+  text-align: left;
+}
+
+/* Uniform artwork box inside each card.
+   The cards themselves were already a consistent 277x277 with their
+   contents centred; what read as uneven was the ARTWORK, which ranged
+   from 90x90 down to 54x66 depending on each thumbnail's intrinsic
+   size. A fixed square with `object-fit: contain` normalises the
+   footprint while preserving each image's aspect ratio, so nothing is
+   cropped or stretched. */
+#project-list a img,
+#project-list a canvas {
+  width: var(--card-art-size, 5.625rem);
+  height: var(--card-art-size, 5.625rem);
+  object-fit: contain;
+  object-position: center;
+}
+
+/* Both p5 (canvas) and next/image (img) write width/height as INLINE
+   attributes or styles, which beat the rule above: one thumbnail stayed
+   at 99x66 while the rest sat square. */
+#project-list a canvas,
+#project-list a img {
+  width: var(--card-art-size, 5.625rem) !important;
+  height: var(--card-art-size, 5.625rem) !important;
+  /* `#project-list img { max-height: 3.75rem }` (and a 7.5rem
+     per-project variant) was clamping the height above: `max-height`
+     wins over `height` regardless of `!important` unless it is
+     overridden too. That is why six cards sat at 99x66 while the rest
+     were square. Standardised on the taller size. */
+  max-height: var(--card-art-size, 5.625rem) !important;
+  min-height: var(--card-art-size, 5.625rem);
+  max-width: var(--card-art-size, 5.625rem) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Mobile chrome — WHOIS to the top right, project navigator to a
+   bottom bar.
+
+   Appended at the end of the file on purpose: `.nav-info` is
+   positioned by half a dozen earlier mobile rules (the old Home/CV
+   left-hand column), and these need to win on source order as well as
+   specificity.
+   ────────────────────────────────────────────────────────────────── */
+@media (max-width: 720px) {
+  /* Opposite end of the bar from the wordmark, its label flush with
+     the same inset. `width: auto` so the chip hugs the text — the old
+     fixed square was sized for the icon column. */
+  .nav-info {
+    top: 0 !important;
+    left: auto !important;
+    right: var(--chrome-inset-x) !important;
+    width: auto !important;
+    height: 2.75rem !important;
+    justify-content: flex-end !important;
+  }
+
+  /* The `‹ projects ›` group becomes a full-width bar pinned to the
+     bottom of the viewport, split into two halves: tapping anywhere in
+     the left half goes back, anywhere in the right half goes forward.
+     On meta-carousel pages the same control pages slides (the label
+     reads "slide"), which is why this styles the group rather than the
+     project links specifically. */
+  /* `.nav-projects` carries a `transform` for the desktop glyph
+     alignment, and a transformed ancestor becomes the containing block
+     for `position: fixed` descendants (CSS Transforms spec). With it
+     in place the bar resolved `inset: auto 0 0 0` against a 0x0 box at
+     the top right and rendered 0px wide, above the viewport. Mobile
+     doesn't use that alignment, so drop it here. */
+  .nav-projects {
+    transform: none !important;
+  }
+
+  .project-nav-buttons {
+    position: fixed !important;
+    inset: auto 0 0 0 !important;
+    width: 100% !important;
+    height: calc(2.75rem + env(safe-area-inset-bottom, 0px)) !important;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    box-sizing: border-box;
+    display: flex !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 0 !important;
+    background: var(--page-bg, var(--color-light));
+    z-index: 4999;
+  }
+
+  /* Each half is the hit area. `.nav-projects` is repeated to outrank
+     the desktop `.nav-projects .project-nav-btn` width rule. */
+  .nav-projects.nav-projects .project-nav-btn {
+    flex: 1 1 50% !important;
+    width: 50% !important;
+    height: 100% !important;
+    min-width: 0;
+  }
+
+  /* Carets pull in toward the centre so the group still reads as
+     `‹ projects ›` rather than two glyphs at the far edges. The inset
+     clears the label, which is centred over the seam. */
+  .nav-projects .project-nav-prev {
+    justify-content: flex-end !important;
+    padding-right: 2.75rem;
+  }
+  .nav-projects .project-nav-next {
+    justify-content: flex-start !important;
+    padding-left: 2.75rem;
+  }
+
+  /* Centred on the bar and click-through, so it never eats a tap that
+     belongs to one of the halves. */
+  .project-nav-word {
+    display: block !important;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  /* Clear the bar so the last slide isn't sitting underneath it. */
+  main.split-content {
+    padding-bottom: calc(
+      2.75rem + env(safe-area-inset-bottom, 0px) + var(--chrome-inset-x)
+    ) !important;
+  }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   EternalReturnUnobservedCanvas,
   type EternalReturnCanvasController,
@@ -40,6 +40,38 @@ export function EternalReturnToggleCanvas({
 }: Props) {
   const ref = useRef<EternalReturnCanvasController>(null);
   const [observed, setObserved] = useState(false);
+
+  // Lock the grid to 4 columns on a phone. Paired with the 4:3 box the
+  // mobile stylesheet gives this sketch, the canvas's own
+  // `rows = floor(height / cellSize)` (cellSize = width / cols) lands
+  // on exactly 3 rows — a 4x3 grid. Left undefined on desktop, where
+  // the column count is derived from `TARGET_CELL_SIZE`.
+  //
+  // Initialised LAZILY from `matchMedia`, not in an effect. Reading it
+  // in an effect lost a race: the sketch's `layoutGrid` runs inside
+  // p5's `setup`, and on a client-side navigation from the project
+  // grid the p5 chunk is already cached, so `setup` ran before the
+  // effect had set `cols` — the grid fell back to the column count
+  // derived from `TARGET_CELL_SIZE` (3 columns, 2 rows) and the same
+  // page rendered 4x3 or 3x2 depending on which won.
+  //
+  // Safe despite differing between server and client: `cols` feeds the
+  // canvas's drawing only, never the rendered markup, so there is no
+  // hydration mismatch to report. The effect below still handles a
+  // viewport CHANGE after mount.
+  const [mobileCols, setMobileCols] = useState<number | undefined>(() =>
+    typeof window !== "undefined" &&
+    window.matchMedia("(max-width: 720px)").matches
+      ? 4
+      : undefined,
+  );
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 720px)");
+    const sync = () => setMobileCols(mq.matches ? 4 : undefined);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
 
   const flip = (next: boolean) => {
     if (next === observed) return;
@@ -118,6 +150,7 @@ export function EternalReturnToggleCanvas({
           controlled
           inFlow={inFlow}
           fitInside={fitInside}
+          cols={mobileCols}
         />
       </div>
     </div>

@@ -9,8 +9,10 @@
  * mid-session as Safari's URL bar appears/disappears (changing
  * `100dvh`) or the user rotates portrait/landscape.
  *
- * `computeWaveLayout()` re-derives every value from the current
- * `window.innerWidth × window.innerHeight`. Each sketch holds a
+ * `computeWaveLayout()` re-derives every value from the box the
+ * canvas actually occupies on desktop (published by the shell via
+ * `setWaveBox`) and from `window.innerWidth × window.innerHeight` on
+ * mobile. Each sketch holds a
  * mutable `layout` reference, calls `computeWaveLayout()` in setup
  * AND in `p.windowResized`, and re-creates the p5 canvas at the new
  * pixel dimensions — so the cells stay perfectly square and evenly
@@ -30,9 +32,9 @@ export type WaveLayout = {
   COLS: number;
   /** Grid rows — 4 on mobile (8 cells, dropping sq9), 3 on desktop (9 cells). */
   ROWS: number;
-  /** Canvas pixel width — full viewport on mobile, fixed 700 on desktop. */
+  /** Canvas pixel width — full viewport on mobile, the shell's square on desktop. */
   SIZE_W: number;
-  /** Canvas pixel height — full viewport on mobile, fixed 700 on desktop. */
+  /** Canvas pixel height — full viewport on mobile, the shell's square on desktop. */
   SIZE_H: number;
   /** Side length of one square cell. */
   square: number;
@@ -42,42 +44,108 @@ export type WaveLayout = {
   cx: number;
   /** Half-cell y position — center within one cell. */
   cy: number;
-  /** Horizontal slot size (one of `COLS+1` equal slots distributing leftover x). */
+  /** Gap BETWEEN neighbouring cells on x. */
   gap_x: number;
-  /** Vertical slot size (one of `ROWS+1` equal slots distributing leftover y). */
+  /** Gap BETWEEN neighbouring cells on y. */
   gap_y: number;
+  /** Left edge of the grid block inside the canvas. On desktop this
+   *  centres a square block in a canvas that may be much wider than
+   *  it is tall; on mobile it equals `gap_x` (the even-slot margin). */
+  origin_x: number;
+  /** Top edge of the grid block inside the canvas. */
+  origin_y: number;
 };
 
-export function computeWaveLayout(): WaveLayout {
+/** Box the desktop grid is drawn into, published by
+ *  `WaveCanvasShell` as it measures/observes its own element.
+ *
+ *  Module-level rather than a per-sketch value because the six wave
+ *  sketches each own a closure that calls `computeWaveLayout()` with
+ *  no arguments, and every wave canvas on a page lives in the same
+ *  media column, so they all measure the same box. If wave sketches
+ *  ever render at two different sizes on one page, this has to
+ *  become per-instance. */
+let sharedBox: { width: number; height: number } | null = null;
+
+export function setWaveBox(box: { width: number; height: number } | null) {
+  sharedBox =
+    box && box.width > 0 && box.height > 0 ? box : null;
+}
+
+/** Legacy desktop proportions: a 225px cell inside a 700px canvas.
+ *  Kept as a RATIO so the grid scales to whatever box it is given
+ *  while reading exactly as it always has. */
+const DESKTOP_CELL_FILL = (3 * 225) / 700;
+
+export function computeWaveLayout(
+  box: { width: number; height: number } | null = sharedBox,
+): WaveLayout {
   const isMobileLayout =
     typeof window !== "undefined" && window.innerWidth <= 720;
   const COLS = isMobileLayout ? 2 : 3;
   const ROWS = isMobileLayout ? 4 : 3;
+  // DESKTOP: a square sized to the box the shell actually occupies,
+  // so the pixel buffer matches the display size 1:1. It used to be a
+  // hardcoded 700 that CSS then stretched — 744 on a 1440x900 split
+  // page and 920 at 1920x1080, i.e. the grid was drawn at one scale
+  // and resampled to another. 700 stays as the fallback for the frame
+  // before the shell has measured itself.
   const SIZE_W =
     isMobileLayout && typeof window !== "undefined"
       ? Math.round(window.innerWidth)
-      : 700;
+      : Math.max(1, Math.round(box ? box.width : 700));
   const SIZE_H =
     isMobileLayout && typeof window !== "undefined"
       ? Math.round(window.innerHeight)
-      : 700;
-  // Cell side — 92% of the tighter axis so each axis always has at
-  // least ~8% left over for the (COLS+1) / (ROWS+1) equal-slot gap
-  // distribution. Desktop keeps the legacy 225 cell.
-  const square = isMobileLayout
-    ? Math.floor(Math.min(SIZE_W / COLS, SIZE_H / ROWS) * 0.92)
-    : 225;
+      : Math.max(1, Math.round(box ? box.height : 700));
+
+  // Cell side — sized by the TIGHTER axis so the grid always fits
+  // whichever dimension runs out first. 92% of the per-cell slot on
+  // mobile; on desktop the fraction is the legacy 225-in-700 cell
+  // expressed as a ratio.
+  const square = Math.floor(
+    Math.min(SIZE_W / COLS, SIZE_H / ROWS) *
+      (isMobileLayout ? 0.92 : DESKTOP_CELL_FILL),
+  );
   const amp = square / 2;
   const cx = square / 2;
   const cy = square / 2;
-  // Even gap distribution: (COLS+1) slots on x (one left margin,
-  // COLS-1 inner gaps, one right margin), (ROWS+1) on y.
-  const gap_x = isMobileLayout
-    ? (SIZE_W - COLS * square) / (COLS + 1)
-    : 4;
-  const gap_y = isMobileLayout
-    ? (SIZE_H - ROWS * square) / (ROWS + 1)
-    : 4;
+
+  let gap_x: number;
+  let gap_y: number;
+  let origin_x: number;
+  let origin_y: number;
+
+  if (isMobileLayout) {
+    // Even slot distribution: (COLS+1) slots on x (one left margin,
+    // COLS-1 inner gaps, one right margin), (ROWS+1) on y. The canvas
+    // is the viewport here, so spreading the leftover is what's
+    // wanted.
+    gap_x = (SIZE_W - COLS * square) / (COLS + 1);
+    gap_y = (SIZE_H - ROWS * square) / (ROWS + 1);
+    origin_x = gap_x;
+    origin_y = gap_y;
+  } else {
+    // DESKTOP: the canvas fills the media column, which is much wider
+    // than it is tall, so the leftover must NOT be spread into the
+    // gaps — that would pull the cells apart into a stretched lattice
+    // instead of scaling the grid. The gap is derived from the TIGHT
+    // axis (keeping the legacy proportion), the block is measured,
+    // and whatever is left over lands OUTSIDE the block as canvas
+    // background on both sides.
+    const tight = Math.min(SIZE_W, SIZE_H);
+    const cells = Math.max(COLS, ROWS);
+    // Same even-slot figure the legacy 700px canvas produced
+    // (700 - 3x225) / 4 = 6.25 — but measured against the tight axis
+    // so it scales with the grid rather than with the wide axis.
+    const gap = (tight - cells * square) / (cells + 1);
+    gap_x = gap;
+    gap_y = gap;
+    const blockW = COLS * square + (COLS - 1) * gap;
+    const blockH = ROWS * square + (ROWS - 1) * gap;
+    origin_x = (SIZE_W - blockW) / 2;
+    origin_y = (SIZE_H - blockH) / 2;
+  }
   return {
     isMobileLayout,
     COLS,
@@ -90,12 +158,14 @@ export function computeWaveLayout(): WaveLayout {
     cy,
     gap_x,
     gap_y,
+    origin_x,
+    origin_y,
   };
 }
 
 /**
  * Returns the (x, y) pixel position of cell `idx` within the current
- * layout — `gap_x` from the left + `col × (square + gap_x)`, etc.
+ * layout — the block's origin + `col × (square + gap)`.
  * Reads from a mutable layout reference so it always uses the
  * latest dimensions (caller updates the reference inside
  * `p.windowResized`).
@@ -104,7 +174,7 @@ export function cellPos(layout: WaveLayout, idx: number): [number, number] {
   const col = idx % layout.COLS;
   const row = Math.floor(idx / layout.COLS);
   return [
-    layout.gap_x + col * (layout.square + layout.gap_x),
-    layout.gap_y + row * (layout.square + layout.gap_y),
+    layout.origin_x + col * (layout.square + layout.gap_x),
+    layout.origin_y + row * (layout.square + layout.gap_y),
   ];
 }

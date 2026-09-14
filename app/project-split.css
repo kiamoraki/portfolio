@@ -1,9 +1,19 @@
 /* Column gutter token, defined at :root rather than on `.split` so the
    fixed chrome (a SIBLING of the grid, not a descendant) can align to
-   it as well. See the `.split` rule for the reasoning behind the
-   clamp. */
+   it as well.
+
+   Now just an alias for the site-wide horizontal gutter. It used to
+   carry its own `clamp(1rem, 1.6vw, 1.75rem)`, which put the split
+   pages 3px tighter than the homepage grid at 1440 and 8px tighter at
+   900 — two different "page edge" values for the same visual idea.
+   Pointing it at `--chrome-inset-x` collapses them: the split grid's
+   outer padding, its column gap, the homepage grid's gutters and card
+   gaps, and the top bar's inset are all one number. It also makes the
+   two chrome `translateX` corrections below evaluate to zero; they are
+   kept as formulas so the alignment survives if this token is ever
+   given its own value again. */
 :root {
-  --split-gap: clamp(1rem, 1.6vw, 1.75rem);
+  --split-gap: var(--chrome-inset-x);
 }
 
 /* project-split.css: the split project-page template.
@@ -41,11 +51,15 @@ body:has(.split) .project-title-wrapper {
 
 .split {
   display: grid;
-  /* 6-column template. Placement is by grid LINE, so with 6 columns
-     there are 7 lines: the text occupies column 1 (lines 1 to 2) and
-     the media spans columns 2 through 6 INCLUSIVE (lines 2 to 7), so
-     it runs to the right edge of the grid. */
-  grid-template-columns: repeat(6, 1fr);
+  /* 5-column template. Placement is by grid LINE, so with 5 columns
+     there are 6 lines: the text occupies column 1 (lines 1 to 2) and
+     the media spans columns 2 through 5 INCLUSIVE (lines 2 to 6), so
+     it runs to the right edge of the grid. Was 6 columns; the rail is
+     now 1/5 of the width rather than 1/6, so it reads a little wider. */
+  grid-template-columns: repeat(5, 1fr);
+  /* Row 1 is the counter strip over the media column; row 2 is the
+     media itself. The rail spans both so it still starts at the top. */
+  grid-template-rows: auto 1fr;
   /* Single token for the column gutter. The container's left/right
      padding reads from it too, so the outer margin always matches the
      gap between columns and the two can't drift apart when tuned.
@@ -77,7 +91,15 @@ body:has(.split) .project-title-wrapper {
      than the old hardcoded 6rem, which was sized for a 54px nav and
      left ~34px of slack once the bar shrank to 30px. Deriving it means
      it tracks any future change to `--spacing-nav-h`. */
-  padding: calc(1rem + var(--spacing-nav-h) + var(--split-gap))
+  /* TOP: nav inset + bar height + a half-rem breath, so the title
+     sits just under the bar. Was `2rem + nav-h`, which matched the
+     homepage sentence's old position in the page flow — that sentence
+     has since moved INTO the bar, so the extra 0.5rem was buying
+     nothing and just held the title low. `main.index #project-list`
+     carries the same expression, so the homepage's first card and a
+     project's title still start on one line.
+     Left, RIGHT and BOTTOM still come from `--split-gap`. */
+  padding: calc(1.5rem + var(--spacing-nav-h))
     var(--split-gap) var(--split-gap) var(--split-gap);
   height: 100dvh;
   overflow: hidden;
@@ -91,6 +113,7 @@ body:has(.split) .project-title-wrapper {
 
 .split-text {
   grid-column: 1 / 2;
+  grid-row: 1 / 3;
   /* No horizontal padding. The inherited 0.5rem from the emergence
      prototype inset the rail's text 8.8px from the column edge, so it
      sat right of the Home icon in the chrome above, which aligns to
@@ -156,19 +179,13 @@ body:has(.split) .project-title-wrapper {
   margin-bottom: 0;
 }
 
-/* Placeholder copy for projects with no frontmatter description yet.
-   Dimmed and italic so it reads as a to-do rather than as body copy. */
-.split-description--placeholder {
-  opacity: 0.45;
-  font-style: italic;
-}
-
 /* Content column. `main` already carries .fullbleed (padding: 0) on
    most projects, so the grid's padding is the only outer spacing. */
 .split-content {
-  /* Columns 2 through 6 = 5 of the 6 tracks. Line 7 is the grid's
-     right edge; ending at line 6 would leave column 6 empty. */
-  grid-column: 2 / 7;
+  /* Columns 2 through 5 = 4 of the 5 tracks. Line 6 is the grid's
+     right edge; ending at line 5 would leave the last column empty. */
+  grid-column: 2 / 6;
+  grid-row: 2;
   min-width: 0; /* let the track shrink below intrinsic content width */
   /* Never scrolls. Same `min-height: 0` reasoning as the rail: without
      it the column refuses to shrink below its content and the page
@@ -290,10 +307,10 @@ body:has(.split) .project-title-wrapper {
      is identical to top-aligning; it only matters for a slide whose
      box comes up short (tobrit's final `--cover` piece renders 659 in
      an 803 column), which otherwise sat against the top with all the
-     dead space below it. Paired with `object-position: center` on the
-     images, so both the box in the column and the picture in the box
-     centre. Was `flex-start`. */
-  justify-content: center;
+     dead space below it. Paired with `object-position: center top` on
+     the images, so both the box in the column and the picture in the
+     box sit at the top. Was `center`. */
+  justify-content: flex-start;
 }
 
 .split-carousel [data-carousel-slide] > *,
@@ -329,13 +346,13 @@ body:has(.split) .project-title-wrapper {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
-  /* Centre on BOTH axes. `object-position` only has an effect on the
-     axis that has slack, so this reads as: an image that fills the
-     width but not the height gets centred vertically in the media
-     zone, and one that fills the height but not the width stays
-     centred horizontally. Was `center top`, which parked wide images
-     against the top edge with all the empty space below them. */
-  object-position: center;
+  /* TOP-aligned vertically, centred horizontally. `object-position`
+     only has an effect on the axis that has slack, so this reads as:
+     an image that fills the width but not the height sits against
+     the top of the media zone with the empty space below it, and one
+     that fills the height but not the width stays centred
+     horizontally. Was `center`. */
+  object-position: center top;
   margin-inline: auto;
 }
 
@@ -346,7 +363,7 @@ body:has(.split) .project-title-wrapper {
 .split-carousel .piece-layout--cover > img,
 .split-carousel .piece-layout--cover img {
   object-fit: contain !important;
-  object-position: center !important;
+  object-position: center top !important;
   width: 100% !important;
   height: 100% !important;
 }
@@ -407,9 +424,14 @@ body:has(.split) .project-title-wrapper {
  * (3.5rem tall, 1rem off the bottom edge). */
 @media (max-width: 720px) {
   .split {
-    grid-template-columns: 1fr;
-    padding: 5.5rem 1rem
-      calc(var(--mobile-sidebar-icon-size, 3.5rem) + 2rem) 1rem;
+    /* `!important` because project-page.css and project-split.css do
+       not land in a guaranteed order in the bundled chunk, so the
+       desktop `repeat(6, 1fr)` was winning here on source order alone.
+       Mobile is a single stacked column and must not depend on that. */
+    grid-template-columns: 1fr !important;
+    padding: 5.5rem var(--chrome-inset-x)
+      calc(var(--mobile-sidebar-icon-size, 3.5rem) + 2rem)
+      var(--chrome-inset-x);
     gap: 1.5rem;
     align-items: start;
     min-height: unset;
@@ -417,21 +439,54 @@ body:has(.split) .project-title-wrapper {
 
   /* Reset the desktop line placement. Without this, the explicit
      column lines against a single-column template would generate
-     IMPLICIT columns and throw the stack sideways. */
-  .split-text,
-  .split-content {
-    grid-column: 1 / -1;
+     IMPLICIT columns and throw the stack sideways, and the explicit
+     ROWS would put the rail (spanning 1/3) and the media (row 2) on
+     top of each other. Everything auto-flows into its own row here. */
+  .split {
+    grid-template-rows: none;
+    /* NOT viewport-locked on mobile. The never-scroll rule exists so
+       the media column can sit beside the rail on desktop without the
+       page moving. Stacked, that inverts: locking the height squeezed
+       two auto rows into one screen, so a long description overflowed
+       its row and painted over the media below it. Let the page scroll
+       the way a stacked document should. */
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
   }
 
-  /* Clear the fixed chrome column: inset + icon width + breathing room.
-     Sticky is dropped here since the rail no longer sits beside the
-     content, it sits above it. */
+  /* The rail scrolls with the page here rather than inside itself. */
+  .split-text {
+    overflow-y: visible;
+    max-height: none;
+  }
+
+  .split-content {
+    overflow: visible;
+  }
+
+  /* Stack order: text, then the fig. indicator, then the media, each
+     spanning the full width. */
+  .split-text,
+  .split-content,
+  #split-count-slot {
+    grid-column: 1 / -1 !important;
+    grid-row: auto !important;
+    width: 100%;
+  }
+
+  #split-count-slot {
+    align-self: auto;
+  }
+
+  /* No left inset any more. That padding existed to clear a fixed
+     chrome COLUMN down the left edge; the mobile nav is now a single
+     top row like desktop, so nothing occupies that space and the rail
+     aligns to the gutter as it does on desktop. Sticky is dropped
+     here since the rail sits above the content, not beside it. */
   .split-text {
     position: static;
-    padding-left: calc(
-      var(--mobile-sidebar-icon-inset, 1rem) +
-        var(--mobile-sidebar-icon-size, 3.5rem) + 0.5rem
-    );
+    padding-left: 0;
   }
 
   .split-title {
@@ -612,6 +667,48 @@ body:has(.split) main.split-content .piece-sketch {
   background: transparent !important;
 }
 
+/* ...and so does the container the sketch component puts INSIDE it.
+   `.piece-sketch` being transparent was not enough: the lissajous
+   canvases mount into their own div, which paints `#130c12` across
+   the full wrapper. That kept the band under a capped canvas dark, so
+   a caption there had to be light-on-dark. Every sketch paints its own
+   background in p5 (same reasoning as the rule above), so the
+   container never needs to. */
+body:has(.split) main.split-content .piece-sketch > div {
+  background: transparent !important;
+}
+
+/* A captioned sketch gives up a band at the bottom so its caption sits
+   BELOW the artwork and still inside the media column.
+
+   Lives here, not in globals.css: the rule that pins these to
+   `height: 100%` is the `body:has(.split)` one directly above, and a
+   copy in globals never reached the served stylesheet at all
+   (`document.styleSheets` had no such rule while the selector matched
+   5 elements). Same prefix, plus `:has()`, so it reliably wins. */
+@media (min-width: 721px) {
+  /* Shrink the CANVAS, not the wrapper. Every attempt to reduce the
+     wrapper's height was ignored — it is pinned `height: 100%
+     !important` by the rule above and by
+     `main.split-content[data-project-slug] .piece-sketch`, and the
+     caption kept landing 27px past the column's bottom edge.
+     Capping the canvas and top-aligning it frees the same band inside
+     a wrapper that still fills the column, so the caption sits below
+     the artwork AND inside the media box. */
+  body:has(.split)
+    main.split-content
+    .piece-sketch:has(.piece-sketch-caption) {
+    align-items: flex-start !important;
+  }
+
+  body:has(.split)
+    main.split-content
+    .piece-sketch:has(.piece-sketch-caption)
+    canvas {
+    max-height: calc(100% - 2.75rem) !important;
+  }
+}
+
 /* Fifth variant of the chrome-clearance double-count: piece LAYOUTS
    (radioactivitea's `--hero`) carry it as vertical padding, which left
    the image 79px short and 79px down inside a layout that was already
@@ -630,6 +727,16 @@ body:has(.split) main.split-content .piece-sketch {
      the media run edge to edge and the two outer gaps match.
      Gaps BETWEEN cells in `--pair` / `--grid-2x2` are `gap`, not
      padding, so they're unaffected. */
+  /* Cells TOP-align inside the column, matching `object-position:
+     center top` on the images themselves. The multi-cell layouts
+     (`--pair`, `--grid-2x2`) were centring their tracks, so on
+     tobrit's sketch pair the shorter of the two images floated 157px
+     down while the taller one started at 22px — the pair read as
+     misaligned even though each image was top-anchored inside its own
+     box. Per-project rules that deliberately centre a sketch (see
+     shape-of-time) use `!important` and still win. */
+  align-items: start !important;
+  align-content: start !important;
   padding-left: 0 !important;
   padding-right: 0 !important;
 }
@@ -670,22 +777,1523 @@ main.split-content {
    carousel / tag walks) is unchanged. Specificity is (0,4,0), above
    the (0,3,0) desktop rule it overrides.
 
-   Rows are `1fr` (not `auto`): with `auto`, three 386px-wide squares
-   stack to 772px + gap, just past the 771px column, and the second
-   row would clip. `1fr` splits the column height and the images
-   contain inside it. */
+   EQUAL GAPS. The tiles are square sources (1800x1800). With `1fr`
+   rows the cells were 354x379, so each image painted 354x354 at the
+   top of its cell and left 25px of dead space at the bottom: the
+   visible gap between the two ROWS read 46px against 21px between
+   the images in a row.
+
+   Fixed by making the cells square instead of cropping to fill them.
+   Rows are `auto` and the images carry `aspect-ratio: 1`, so a row is
+   exactly as tall as a column is wide and both gaps are the grid's
+   `gap`, full stop.
+
+   The old comment warned that `auto` rows overflow the column (three
+   386px squares stack past the available height). That is why the
+   layout's width is capped: the slide is a size container, so the
+   width at which the stacked height exactly fills the column is
+   expressible. From `height = 2c + g` and `width = 3c + 2g`, the
+   tallest permitted layout is `width = 1.5 * height + 0.5 * gap`.
+   `min()` takes whichever of that and the full column width is
+   smaller, so the grid is width-bound on wide/short columns and
+   height-bound on narrow/tall ones, and never clips either way. */
+.split-carousel .piece[data-piece-id="ac-oc-tiles"] {
+  /* Size container so the layout below can read this slide's height.
+     Scoped to this one piece rather than a shared ancestor: size
+     containment makes an element's box independent of its contents,
+     which is safe here (the slide is already `height: 100%`) and is
+     NOT safe on the content-sized wrappers above it. */
+  container-type: size;
+}
+
 .split-carousel .piece[data-piece-id="ac-oc-tiles"] .piece-layout--stack {
   grid-template-columns: repeat(3, 1fr) !important;
-  grid-template-rows: repeat(2, 1fr) !important;
-  height: 100%;
+  grid-template-rows: repeat(2, auto) !important;
+  /* `!important` on both: `main.split-content[data-project-slug]
+     .piece-layout` forces `width: 100% !important; height: 100%
+     !important` on every layout in the template. Without matching it,
+     the cap below was dropped (the grid took the full column width)
+     and `height: 100%` squashed the auto rows to fit, so the square
+     images overflowed their own rows and the two rows OVERLAPPED. */
+  width: min(
+    100%,
+    calc(150cqh + 0.5 * var(--piece-gap, 1.5vw))
+  ) !important;
+  height: auto !important;
+  max-height: 100% !important;
   min-height: 0;
+  margin-inline: auto;
 }
 
 .split-carousel .piece[data-piece-id="ac-oc-tiles"] .piece-layout--stack > img {
+  /* Square box, so the cell it defines is square too.
+     `max-height: none` is required: the generic slide-image rule
+     carries `max-height: 100%`, which clamped the height against the
+     auto row and left the tile 394x326 on a short column — the image
+     then letterboxed inside a too-wide box and the VISIBLE column gap
+     blew out even though the grid gap was equal. */
+  aspect-ratio: 1;
   width: 100%;
-  height: 100%;
+  height: auto;
   min-height: 0;
+  max-height: none;
   object-fit: contain;
+}
+
+/* VIEWPORT-RELATIVE HEIGHT CAPS DON'T BELONG IN THE COLUMN.
+   A family of per-piece rules in project-page.css cap slide media at
+   `max-height: 90dvh !important` — the full-bleed template's idea of
+   "most of the screen". The split column is NOT the screen: it is
+   779px on a 900px viewport, so 90dvh (810px) overflowed it by 31px
+   on `ac-video-1/2` and `ac-interference`, and by up to 316px on
+   paintings' later slides. Same double-counting as the chrome-
+   clearance rules elsewhere in this file.
+
+   Capping to the column instead. Specificity is (0,4,1) — `:is()`
+   takes its most specific argument, so the element selectors inside
+   contribute nothing — which clears the (0,3,1) `!important` sources
+   without relying on source order between the two stylesheets.
+
+   It only became visible when slides started top-aligning: centred,
+   the overflow split evenly off both ends and read as a crop. */
+main.split-content
+  .split-carousel
+  [data-carousel-slide]
+  :is(img, video, iframe) {
+  max-height: 100% !important;
+}
+
+/* (Removed: the old `ac-install` flex-row rules for
+   [tile | video | tile]. That piece is split in two now — the film
+   has its own slide and the two playa tiles have theirs — so the
+   three-across sizing no longer described anything. It was still
+   matching the tiles slide after the id was retargeted and pinning
+   them to 24% of the column.) */
+
+/* LEGACY `.row` SLIDES STAY HORIZONTAL.
+   `.split-carousel [data-carousel-active="true"]` sets
+   `flex-direction: column`, which is right for a v2 `<Piece>` (the
+   piece is a wrapper around one layout). For a legacy body the active
+   element IS the `.row`, so that rule turned every side-by-side row
+   into a vertical stack: murals' `energyskeleton | rainbowroad` pair
+   rendered 1104x373 twice, one above the other, and the paintings
+   figure+video rows squashed the drawing to 1104x162.
+
+   (0,3,0) beats the (0,2,0) source. */
+.split-carousel .row[data-carousel-active="true"] {
+  flex-direction: row;
+  align-items: stretch;
+  gap: var(--piece-gap, 1.5vw);
+}
+
+/* Share the width evenly and let each cell own its full height. */
+.split-carousel .row[data-carousel-active="true"] > * {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+  margin: 0 !important;
+}
+
+/* paintings slide 2: the source scan is upside down. Rotated in CSS
+   rather than re-encoding the JPEG, so the asset stays byte-identical
+   and this is one line to revert. A 180deg turn does not change the
+   element's box, so `object-fit` and the surrounding layout are
+   unaffected — only the painted pixels flip.
+
+   Keyed on the filename rather than a slide index so it survives the
+   slides being reordered. */
+main.split-content
+  .split-carousel
+  img[src*="20181113-kirby-littledude-04"] {
+  /* Rotated a further 180deg on request, which returns it to the
+     source scan's orientation — hence 360, not 180. Drop this rule
+     entirely to leave it at 360/0; keep it explicit so the intent is
+     legible next to the `object-position` note below. */
+  transform: rotate(360deg);
+  /* BOTTOM, so it reads as top. `object-position` places the picture
+     inside the element box BEFORE the transform, and the 180deg turn
+     is about the box centre — so a top-anchored picture lands at the
+     bottom. Invisible at 1440x900 (the square source is height-bound
+     in a 1104x779 box, no vertical slack), but wherever the media
+     column is taller than it is wide the picture dropped: 212px down
+     at 900x1000. */
+  object-position: center bottom !important;
+}
+
+/* Figures inside a legacy `.row` slide TOP-align their image.
+   `figure.image` is `display: flex; flex-direction: column`, so the
+   VERTICAL axis is `justify-content`, and it was `center`: a square
+   541x541 drawing sat 119px down inside its 779px cell while the
+   video beside it started at 0, so the two did not read as one line.
+   Single-figure slides were already top-aligned; this brings the
+   multi-cell rows in line with them. */
+main.split-content
+  .split-carousel
+  .row[data-carousel-active="true"]
+  figure.image {
+  justify-content: flex-start;
+}
+
+/* murals' stacked pair: two images, one above the other, sharing the
+   column height evenly. `flex: 1 1 0` rather than the base
+   `row--stack` sizing, which is built for a drawing over a video and
+   gives the top item a fixed share. Both `contain`, so neither is
+   cropped — the trade is size: stacked squares in a wide, short
+   column come out around 378px against the 541px they had side by
+   side. */
+main.split-content[data-project-slug="murals"]
+  .split-carousel
+  .row--stack[data-carousel-active="true"]
+  > * {
+  flex: 1 1 0;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0;
+}
+
+main.split-content[data-project-slug="murals"]
+  .split-carousel
+  .row--stack
+  img {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain !important;
+  object-position: center !important;
+}
+
+/* paintings slides 1-6 share ONE image size.
+   The six Portal drawings are square sources. Left alone, the four
+   solo slides filled the column (779px tall at 1440x900) while the
+   two that carry a video underneath shrank their drawing to 454px to
+   make room, so the same series read at two different scales as you
+   paged through it.
+
+   Pinning the drawing to 75% of the column on every one of the six
+   makes them identical, and on the two stacked slides the video takes
+   the remainder — 172px at 1440x900, down from the 303px it claimed
+   when it was splitting the column evenly with the drawing.
+
+   DESKTOP ONLY. These are percentages OF A VIEWPORT-HEIGHT COLUMN.
+   Unscoped they leaked into the stacked mobile view and resolved
+   against auto heights: a slide's figure came out 343px tall around a
+   257px image (86px of dead space, so gaps read 102px instead of 16),
+   and the video band squashed a 3:2 clip to 343x83. Three mobile
+   overrides were fighting this before the cause was found — scope it
+   here instead. */
+@media (min-width: 721px) {
+  main.split-content[data-project-slug="paintings"]
+    .split-carousel
+    figure.image[data-carousel-slide]
+    img {
+    height: 75% !important;
+    max-height: 75% !important;
+  }
+
+  main.split-content[data-project-slug="paintings"]
+    .split-carousel
+    .row--stack
+    > figure.image {
+    flex: 0 0 75%;
+    height: 75% !important;
+    max-height: 75% !important;
+  }
+
+  /* The video takes two thirds of the band left under the drawing
+     rather than all of it. The band is `100% - 75% - gap`; the `* 2/3`
+     is the reduction. Whatever is left over stays empty — the drawing
+     must not grow into it, or it would stop matching the other four
+     slides in the series. */
+  main.split-content[data-project-slug="paintings"]
+    .split-carousel
+    .row--stack
+    > .video {
+    flex: 0 0 auto;
+    min-height: 0;
+    height: calc((25% - var(--piece-gap, 1.5vw)) * 2 / 3) !important;
+  }
+}
+
+/* ─── Drawings (slug `paintings`), desktop ──────────────────────
+   The littledude series at a larger scale, and the process video
+   BESIDE the drawing rather than under it.
+
+   The row becomes a three-track grid: the drawing in a centre track
+   that hugs it (the sources are square, so `aspect-ratio: 1 / 1` over
+   a definite row height gives the track a definite width), and the
+   video in the left gutter track. `align-content: start` keeps the
+   drawing anchored to the top of the column exactly where the stacked
+   layout had it.
+
+   The video fills its gutter track at its own 3:2 ratio, which lands
+   at the same painted size the stacked layout gave it (176x117 at
+   1440x900) and keeps scaling with the column instead of being pinned
+   to a magic height. */
+@media (min-width: 721px) {
+  main.split-content[data-project-slug="paintings"]
+    .split-carousel
+    figure.image:has(img[src*="littledude"])
+    > img {
+    /* Was 75% of the column height. The drawings are square, so this
+       is also their painted width. */
+    height: 90% !important;
+    max-height: 90% !important;
+  }
+
+  main.split-content[data-project-slug="paintings"]
+    .split-carousel
+    .row--stack[data-carousel-active="true"] {
+    display: grid !important;
+    grid-template-columns: 1fr auto 1fr;
+    /* One row, the drawing's height, so `align-self: center` on the
+       video centres it against the DRAWING and not against the taller
+       column. */
+    grid-template-rows: 90%;
+    align-content: start;
+    justify-items: center;
+    gap: var(--piece-gap, 1.5vw);
+  }
+
+  main.split-content[data-project-slug="paintings"]
+    .split-carousel
+    .row--stack[data-carousel-active="true"]
+    > figure.image {
+    /* Explicit row as well as column: with only the column set, sparse
+       auto-placement pushed the video (column 1) into an implicit
+       SECOND row, because the cursor had already advanced past column
+       1 when the drawing claimed column 2. */
+    grid-column: 2;
+    grid-row: 1;
+    flex: none !important;
+    width: auto !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    aspect-ratio: 1 / 1;
+  }
+
+  main.split-content[data-project-slug="paintings"]
+    .split-carousel
+    .row--stack[data-carousel-active="true"]
+    > figure.image
+    > img {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 100% !important;
+  }
+
+  main.split-content[data-project-slug="paintings"]
+    .split-carousel
+    .row--stack[data-carousel-active="true"]
+    > .video {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: center;
+    flex: none !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: 100% !important;
+    aspect-ratio: 3 / 2;
+  }
+
+  main.split-content[data-project-slug="paintings"]
+    .split-carousel
+    .row--stack[data-carousel-active="true"]
+    > .video
+    > video {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+  }
+}
+
+/* `row--stack`: opt-in for a legacy `<Row>` that should read top to
+   bottom rather than left to right — on the paintings slides, the
+   drawing above and the video of it being made below.
+
+   Needed because `.row[data-carousel-active]` forces `flex-direction:
+   row` (that rule exists to undo the column direction the v2 slide
+   wrapper imposes on every active slide). This opts back out for the
+   rows that actually want a stack. */
+main.split-content .split-carousel .row--stack[data-carousel-active="true"] {
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--piece-gap, 1.5vw);
+}
+
+/* Each half takes what it needs, capped so the pair always fits the
+   column: `1 1 auto` with `min-height: 0` lets the taller one give up
+   space instead of overflowing. */
+main.split-content .split-carousel .row--stack[data-carousel-active="true"] > * {
+  flex: 0 1 auto;
+  width: 100% !important;
+  min-height: 0;
+  max-height: 100%;
+  margin: 0 !important;
+}
+
+main.split-content .split-carousel .row--stack[data-carousel-active="true"] :is(img, video) {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain !important;
+  object-position: center top !important;
+}
+
+/* `row--equal`: opt-in for a legacy `<Row>` whose two cells should
+   read as a matched pair.
+
+   UNCROPPED. This used to be `object-fit: cover`, which filled the
+   tall 541x779 cells but trimmed 28% and 30% off the two sources.
+   Now the cells are SQUARE (the flex children already share the
+   width, so a square cell is the column width) and the images
+   `contain` inside them, so both frames are the same box and neither
+   is cut.
+
+   The painted sizes still differ by ~20px: the sources are 2315x2400
+   and 1440x1440, so one is very slightly off square. Uncropped AND
+   pixel-identical is not possible for two different aspects; this
+   gets within 4%. */
+main.split-content .split-carousel .row--equal > * {
+  aspect-ratio: 1;
+  height: auto !important;
+  min-height: 0;
+  align-self: start;
+}
+
+main.split-content .split-carousel .row--equal img {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  object-position: center top !important;
+}
+
+/* `row--eandn`: "Everything & Nothing" — the full piece on top, its
+   four details in a single row underneath.
+
+   Authored as one flat `<Row>` of five figures (the body is a legacy
+   MDX, so introducing a `<Piece>` here would flip slide discovery to
+   v2 and orphan every other slide) and arranged here.
+
+   Rows are `65% / 1fr`, the same split the rest of this project uses
+   for a drawing above and a video below, so the big piece lands at
+   the size the other slides show their artwork at. Every figure is
+   sized by HEIGHT with `width: auto` + `aspect-ratio: 1` — the
+   sources are square (2352x2352), so nothing is cropped and nothing
+   letterboxes. */
+main.split-content .split-carousel .row--eandn {
+  display: grid !important;
+  /* Details are sized by WIDTH (four equal columns), the big piece
+     takes whatever height is left. Driving the details off the row
+     height instead made them 178x260 once the column got narrow: four
+     squares of 35%-of-height no longer fit across, so the width
+     clamped while the height did not. */
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: 1fr auto;
+  gap: var(--piece-gap, 1.5vw);
+  justify-content: center;
+  align-content: start;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0;
+}
+
+main.split-content .split-carousel .row--eandn > * {
+  min-width: 0;
+  min-height: 0;
+  margin: 0 !important;
+  max-height: none !important;
+  justify-self: center;
+}
+
+/* Details: square, HALF the column width, centred in their cell. The
+   full-width version made them 260px and left the full piece only
+   453px of height; at 50% they are 130px and the piece grows into the
+   space that frees. */
+main.split-content .split-carousel .row--eandn > *:nth-child(n + 2) {
+  width: 50% !important;
+  height: auto !important;
+  aspect-ratio: 1;
+  align-self: start;
+  justify-self: center;
+}
+
+/* Row reversed: DOM order 02, 03, 05, 06 reads right to left. A
+   forward-order copy of these four rules used to sit further down the
+   file and won on source order, so the reversal had no effect. */
+main.split-content .split-carousel .row--eandn > *:nth-child(2) { grid-column: 4; grid-row: 2; }
+main.split-content .split-carousel .row--eandn > *:nth-child(3) { grid-column: 3; grid-row: 2; }
+main.split-content .split-carousel .row--eandn > *:nth-child(4) { grid-column: 2; grid-row: 2; }
+main.split-content .split-carousel .row--eandn > *:nth-child(5) { grid-column: 1; grid-row: 2; }
+
+/* Big piece: square, sized by the height left above the details.
+   `max-width: 100%` is the guard for a very narrow column — the box
+   goes off-square there, but the art does not: `object-fit: contain`
+   keeps it square and whole inside the box. */
+main.split-content .split-carousel .row--eandn > *:nth-child(1) {
+  /* `- 2.5rem` frees the band the absolute caption occupies. At full
+     height the caption sat at `top: 100%` of the figure, which is
+     exactly where the details row starts, and the two overlapped. */
+  height: calc(100% - 2.5rem) !important;
+  width: auto !important;
+  max-width: 100%;
+  aspect-ratio: 1;
+  align-self: start;
+}
+
+/* Full piece spans the row above; the four details sit side by side
+   beneath it. */
+main.split-content .split-carousel .row--eandn > *:nth-child(1) {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  /* The caption is absolute, so it must not be clipped. */
+  overflow: visible;
+}
+
+/* Out of flow so it cannot inflate the row track — spanning the top
+   row, its height would otherwise be folded into the track size. */
+main.split-content .split-carousel .row--eandn > *:nth-child(1) figcaption {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+}
+
+main.split-content .split-carousel .row--eandn img {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  object-position: center !important;
+}
+
+/* precarity `precarity-01-04-05-02`: four 4:3 sources in a 2x2 whose
+   cells are 541x379 (ratio 1.43). With `contain` each image painted
+   505 wide inside its 541 box, so the VISIBLE column gap was the grid
+   gap plus 36px of letterboxing while the row gap was just the grid
+   gap. `cover` fills the cell, so both gaps are exactly `gap`. The
+   crop is ~7% off the sides of a wide interior shot, which these
+   tolerate; the alternative (square cells like `ac-oc-tiles`) does
+   not work here because the sources are landscape, not square. */
+.split-carousel .piece[data-piece-id="precarity-01-04-05-02"] img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+}
+
+/* ─── MOBILE: no carousel, every slide stacked ──────────────────
+   `SplitMediaCarousel` marks every slide active below 720px, so the
+   visibility rules above already reveal them all. What is left is to
+   undo the fit-to-height sizing (built for one slide locked to a
+   viewport-height column) and give the stack a rhythm. */
+@media (max-width: 720px) {
+  .split-carousel[data-carousel-stacked="true"] {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--chrome-inset-x) * 2);
+    height: auto;
+    cursor: default;
+  }
+
+  /* Slides size to their content instead of filling a locked column. */
+  .split-carousel[data-carousel-stacked="true"] [data-carousel-slide] {
+    position: relative;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0;
+    width: 100%;
+  }
+
+  /* The media inside them, likewise: `height: 100%` against an auto
+     parent collapses, and `max-height: 100%` caps them at nothing. */
+  .split-carousel[data-carousel-stacked="true"]
+    [data-carousel-slide]
+    :is(img, video, iframe) {
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  /* No counter and no caret controls when there is nothing to page. */
+  .split-carousel[data-carousel-stacked="true"] ~ #split-count-slot,
+  body:has(.split-carousel[data-carousel-stacked="true"]) #split-count-slot {
+    display: none;
+  }
+
+  /* ── Undo the desktop slide machinery ──
+     Everything above this file's mobile section is built for ONE slide
+     locked to a viewport-height column: `row--stack` splits a fixed
+     75/25 between drawing and video, `row--eandn` is a 4-column grid,
+     `row--equal` forces square cells, `ac-oc-tiles` is a size
+     container, and the generic rules pin media to `height: 100%`.
+     None of that survives contact with a stacked, content-height
+     column — measured on paintings at 375: slides 3 and 4 collapsed to
+     0px (`display: contents` from the mobile `.row` rule), slide 9's
+     grid rendered images at 1x1 and 0x0, and every single-image slide
+     squashed to 343x128.
+
+     One reset, rather than re-scoping a dozen blocks to
+     `min-width: 721px`: on mobile a slide is a plain block and its
+     media is full width at natural height. */
+  main.split-content
+    .split-carousel[data-carousel-stacked="true"]
+    :is([data-carousel-slide], .row, .piece-layout, figure.image) {
+    display: block !important;
+    position: relative !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    aspect-ratio: auto !important;
+    flex: none !important;
+    grid-template-columns: none !important;
+    grid-template-rows: none !important;
+    container-type: normal !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Images and video: full width, natural height, nothing cropped. */
+  main.split-content
+    .split-carousel[data-carousel-stacked="true"]
+    :is([data-carousel-slide], .row, .piece-layout, figure.image)
+    :is(img, video) {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    aspect-ratio: auto !important;
+    object-fit: contain !important;
+    object-position: center !important;
+  }
+
+  /* ONE vertical rhythm: the space between stacked media, and between
+     a slide and the next, equals the gutter the media already has to
+     the viewport edge (`--chrome-inset-x`, via the grid's padding).
+
+     The rhythm lives on the SLIDES, not on the carousel's `gap`. The
+     slides are grandchildren — `.split-carousel > .project-track >
+     .project-track-content > [data-carousel-slide]` — so a flex gap on
+     the carousel spaces its one child and never reaches them. That is
+     why the measured gap was a stray 6px on most pages while the
+     carousel reported `gap: 16px`.
+
+     Beats the carousel-mode `margin-top: 0` on the same selector. */
+  /* NO flex `gap` here. In a LEGACY body the slides are direct
+     children of the carousel, so the gap applied on top of the
+     slide-to-slide margin below and murals/paintings measured 32px
+     against every v2 project's 16. The margin alone covers both
+     shapes: direct children and grandchildren under
+     `.project-track-content`. */
+  .split-carousel[data-carousel-stacked="true"] {
+    gap: 0;
+  }
+
+  /* Attribute repeated to out-weigh the reset's `margin: 0 !important`
+     above, which lands at (0,4,2) because its `:is(...)` carries
+     `figure.image`. This is (0,6,1). Without the repeat the reset won
+     and every slide gap measured 0. */
+  main.split-content
+    .split-carousel[data-carousel-stacked="true"]
+    [data-carousel-slide][data-carousel-slide]
+    + [data-carousel-slide] {
+    margin-top: var(--chrome-inset-x) !important;
+  }
+
+  /* The track wrappers must not introduce their own spacing or a flex
+     context that would swallow those margins. */
+  .split-carousel[data-carousel-stacked="true"] > .project-track,
+  .split-carousel[data-carousel-stacked="true"]
+    > .project-track
+    > .project-track-content {
+    display: block !important;
+    gap: 0 !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* `:not([data-carousel-slide])` on both sides. In a LEGACY body the
+     slide IS the `figure.image` / `.row`, so without the exclusion a
+     slide picked up this margin on top of the slide-to-slide margin
+     above and the gap came out 32px on murals and paintings while
+     every v2 project sat at 16. */
+  /* `:where()`, not `:is()`. This is the DEFAULT rhythm and every
+     per-piece grid needs to be able to override it — but `:is()`
+     takes its most specific argument (`figure.image`, (0,1,1)), which
+     put this rule at (0,6,3). Specificity compares class count before
+     element count, so per-piece rules kept losing even at (0,6,1) and
+     even with `!important`, and their grids showed 32px (this margin
+     plus their own `gap`) where they meant 16.
+
+     `:where()` contributes zero, dropping the rule to (0,4,1) so any
+     per-piece rule beats it without a specificity arms race. */
+  /* `.split-carousel` is repeated to land at (0,5,1): above the
+     reset's `margin: 0` at (0,4,2), below every per-piece grid rule. */
+  main.split-content
+    .split-carousel.split-carousel[data-carousel-stacked="true"]
+    [data-carousel-slide]
+    :where(img, video, .piece-layout, figure.image, .video):where(
+        :not([data-carousel-slide])
+      )
+    + :where(img, video, .piece-layout, figure.image, .video):where(
+        :not([data-carousel-slide])
+      ) {
+    margin-top: var(--chrome-inset-x) !important;
+  }
+
+  /* Captions stay with their image rather than being pushed out of
+     flow (the desktop `row--eandn` rule absolutizes one). */
+  /* `:not(.piece-sketch-caption)`. A sketch caption is deliberately
+     overlaid on its canvas and coloured for that dark background;
+     dropping it into the flow put light-grey text on the white page,
+     where it was invisible. Image captions still go static here. */
+  main.split-content
+    .split-carousel[data-carousel-stacked="true"]
+    figcaption:not(.piece-sketch-caption) {
+    position: static !important;
+    /* Tight to the media it labels, ranged right. */
+    margin-top: 0.25rem !important;
+    padding: 0 !important;
+    text-align: right !important;
+  }
+
+  /* Sketch captions too: they stay overlaid-below via `bottom: 0`, so
+     the gap is their top padding. */
+  main.split-content
+    .split-carousel[data-carousel-stacked="true"]
+    .piece-sketch-caption {
+    /* BELOW the sketch box, not pinned inside its bottom edge. On
+       desktop the canvas is capped so the band inside the wrapper is
+       page-coloured; on mobile the canvas fills its square, so a
+       caption at `bottom: 0` printed dark ink straight onto the dark
+       artwork and read as missing. The 2.75rem bottom margin on a
+       captioned sketch is the room it drops into. */
+    top: 100% !important;
+    bottom: auto !important;
+    padding-top: 0.25rem !important;
+    text-align: right !important;
+  }
+
+  /* AC `ac-oc-tiles`: six square tiles read as a 2x3 on a phone
+     rather than a single stacked column. Re-asserts the grid the
+     reset above flattened. */
+  main.split-content
+    .split-carousel[data-carousel-stacked="true"]
+    .piece[data-piece-id="ac-oc-tiles"]
+    .piece-layout--stack {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(3, auto) !important;
+    gap: var(--chrome-inset-x) !important;
+  }
+
+  main.split-content
+    .split-carousel[data-carousel-stacked="true"]
+    .piece[data-piece-id="ac-oc-tiles"]
+    .piece-layout--stack.piece-layout--stack
+    > img {
+    aspect-ratio: 1 !important;
+    /* Doubled class on purpose — see note above the generic stacked
+       sibling-margin rule. Without it the grid's own 16px `gap` was
+       being doubled to 32px between rows, and the two tiles in a row
+       sat 16px out of line with each other. */
+    margin-top: 0 !important;
+  }
+
+  /* AC `ac-glamtech-3` / `-4`: the install photo full width, then its
+     four PORNJ tiles in a single row beneath. Across the two slides
+     that reads as two rows of four. */
+  main.split-content
+    .split-carousel[data-carousel-stacked="true"]
+    .piece:is([data-piece-id="ac-glamtech-3"], [data-piece-id="ac-glamtech-4"])
+    .piece-layout--stack {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: var(--chrome-inset-x) !important;
+  }
+
+  main.split-content
+    .split-carousel[data-carousel-stacked="true"]
+    .piece:is([data-piece-id="ac-glamtech-3"], [data-piece-id="ac-glamtech-4"])
+    .piece-layout--stack.piece-layout--stack
+    > img {
+    margin-top: 0 !important;
+  }
+
+  /* First child is the install photo — it spans the whole row above
+     the four tiles. */
+  main.split-content
+    .split-carousel[data-carousel-stacked="true"]
+    .piece:is([data-piece-id="ac-glamtech-3"], [data-piece-id="ac-glamtech-4"])
+    .piece-layout--stack
+    > img:first-child {
+    grid-column: 1 / -1 !important;
+  }
+
+  main.split-content
+    .split-carousel[data-carousel-stacked="true"]
+    .piece:is([data-piece-id="ac-glamtech-3"], [data-piece-id="ac-glamtech-4"])
+    .piece-layout--stack
+    > img:not(:first-child) {
+    aspect-ratio: 1 !important;
+  }
+
+  /* AC `ac-install-tiles`: the two playa tiles, full width and
+     stacked. (The film is its own slide now — the piece used to hold
+     [tile, video, tile] in one Grid.) The desktop rule for it is a
+     flex ROW sized from the column height, which on a phone left the
+     tiles at 82x82. */
+  main.split-content
+    .split-carousel[data-carousel-stacked="true"]
+    .piece[data-piece-id="ac-install-tiles"]
+    .piece-layout--stack.piece-layout--stack {
+    display: grid !important;
+    /* One column: the two tiles run full width, stacked, with the
+       video beneath them. Was a 2x2 that put them side by side at
+       164px each. */
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-auto-rows: auto !important;
+    gap: var(--chrome-inset-x) !important;
+    align-items: start !important;
+  }
+
+  main.split-content
+    .split-carousel[data-carousel-stacked="true"]
+    .piece[data-piece-id="ac-install-tiles"]
+    .piece-layout--stack.piece-layout--stack
+    > * {
+    /* `width: 100%`, NOT `auto`. The desktop rule for this piece sizes
+       its children from the column height; dropping that to `auto` let
+       the tiles take their intrinsic 600px and hang 200px off both
+       sides of the phone. Each child fills its grid cell instead. */
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    flex: none !important;
+  }
+
+  main.split-content
+    .split-carousel[data-carousel-stacked="true"]
+    .piece[data-piece-id="ac-install-tiles"]
+    .piece-layout--stack.piece-layout--stack
+    > img:first-child {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  main.split-content
+    .split-carousel[data-carousel-stacked="true"]
+    .piece[data-piece-id="ac-install-tiles"]
+    .piece-layout--stack.piece-layout--stack
+    > img:last-child {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  main.split-content
+    .split-carousel[data-carousel-stacked="true"]
+    .piece[data-piece-id="ac-install-tiles"]
+    .piece-layout--stack.piece-layout--stack
+    > .piece-layout {
+    grid-column: 1;
+    grid-row: 3;
+  }
+
+  /* paintings `row--eandn` on mobile: the four details stacked in a
+     single centred column at 25% scale, with the full piece beneath
+     them. (Desktop keeps the full piece on top with the details in a
+     row under it — see the rule outside this media query.) */
+  main.split-content
+    .split-carousel[data-carousel-stacked="true"]
+    .row--eandn.row--eandn {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-auto-rows: auto !important;
+    gap: var(--chrome-inset-x) !important;
+    justify-items: center !important;
+  }
+
+  main.split-content
+    .split-carousel[data-carousel-stacked="true"]
+    .row--eandn.row--eandn.row--eandn
+    > * {
+    margin-top: 0 !important;
+    height: auto !important;
+    grid-column: 1 !important;
+  }
+
+  /* Details first at a quarter of the column, full piece last.
+     EXPLICIT `grid-row`, not `order`: the desktop rules outside this
+     media query pin every child to `grid-row: 1` or `2`, and explicit
+     placement beats `order` entirely — the five items piled into two
+     rows and measured an -86px overlap. */
+  main.split-content
+    .split-carousel[data-carousel-stacked="true"]
+    .row--eandn.row--eandn
+    > *:nth-child(n + 2) {
+    width: 25% !important;
+    aspect-ratio: 1;
+  }
+
+  main.split-content
+    .split-carousel[data-carousel-stacked="true"]
+    .row--eandn.row--eandn
+    > *:nth-child(1) {
+    width: 100% !important;
+    grid-row: 5 !important;
+  }
+  /* Reversed: DOM order 02, 03, 05, 06 reads bottom to top, matching
+     the right-to-left order desktop uses for the same four. */
+  main.split-content .split-carousel[data-carousel-stacked="true"] .row--eandn.row--eandn > *:nth-child(2) { grid-row: 4 !important; }
+  main.split-content .split-carousel[data-carousel-stacked="true"] .row--eandn.row--eandn > *:nth-child(3) { grid-row: 3 !important; }
+  main.split-content .split-carousel[data-carousel-stacked="true"] .row--eandn.row--eandn > *:nth-child(4) { grid-row: 2 !important; }
+  main.split-content .split-carousel[data-carousel-stacked="true"] .row--eandn.row--eandn > *:nth-child(5) { grid-row: 1 !important; }
+
+  /* lissajous: twice the space under each canvas. The gap is the
+     slide-to-slide margin plus the band a captioned sketch reserves
+     below itself; both are doubled so the caption stays the same
+     distance from its canvas and the next canvas moves further away. */
+  main.split-content[data-project-slug="lissajous"]
+    .split-carousel[data-carousel-stacked="true"]
+    [data-carousel-slide][data-carousel-slide]
+    + [data-carousel-slide] {
+    margin-top: calc(var(--chrome-inset-x) * 2) !important;
+  }
+
+  main.split-content[data-project-slug="lissajous"]
+    .split-carousel[data-carousel-stacked="true"]
+    .piece-sketch:has(.piece-sketch-caption) {
+    margin-bottom: 5.5rem !important;
+  }
+
+  /* drawings: the two little-dude drawings that carry a video render
+     at 80% width, centred, against the full-width drawings around
+     them. Scale the FIGURE, not just the image — narrowing only the
+     `img` left its figure holding a full-height box and the gap to
+     the video read 131px instead of 16. */
+  main.split-content[data-project-slug="paintings"]
+    .split-carousel[data-carousel-stacked="true"]
+    .row--stack
+    figure.image {
+    width: 80% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    aspect-ratio: auto !important;
+    margin-inline: auto !important;
+  }
+
+  /* Their videos render at a quarter of the column, centred — the
+     same scale the "Everything & Nothing" details use. */
+  main.split-content[data-project-slug="paintings"]
+    .split-carousel[data-carousel-stacked="true"]
+    .row--stack
+    .video {
+    width: 25% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin-inline: auto !important;
+    flex: none !important;
+  }
+
+  /* moon-raves `VideoTopLeft`: keep its two-column mobile
+     arrangement, but on the standard rhythm. It ships a 5.625px grid
+     `gap`, and the default sibling margin then landed on some of its
+     children and not others, so the piece measured 6, 22 and 49px
+     gaps where every other slide reads 16. */
+  main.split-content
+    .split-carousel[data-carousel-stacked="true"]
+    .piece-video-top-left.piece-video-top-left {
+    gap: var(--chrome-inset-x) !important;
+  }
+
+  main.split-content
+    .split-carousel[data-carousel-stacked="true"]
+    .piece-video-top-left.piece-video-top-left.piece-video-top-left
+    > * {
+    margin-top: 0 !important;
+  }
+
+  /* moon-raves: the video cell is a grid row taller than the 16:9
+     iframe inside it, so a band of dead space sat between the video
+     and the two images beneath. Hugging the iframe closes it. */
+  main.split-content
+    .split-carousel[data-carousel-stacked="true"]
+    .piece-video-top-left__video.piece-video-top-left__video {
+    align-self: start !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  main.split-content
+    .split-carousel[data-carousel-stacked="true"]
+    .piece-video-top-left__video.piece-video-top-left__video
+    iframe {
+    height: auto !important;
+    aspect-ratio: 16 / 9;
+  }
+
+  /* Credit line under the two Snays images, spanning the row. */
+  main.split-content
+    .split-carousel[data-carousel-stacked="true"]
+    .moon-raves-snays-credit {
+    grid-column: 1 / -1;
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: var(--nav-text-size);
+    letter-spacing: var(--nav-text-tracking);
+    line-height: 1.5;
+    color: var(--color-dark);
+  }
+
+  /* murals: consecutive slides sharing a caption print it once, after
+     the LAST of the run. Stacked, the repeats read as a stutter.
+
+     Indices, not text matching, because CSS cannot compare content.
+     Coupled to the slide order in 2018-murals.mdx:
+       1-2 Newport Beach, 3-4 Mars College, 5-6 Kreuzberg,
+       7 Zen Bus, 8-10 Prosperity Wheel
+     so the caption is suppressed on 1, 3, 5, 8 and 9. Reorder those
+     slides and this list has to move with them. */
+  main.split-content[data-project-slug="murals"]
+    .split-carousel[data-carousel-stacked="true"]
+    [data-carousel-slide]:nth-child(1) figcaption,
+  main.split-content[data-project-slug="murals"]
+    .split-carousel[data-carousel-stacked="true"]
+    [data-carousel-slide]:nth-child(3) figcaption,
+  main.split-content[data-project-slug="murals"]
+    .split-carousel[data-carousel-stacked="true"]
+    [data-carousel-slide]:nth-child(5) figcaption,
+  main.split-content[data-project-slug="murals"]
+    .split-carousel[data-carousel-stacked="true"]
+    [data-carousel-slide]:nth-child(8) figcaption,
+  main.split-content[data-project-slug="murals"]
+    .split-carousel[data-carousel-stacked="true"]
+    [data-carousel-slide]:nth-child(9) figcaption {
+    display: none !important;
+  }
+
+  /* drawings: more air between the full-width drawings than the
+     standard rhythm gives, so each reads as its own plate. Twice the
+     gutter. The scaled pair (80% drawing over a 25% video) keeps the
+     standard 16px between its two parts. */
+  main.split-content[data-project-slug="paintings"]
+    .split-carousel[data-carousel-stacked="true"]
+    [data-carousel-slide][data-carousel-slide]
+    + [data-carousel-slide] {
+    margin-top: calc(var(--chrome-inset-x) * 3) !important;
+  }
+
+  /* Eternal-return toggle: 4 columns x 3 rows on a phone. The sketch
+     derives its row count from `floor(height / cellSize)` with
+     `cellSize = width / cols`, so a 4:3 box plus `cols={4}` yields
+     exactly three rows. Overrides the square every other sketch gets
+     below. */
+  main.split-content
+    .split-carousel[data-carousel-stacked="true"]
+    .piece-sketch[data-sketch-id="eternal-return-toggle"][data-sketch-id] {
+    /* The BOX hugs its contents (buttons + canvas). It used to be the
+       square every other sketch gets, which left ~38px below the grid
+       painting black. The attribute is repeated so this outweighs the
+       generic `aspect-ratio: 1 !important` every sketch gets on
+       mobile — that rule sits later in the file and was winning on
+       source order. The 4/3.02 ratio moved to the canvas wrapper
+       below, where it belongs. */
+    aspect-ratio: auto !important;
+    height: auto !important;
+  }
+
+  /* The canvas carries the ratio now. 4 / 3.02, not 4 / 3: the sketch
+     derives rows from `floor(height / cellSize)` with
+     `cellSize = width / cols`, so an exact 4:3 box lands on 2.997 rows
+     and floors to TWO. 3.02 clears the rounding while leaving under
+     2px of slack — 3.1 left 30px of black under the last row. */
+  main.split-content
+    .split-carousel[data-carousel-stacked="true"]
+    .eternal-return-toggle {
+    height: auto !important;
+  }
+
+  main.split-content
+    .split-carousel[data-carousel-stacked="true"]
+    .eternal-return-toggle__canvas {
+    aspect-ratio: 4 / 3.02 !important;
+    height: auto !important;
+    flex: none !important;
+  }
+
+  /* Clip whatever the canvas does not use. The sketch trims its buffer
+     to the grid's exact extent only when its `fitInside` flag is set
+     at layout time; when that lost the mount race the canvas came back
+     30px taller than the grid and the extra painted as a black band
+     under the last row. Clipping the wrapper removes it without
+     scaling the buffer, so the cells stay square. */
+  main.split-content
+    .split-carousel[data-carousel-stacked="true"]
+    .piece-sketch[data-sketch-id="eternal-return-toggle"] {
+    overflow: hidden !important;
+  }
+
+  main.split-content
+    .split-carousel[data-carousel-stacked="true"]
+    .eternal-return-toggle__canvas {
+    overflow: hidden !important;
+  }
+
+  /* Buttons sit closer to the grid. `.eternal-return-toggle` is a flex
+     column with a 0.75rem gap; a quarter of that reads as attached to
+     the canvas rather than floating above it. */
+  main.split-content
+    .split-carousel[data-carousel-stacked="true"]
+    .eternal-return-toggle {
+    gap: 0.25rem !important;
+  }
+
+  /* tobrit's face canvas sits BENEATH the content on a phone rather
+     than fixed behind it. `SketchOverlay` portals it to the end of
+     `document.body`, so dropping `position: fixed` is enough to put it
+     after the page's content; the inline styles on the component mean
+     every property needs `!important`.
+
+     Width matches the media gutter and the height follows the canvas's
+     own aspect, so the faces are scaled, never squashed. */
+  /* Fixed behind the content, as on desktop. It was briefly placed in
+     the flow below the page; this puts it back to a backdrop. */
+  #TOBRIT_Canvas {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    pointer-events: none;
+  }
+
+  /* Sketches keep the square the mobile template gives them — the
+     reset above would otherwise leave a p5 container with no
+     measurable height and the canvas would not mount. */
+  main.split-content
+    .split-carousel[data-carousel-stacked="true"]
+    .piece-sketch[data-sketch-id] {
+    aspect-ratio: 1 / 1 !important;
+    height: auto !important;
+  }
+}
+
+/* Antahkarana is a tall, narrow solid (0.365 as wide as it is high),
+   so the square box every sketch gets on mobile left it 115px wide in
+   a 343px field. A 2:3 box gives the shape room to be read. The
+   attribute is repeated to outrank the generic
+   `.piece-sketch[data-sketch-id] { aspect-ratio: 1 !important }`
+   further up, which is later in source order. */
+@media (max-width: 720px) {
+  main.split-content
+    .split-carousel[data-carousel-stacked="true"]
+    .piece-sketch[data-sketch-id="antahkarana"][data-sketch-id] {
+    aspect-ratio: 2 / 3 !important;
+    height: auto !important;
+  }
+}
+
+/* ─── Shape-of-time control ─────────────────────────────────────
+   The two equations with the refresh control between them, centred
+   over the canvas. Both breakpoints render the same row; desktop used
+   to get a bare chip pinned to the viewport bottom instead.
+
+   Absolutely positioned against `.piece-sketch` because the split
+   template pins that box to the media column's height, so nothing can
+   be added to its flow. Desktop overlays the row on the canvas (the
+   canvas fills the whole column, and `.split-carousel` clips overflow,
+   so there is no room above it); mobile hangs it at `bottom: 100%`
+   over a band the wrapper reserves with a top margin.
+
+   LIVES HERE, not in globals.css. Rules naming `.piece-sketch` that
+   were added to globals never reached the served stylesheet (the same
+   thing happened to the sketch-caption sizing rule); project-split.css
+   is where the rest of the `.piece-sketch` sizing lives.
+
+   Geometry is shared; COLOUR is per-breakpoint and has to be. Mobile
+   sits on the white page and draws in page ink; desktop floats over
+   the black canvas, where that ink is invisible. */
+.shape-of-time-cta-row {
+  position: absolute;
+  /* `top: auto` and `height: auto` are load-bearing: without them the
+     row inherited a resolved `top` and stretched to the full height of
+     the sketch box, landing behind the description text instead of
+     hugging its 40px control. */
+  top: auto;
+  height: auto;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  z-index: 3;
+}
+
+/* `position: static` undoes the fixed placement the base chip rule in
+   globals.css gives it; `display: flex` undoes that file's `display:
+   none` default (which existed to hide the portaled copies, and which
+   this selector outranks at (0,2,0)). */
+.shape-of-time-cta-row .shape-of-time-refresh {
+  position: static;
+  display: flex;
+  transform: none;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.25rem;
+  background-color: transparent;
+  border-width: 1px;
+  border-style: solid;
+  flex: none;
+}
+
+/* Glyph scaled to the smaller box. */
+.shape-of-time-cta-row .shape-of-time-refresh svg {
+  width: 14px;
+  height: 14px;
+}
+
+.shape-of-time-cta-row .shape-of-time-refresh:active {
+  transform: scale(0.95);
+}
+
+.shape-of-time-pair {
+  /* Body face for the equation; only the live values are bold. */
+  font-family: var(--font-body);
+  font-size: var(--nav-text-size);
+  letter-spacing: var(--nav-text-tracking);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.shape-of-time-pair strong {
+  font-family: var(--font-bold);
+  font-weight: 700;
+  /* The shared `strong` rule adds a right margin and dims to 0.7 —
+     both wrong inside an inline equation. */
+  margin-right: 0;
+  opacity: 1;
+}
+
+.shape-of-time-pair__sep {
+  margin-right: 0.125rem;
+}
+
+/* The row hangs ABOVE the sketch box on both breakpoints, over the
+   page background rather than the canvas — so it draws in page ink,
+   not the light ink the old floating chip used over the black field.
+   `bottom: 100%` puts it outside the box, which the wrapper's INLINE
+   `overflow: hidden` would otherwise clip; the desktop rule below
+   reopens it. */
+.shape-of-time-cta-row {
+  bottom: 100%;
+  padding-bottom: 0.5rem;
+}
+
+.shape-of-time-cta-row .shape-of-time-refresh {
+  border-color: var(--chrome-scrim, #1a1a3a);
+  color: var(--chrome-scrim, #1a1a3a);
+}
+
+.shape-of-time-pair {
+  color: var(--color-dark);
+}
+
+/* Desktop — reserve the band by shortening the sketch box, not just
+   pushing it down. The split template gives `.piece-sketch` the media
+   column's full height, so a bare `margin-top` would push its bottom
+   3.5rem past `.split-carousel`, which clips overflow: the canvas
+   would lose that strip. Taking the same 3.5rem back off the height
+   keeps the box inside the column.
+
+   `overflow: visible` beats the wrapper's inline `overflow: hidden`
+   (a stylesheet `!important` outranks a plain inline style) so the
+   row, which sits outside the box, is not clipped away. */
+@media (min-width: 721px) {
+  main.split-content
+    .split-carousel
+    .piece-sketch.piece-sketch:has(.shape-of-time-cta-row) {
+    margin-top: 3.5rem !important;
+    height: calc(100% - 3.5rem) !important;
+    overflow: visible !important;
+  }
+}
+
+/* Mobile — same band, reserved with a margin alone: the mobile stack
+   sizes `.piece-sketch` from its contents, so there is no height to
+   take back.
+
+   `!important` + the extra class: the mobile reset zeroes margins on
+   every `.piece-layout`, and `.piece-sketch` is one. Without this the
+   row had no band to sit in and overlapped the prose above. */
+@media (max-width: 720px) {
+  main.split-content
+    .split-carousel
+    .piece-sketch.piece-sketch:has(.shape-of-time-cta-row) {
+    margin-top: 3.5rem !important;
+  }
+}
+
+/* AC `ac-pornj-tiles` — the eight tiles as two rows of four, on both
+   desktop and mobile. Square 2400x2400 sources, so the cells are
+   square and nothing crops. */
+/* Twelve columns so both runs divide it evenly: the six OC tiles span
+   2 each (row 1), the eight PORNJ tiles span 3 each (rows 2 and 3). */
+main.split-content
+  .split-carousel
+  .piece[data-piece-id="ac-pornj-tiles"]
+  .piece-layout--stack.piece-layout--stack {
+  display: grid !important;
+  grid-template-columns: repeat(12, minmax(0, 1fr)) !important;
+  grid-template-rows: repeat(3, auto) !important;
+  gap: var(--piece-gap, 1.5vw) !important;
+  align-content: start !important;
+  /* The GRID is constrained, not the tiles. Rows are width-driven, so
+     the three of them come to `2W/3 - g/3` tall: at 1920x1080 that was
+     982px inside a 965px column and the top row was cut off (8px
+     there, 71px at 1440x700). An aspect of 3:2 is exactly the shape
+     where the rows fill the height, so `max-width` / `max-height`
+     shrink the whole grid to fit whichever axis runs out first.
+     Capping the tiles by row share instead does NOT work: a
+     percentage `max-height` against an auto row is circular and
+     collapsed them to 25px. */
+  aspect-ratio: 3 / 2;
+  width: auto !important;
+  height: auto !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  margin: 0 auto !important;
+}
+
+main.split-content
+  .split-carousel
+  .piece[data-piece-id="ac-pornj-tiles"]
+  .piece-layout--stack.piece-layout--stack
+  > img {
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 1 !important;
+  object-fit: contain !important;
+  margin-top: 0 !important;
+}
+
+/* DOM order is [6 OC, 8 PORNJ]. */
+main.split-content
+  .split-carousel
+  .piece[data-piece-id="ac-pornj-tiles"]
+  .piece-layout--stack.piece-layout--stack
+  > img:nth-child(-n + 6) {
+  grid-column: span 2 !important;
+  grid-row: 1 !important;
+}
+
+main.split-content
+  .split-carousel
+  .piece[data-piece-id="ac-pornj-tiles"]
+  .piece-layout--stack.piece-layout--stack
+  > img:nth-child(n + 7) {
+  grid-column: span 3 !important;
+}
+
+/* AC `ac-glamtech-trio` and `ac-glamtech-installs` share a breakpoint
+   at 1200px: below it the images stack vertically, at or above it they
+   sit side by side in a single row. Distinct from the site's 720px
+   mobile breakpoint — this one is about whether the column is wide
+   enough for the photos to read side by side, not about touch. */
+@media (min-width: 721px) and (max-width: 1199px) {
+  main.split-content
+    .split-carousel
+    .piece:is(
+        [data-piece-id="ac-glamtech-installs"],
+        [data-piece-id="ac-glamtech-trio"],
+        [data-piece-id="ac-install-tiles"]
+      )[data-piece-id]
+    .piece-layout--stack.piece-layout--stack {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-auto-rows: minmax(0, 1fr) !important;
+    gap: var(--piece-gap, 1.5vw) !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  main.split-content
+    .split-carousel
+    .piece:is(
+        [data-piece-id="ac-glamtech-installs"],
+        [data-piece-id="ac-glamtech-trio"],
+        [data-piece-id="ac-install-tiles"]
+      )[data-piece-id]
+    .piece-layout--stack.piece-layout--stack
+    > img {
+    grid-column: 1 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    aspect-ratio: auto !important;
+    object-fit: contain !important;
+    margin-top: 0 !important;
+  }
+}
+
+/* The trio is a `--pair` (two photos) with the logo layered over it,
+   not a `--stack`, so it needs its own selector. Above 1200 a pair is
+   already side by side; below it the two photos stack. */
+@media (min-width: 721px) and (max-width: 1199px) {
+  main.split-content
+    .split-carousel
+    .piece[data-piece-id="ac-glamtech-trio"][data-piece-id]
+    .piece-layout--pair.piece-layout--pair {
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-auto-rows: minmax(0, 1fr) !important;
+    height: 100% !important;
+  }
+
+  main.split-content
+    .split-carousel
+    .piece[data-piece-id="ac-glamtech-trio"][data-piece-id]
+    .piece-layout--pair.piece-layout--pair
+    > img {
+    grid-column: 1 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+  }
+}
+
+@media (min-width: 1200px) {
+  main.split-content
+    .split-carousel
+    .piece:is(
+        [data-piece-id="ac-glamtech-installs"],
+        [data-piece-id="ac-install-tiles"]
+      )[data-piece-id]
+    .piece-layout--stack.piece-layout--stack {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-rows: minmax(0, 1fr) !important;
+    gap: var(--piece-gap, 1.5vw) !important;
+    align-items: center !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  main.split-content
+    .split-carousel
+    .piece[data-piece-id="ac-glamtech-trio"][data-piece-id]
+    .piece-layout--stack.piece-layout--stack {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    grid-template-rows: minmax(0, 1fr) !important;
+    gap: var(--piece-gap, 1.5vw) !important;
+    align-items: center !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  main.split-content
+    .split-carousel
+    .piece:is(
+        [data-piece-id="ac-glamtech-installs"],
+        [data-piece-id="ac-glamtech-trio"],
+        [data-piece-id="ac-install-tiles"]
+      )[data-piece-id]
+    .piece-layout--stack.piece-layout--stack
+    > img {
+    grid-row: 1 !important;
+    grid-column: auto !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    aspect-ratio: auto !important;
+    object-fit: contain !important;
+    margin-top: 0 !important;
+  }
+}
+
+/* AC glamtech slides on DESKTOP — the install photo uncropped across
+   the top, its four PORNJ tiles in a row beneath. The base layout put
+   the tiles in a column beside the photo and cropped the photo with
+   `object-fit: cover` to fill its cell. */
+@media (min-width: 721px) {
+  main.split-content
+    .split-carousel
+    .piece:is([data-piece-id="ac-glamtech-3"], [data-piece-id="ac-glamtech-4"])
+    .piece-layout--stack.piece-layout--stack {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    grid-template-rows: 1fr auto !important;
+    gap: var(--piece-gap, 1.5vw) !important;
+    align-items: start !important;
+    height: 100% !important;
+  }
+
+  main.split-content
+    .split-carousel
+    .piece:is([data-piece-id="ac-glamtech-3"], [data-piece-id="ac-glamtech-4"])
+    .piece-layout--stack.piece-layout--stack
+    > img:first-child {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    width: 100% !important;
+    height: 100% !important;
+    /* UNCROPPED. */
+    object-fit: contain !important;
+    object-position: center top !important;
+  }
+
+  main.split-content
+    .split-carousel
+    .piece:is([data-piece-id="ac-glamtech-3"], [data-piece-id="ac-glamtech-4"])
+    .piece-layout--stack.piece-layout--stack
+    > img:not(:first-child) {
+    grid-row: 2;
+    /* `grid-column: auto` is load-bearing: the base layout gives these
+       a 2-column span, so with every tile forced into row 2 they
+       landed two-to-a-cell and overlapped — only two of the four were
+       visible, at columns 1 and 3. */
+    grid-column: auto !important;
+    /* Square sources shown whole, at HALF the column width and centred
+       in their cell. The row is shorter as a result, so the install
+       photo above grows into the height that frees. */
+    width: 50% !important;
+    height: auto !important;
+    aspect-ratio: 1 !important;
+    object-fit: contain !important;
+    justify-self: center !important;
+  }
+
+  /* The two playa tiles, now a slide of their own, side by side. */
+  main.split-content
+    .split-carousel
+    .piece[data-piece-id="ac-install-tiles"]
+    .piece-layout--stack.piece-layout--stack {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: var(--piece-gap, 1.5vw) !important;
+    align-items: start !important;
+    justify-content: center !important;
+  }
+
+  main.split-content
+    .split-carousel
+    .piece[data-piece-id="ac-install-tiles"]
+    .piece-layout--stack.piece-layout--stack
+    > img {
+    /* Two square 600x600 sources side by side: filling the column's
+       width is the largest they can be without cropping. */
+    grid-column: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 1 !important;
+    object-fit: contain !important;
+    align-self: center !important;
+  }
 }
 
 /* ─── Directional caret cursors ─────────────────────────────────
@@ -715,14 +2323,46 @@ main.split-content {
   cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cpath%20d%3D%22M14.5%208%20L22.5%2016%20L14.5%2024%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M12%208%20L20%2016%20L12%2024%22%20fill%3D%22none%22%20stroke%3D%22%23111%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E") 16 16, e-resize;
 }
 
-/* Slide counter under the title. Portalled in from the carousel. */
+/* Slide counter above the media column. Portalled in from the
+   carousel. The slot spans the media column's full width; the counter
+   itself is pushed to the RIGHT edge so it lands on the same vertical
+   line as the media frame's right edge (and the `< projects >` group
+   in the bar above it). */
+#split-count-slot {
+  grid-column: 2 / 6;
+  grid-row: 1;
+  align-self: end;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* The counter row sits DIRECTLY on top of the media frame. The grid's
+   `gap` applies to rows as well as columns, so the counter was pushed
+   `--split-gap` clear of the media on top of its own bottom margin.
+   On desktop there are only two rows and the second is the media, so
+   zeroing the row gap closes just this one seam; the column gutter
+   (which is what `--split-gap` is really for) is unaffected.
+
+   MUST stay inside the desktop media query. Mobile stacks text,
+   counter and media into a single column where `gap: 1.5rem` is the
+   vertical rhythm between all three, and this longhand ties with that
+   shorthand at (0,1,0) — with project-page.css and project-split.css
+   merging in an order that does not follow source order, an unscoped
+   `row-gap: 0` could win there and collapse the mobile stack. */
+@media (min-width: 721px) {
+  .split {
+    row-gap: 0;
+  }
+}
+
 #split-count-slot:empty {
   display: none;
 }
 
 .split-count {
   display: block;
-  margin: -0.75rem 0 1.25rem 0;
+  /* Flush against the media frame's top edge. */
+  margin: 0;
   font-family: var(--font-body);
   font-size: 0.6875rem;
   letter-spacing: 0.06em;
@@ -786,7 +2426,7 @@ body:has(.split) main.split-content .split-carousel [data-carousel-slide] .piece
    edge they'd need to be. */
 body:has(.split) .nav-main,
 body:has(.split) .nav-info {
-  transform: translateX(calc(var(--split-gap) - 1rem));
+  transform: translateX(calc(var(--split-gap) - var(--chrome-inset-x)));
 }
 
 body:has(.split) .nav-projects {
@@ -795,7 +2435,7 @@ body:has(.split) .nav-projects {
      moved nothing. Translating the group shifts it regardless of the
      underlying positioning. Negative = leftward by the difference
      between the chrome inset and the column gutter. */
-  transform: translateX(calc(1rem - var(--split-gap)));
+  transform: translateX(calc(var(--chrome-inset-x) - var(--split-gap)));
 }
 
 /* tobrit `tobrit-build`: the four grid cells are already identical
@@ -821,4 +2461,75 @@ body:has(.split) .nav-projects {
   width: 100% !important;
   height: 100% !important;
   margin: 0 !important;
+}
+
+/* EVERY sketch renders SQUARE on mobile, sized by the media column's
+   width. Stacked, the media column is wide but short, so sketches had
+   no usable height: emergence collapsed to 343x0 and rendered nothing
+   at all, while multiverse and shape-of-time sat at p5's 100px default
+   because their containers had no measurable height to read. Wave and
+   lissajous looked right only because they carry their own square.
+   Keying a square to the available width gives them all room and makes
+   the treatment consistent.
+
+   High specificity + `!important` deliberately: this has to beat the
+   generic `height: 100%` fill and the slug-scoped viewport heights,
+   and it cannot rely on source order across the bundled chunk. */
+@media (max-width: 720px) {
+  body:has(.split)
+    main.split-content
+    .split-carousel
+    .piece-sketch[data-sketch-id] {
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    aspect-ratio: 1 / 1 !important;
+    margin: 0 !important;
+  }
+
+  /* The sketch's own container fills that box, so `dims()` measures a
+     square and p5 builds a square canvas. */
+  body:has(.split)
+    main.split-content
+    .piece-sketch[data-sketch-id] > div:not(.shape-of-time-cta-row) {
+    /* `:not(.shape-of-time-cta-row)` — the refresh control is also a
+     direct div child here, and this rule was stretching it to the
+     sketch's full 343px so it sat behind the prose above instead of
+     hugging its 40px button. */
+    width: 100% !important;
+    height: 100% !important;
+  }
+}
+
+/* Caret controls beside the fig. counter. */
+.split-count {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.split-count__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* Visually small, but padded out to a usable hit area. */
+  min-width: 1.5rem;
+  min-height: 1.5rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 150ms ease;
+}
+
+.split-count__btn:hover {
+  opacity: 1;
+}
+
+.split-count__btn:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  opacity: 1;
 }

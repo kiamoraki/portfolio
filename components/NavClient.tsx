@@ -11,28 +11,19 @@ export function NavClient() {
   const isIndex = normalized === "/";
   const isAbout = normalized === "/about";
 
-  // Wall-clock rainbow sync — computes the current rainbow color
-  // from `Date.now()` every animation frame and writes it to two
-  // CSS variables on `documentElement`:
-  //   --rainbow-now      → for `background-color` / `color` consumers
-  //   --rainbow-now-rgb  → the same value as space-separated RGB,
-  //                        so consumers can do `rgb(var(--…) / 0.5)`
+  // The wall-clock rainbow sync is GONE. It ran a `requestAnimation
+  // Frame` loop for the life of every page, writing `--rainbow-now`,
+  // `--rainbow-now-rgb` and `--rainbow-delay` onto `documentElement`
+  // 60 times a second — a permanently mutating inline `style` on the
+  // <html> tag.
   //
-  // Why JS instead of `@keyframes` + `animation-delay`? CSS animations
-  // capture their `animation-delay` value at START time and never
-  // re-read it. Any animation that mounts AFTER page load — a focused
-  // input, a hovered modal button, the modal opening at all (the
-  // dialog is `display: none` until `showModal()`, which stops its
-  // animations) — would start out-of-phase with the top-bar chips
-  // that have been running since page load. A shared CSS variable
-  // updated every frame guarantees every consumer paints the same
-  // colour at the same moment, no matter when they joined the party.
-  //
-  // `--rainbow-delay` is also kept up to date for any legacy CSS
-  // animation that still references it (mobile `.nav-info.active`,
-  // `.project-title-toggle--open`) — those will be slightly behind
-  // the JS-driven elements on first paint after mount, but the
-  // drift is bounded by one frame (~16ms) which is imperceptible.
+  // Nothing visible depended on it any more. The nav chips lost their
+  // rainbow `::before` overlays when the bar went flat, and the mobile
+  // bottom nav that used `--rainbow-now` is `display: none` on split
+  // pages (which is every project now). The only live consumers left
+  // are the contact modal's focus border and its button hover
+  // overlays, and those already declare `var(--rainbow-now, #ff1fe0)`
+  // — so they fall back to the static magenta rather than breaking.
 
   // Kick off the p5 chunk fetch as soon as the page hydrates. The
   // chunk is ~1MB and gated by the `loadP5()` singleton, so this
@@ -45,53 +36,6 @@ export function NavClient() {
     void loadP5();
   }, []);
 
-  useEffect(() => {
-    // 12-stop palette matching the `nav-grid-cycle` keyframes — the
-    // wrap-around stop (12 ≡ 0) is implicit via modular indexing.
-    const PALETTE: ReadonlyArray<readonly [number, number, number]> = [
-      [0xff, 0x1f, 0xe0],
-      [0xe0, 0x1f, 0xff],
-      [0xa2, 0x3e, 0xff],
-      [0x45, 0xd9, 0xff],
-      [0x45, 0xff, 0xa2],
-      [0x83, 0xff, 0x64],
-      [0xc1, 0xff, 0xa2],
-      [0xe0, 0xff, 0xa2],
-      [0xff, 0xff, 0x45],
-      [0xff, 0xd9, 0x45],
-      [0xff, 0xba, 0x45],
-    ];
-    const CYCLE_MS = 12000;
-    const STOPS = PALETTE.length;
-    const root = document.documentElement;
-    let rafId = 0;
-
-    const update = () => {
-      const t = Date.now() % CYCLE_MS;
-      const idx = (t / CYCLE_MS) * STOPS;
-      const i0 = Math.floor(idx) % STOPS;
-      const i1 = (i0 + 1) % STOPS;
-      const f = idx - Math.floor(idx);
-      const a = PALETTE[i0];
-      const b = PALETTE[i1];
-      const r = Math.round(a[0] + (b[0] - a[0]) * f);
-      const g = Math.round(a[1] + (b[1] - a[1]) * f);
-      const bl = Math.round(a[2] + (b[2] - a[2]) * f);
-      root.style.setProperty("--rainbow-now", `rgb(${r} ${g} ${bl})`);
-      root.style.setProperty("--rainbow-now-rgb", `${r} ${g} ${bl}`);
-      // Legacy `--rainbow-delay` for CSS animations that still use
-      // `animation: nav-grid-cycle 12s var(--rainbow-delay) …`.
-      const offsetSec = t / 1000;
-      root.style.setProperty(
-        "--rainbow-delay",
-        `-${offsetSec.toFixed(3)}s`,
-      );
-      rafId = window.requestAnimationFrame(update);
-    };
-    update();
-    return () => window.cancelAnimationFrame(rafId);
-  }, []);
-
   return (
     <>
       <div className="mobile-header-frame" aria-hidden="true" />
@@ -101,27 +45,9 @@ export function NavClient() {
           className={`icon-standard ${isIndex ? "active" : ""}`}
           aria-label="Home"
         >
-          {/* 13px glyph with a 1.25 stroke (was 22 / 2, then 16 / 1.5).
-              Stroke tracks the glyph size so the house keeps the same
-              optical weight as the wordmark beside it. */}
-          <svg
-            className="nav-house-icon"
-            viewBox="0 0 24 24"
-            width="13"
-            height="13"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={1.25}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M3 11.5 12 3l9 8.5" />
-            <path d="M5 10v10h14V10" />
-          </svg>
-          {/* Wordmark beside the house glyph. Not `aria-label`ed away:
-              the link's `aria-label="Home"` already names it, so this
-              is decorative to assistive tech and read once. */}
+          {/* The wordmark IS the home link now; the house glyph was
+              removed. Still `aria-hidden` because the link's own
+              `aria-label="Home"` names it, so it is read once. */}
           <span className="nav-home-label" aria-hidden="true">
             Kiamora Kirby
           </span>
@@ -136,7 +62,10 @@ export function NavClient() {
         aria-label="About"
         aria-current={isAbout ? "page" : undefined}
       >
-        <span className="nav-info-label">cv</span>
+        {/* Renders uppercase via `.nav-info-label`. The link and its
+            `aria-label` still point at /about — only the wordmark for
+            it changed. */}
+        <span className="nav-info-label">whois</span>
       </Link>
     </>
   );

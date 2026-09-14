@@ -106,6 +106,16 @@ export function ProjectGrid({
                 <span>{p.title}</span>
               )}
             </Link>
+            {/* Caption sits OUTSIDE the <a>, which carries the card's
+                `--card-bg`. Inside it, the name inherited a black card
+                background and dark ink, so it vanished on every dark
+                card. Out here it always sits on the page background.
+                `aria-hidden` because the link above is already named by
+                the image's alt, so exposing it would say the title
+                twice. */}
+            <span className="grid-item-title" aria-hidden="true">
+              {p.title}
+            </span>
           </li>
         );
       })}

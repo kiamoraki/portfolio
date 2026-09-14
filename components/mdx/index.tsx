@@ -36,6 +36,10 @@ import { LissajousUniqueGridCanvas } from "@/components/sketches/LissajousUnique
 import { LissajousPortraitsCanvas } from "@/components/sketches/LissajousPortraitsCanvas";
 import { JellyfishGridCanvas } from "@/components/sketches/JellyfishGridCanvas";
 import { ShapeOfTime } from "@/components/ShapeOfTime";
+/* Legacy bodies get THIS map, not `mdxPieceComponents`, so `<Sketch>`
+   has to be exposed here too for a legacy project to host a canvas
+   slide (energy does). Same component the v2 piece map uses. */
+import { Sketch } from "@/components/content/Sketch";
 import imageManifest from "@/lib/image-manifest.json";
 
 const manifest = imageManifest as Record<string, { width: number; height: number }>;
@@ -139,6 +143,61 @@ export function Video({ src, vertical = false, aspect, caption }: VideoProps) {
   );
 }
 
+type VideoFileProps = {
+  src: string;
+  poster?: string;
+  vertical?: boolean;
+  caption?: ReactNode;
+};
+
+/**
+ * Self-hosted MP4 — a real `<video>` that autoplays muted, loops and
+ * plays inline.
+ *
+ * Distinct from `<Video>`, which embeds a third-party player in an
+ * `<iframe>`. Pointing `<Video>` at a local file "works" but hands the
+ * browser's default media viewer an iframe: no loop, no muted
+ * autoplay, and the player's own chrome on top.
+ *
+ * Reuses the `.video` / `.video-vertical` wrapper so the existing
+ * sizing applies; the element styles are inline because those CSS
+ * rules target `iframe` specifically.
+ */
+export function VideoFile({
+  src,
+  poster,
+  vertical = false,
+  caption,
+}: VideoFileProps) {
+  const inner = (
+    <div className={vertical ? "video-vertical" : "video"}>
+      <video
+        src={src}
+        poster={poster}
+        autoPlay
+        muted
+        loop
+        playsInline
+        style={{
+          width: "100%",
+          height: "100%",
+          maxWidth: "100%",
+          objectFit: "contain",
+          display: "block",
+          border: 0,
+        }}
+      />
+    </div>
+  );
+  if (!caption) return inner;
+  return (
+    <div className="video_w_caption">
+      {inner}
+      <label>{caption}</label>
+    </div>
+  );
+}
+
 export function Credits({ children }: { children: ReactNode }) {
   return <div className="row credits">{children}</div>;
 }
@@ -185,9 +244,11 @@ export function MetaExclude({ children }: { children: ReactNode }) {
 
 export const mdxComponents = {
   Figure,
+  Sketch,
   Row,
   Text,
   Video,
+  VideoFile,
   Credits,
   SoundCloud,
   MetaExclude,

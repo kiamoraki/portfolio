@@ -1,6 +1,7 @@
 "use client";
 
 import { loadP5 } from "./loadP5";
+import { setWaveBox } from "./waveLayout";
 
 import { useEffect, useRef } from "react";
 
@@ -39,11 +40,54 @@ export function WaveCanvasShell({ sketch }: { sketch: (p: P5) => void }) {
       };
     };
 
+    // Publish the box the canvas actually occupies BEFORE p5 mounts,
+    // so the very first `computeWaveLayout()` inside `p.setup` sizes
+    // the pixel buffer to the display size instead of the 700px
+    // fallback. `ro` then keeps it current: the split template's media
+    // column changes height with the viewport, and the sketches only
+    // re-derive their layout inside `p.windowResized`, which a pure
+    // container resize (no window resize) never fires.
+    const publish = () => {
+      const el = ref.current;
+      if (!el) return false;
+      const r = el.getBoundingClientRect();
+      if (r.width <= 0 || r.height <= 0) return false;
+      setWaveBox({ width: r.width, height: r.height });
+      return true;
+    };
+    publish();
+
+    let ro: ResizeObserver | null = null;
+
     (async () => {
       const P5Ctor = await loadP5();
       if (cancelled || !ref.current) return;
+      publish();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       instance = new P5Ctor(wrappedSketch as any, ref.current) as any;
+      if (typeof ResizeObserver !== "undefined") {
+        ro = new ResizeObserver(() => {
+          // `windowResized` is the sketches' one re-layout entry point;
+          // calling it directly re-runs `computeWaveLayout()` against
+          // the box just published and resizes the buffer to match.
+          if (!publish()) return;
+          instance?.windowResized?.();
+          // p5's `resizeCanvas` rewrites the canvas element's INLINE
+          // width/height to the new pixel dimensions, wiping the
+          // `100%` sizing each sketch sets in `setup`. On mobile the
+          // buffer is the viewport (375x800) while the box is a
+          // 343x343 square, so losing those styles blew the canvas
+          // out of its container. Re-assert them after every
+          // re-layout.
+          const c = instance?.canvas as HTMLCanvasElement | undefined;
+          if (c) {
+            c.style.display = "block";
+            c.style.width = "100%";
+            c.style.height = "100%";
+          }
+        });
+        ro.observe(ref.current);
+      }
       io = new IntersectionObserver(
         (entries) => {
           for (const e of entries) {
@@ -57,6 +101,7 @@ export function WaveCanvasShell({ sketch }: { sketch: (p: P5) => void }) {
     })();
     return () => {
       cancelled = true;
+      ro?.disconnect();
       io?.disconnect();
       instance?.remove?.();
     };

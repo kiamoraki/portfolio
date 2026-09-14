@@ -22,7 +22,8 @@ import { ShapeOfTimeCanvas } from "@/components/sketches/ShapeOfTimeCanvas";
 import { ShapeOfTimeWithRefresh } from "@/components/sketches/ShapeOfTimeWithRefresh";
 import { ShapeOfTimeGridCanvas } from "@/components/sketches/ShapeOfTimeGridCanvas";
 import { ShapeOfTimeV2Canvas } from "@/components/sketches/ShapeOfTimeV2Canvas";
-import { RadialsCanvas } from "@/components/sketches/RadialsCanvas";
+import { EmergenceCanvas } from "@/components/sketches/EmergenceCanvas";
+import { AntahkaranaCanvas } from "@/components/sketches/AntahkaranaCanvas";
 import { LissajousCanvas } from "@/components/sketches/LissajousCanvas";
 import { LissajousPairLinesCanvas } from "@/components/sketches/LissajousPairLinesCanvas";
 import { LissajousLatticeCanvas } from "@/components/sketches/LissajousLatticeCanvas";
@@ -74,7 +75,12 @@ export const SKETCHES: Record<string, SketchEntry> = {
   "shape-of-time-v2": { Component: C(ShapeOfTimeV2Canvas), bg: "#000" },
 
   // ─── Animations: emergence (RadialsCanvas) ───
-  emergence: { Component: C(RadialsCanvas), bg: "#f8f7ff" },
+  emergence: { Component: C(EmergenceCanvas), bg: "#f8f7ff" },
+
+  // ─── Energy: antahkarana ───
+  /* Page white, not black: the slices are translucent and read as
+     stained glass over the page rather than as emissive line work. */
+  antahkarana: { Component: C(AntahkaranaCanvas), bg: "#fff" },
 
   // ─── Animations: lissajous family ───
   "lissajous-canvas": { Component: C(LissajousCanvas), bg: "#000" },

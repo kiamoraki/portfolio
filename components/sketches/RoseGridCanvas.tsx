@@ -4,7 +4,19 @@ import { loadP5 } from "./loadP5";
 
 import { useEffect, useRef } from "react";
 
-const GRID = 9;
+const GRID_DESKTOP = 9;
+/* Mobile shows the 6x6 corner of the matrix. At 343px the full 9x9
+   gives 38px cells, too small for the higher-(n, d) roses to read as
+   anything but a smudge; 6x6 gives 57px and the curves stay legible.
+   The (n, d) pairs shown are a subset of the desktop set, so the axes
+   still mean the same thing. */
+const GRID_MOBILE = 6;
+
+function gridSize() {
+  return typeof window !== "undefined" && window.innerWidth <= 720
+    ? GRID_MOBILE
+    : GRID_DESKTOP;
+}
 const ANGLE_ADDER = 0.1;
 const PCT_INCREMENT = 0.01;
 const AMP_RATIO = 15 / 90; // amp / cellSize from original 810x810 / 9
@@ -97,12 +109,20 @@ const sketch = (p: any) => {
       const a = this.amp;
       const isMobile =
         typeof window !== "undefined" && window.innerWidth <= 720;
-      // Smaller step = more sampled points along the curve. Bumped
-      // mobile from 20 → 8 so the cells render with substantially
-      // more particles and read as a continuous ring rather than
-      // scattered specks.
-      const step = isMobile ? 8 : 10;
-      const dotSize = isMobile ? 1.0 : 1.6;
+      // A CONSTANT angular step, so each cell's dot COUNT is
+      // proportional to its curve's period: a d=9 rose closes after
+      // nine turns and gets nine times the dots of a d=1 rose, at the
+      // same spacing along the path.
+      //
+      // Equal dot counts per cell (period / fixed samples) was tried
+      // and is wrong — it puts a d=9 curve's dots 90° apart and the
+      // cell degrades into scattered specks instead of a rose.
+      //
+      // Mobile stays coarser still (16 deg), which thins every cell by
+      // the same factor while keeping that proportionality; the larger
+      // dot compensates at the smaller cell size.
+      const step = isMobile ? 16 : 12;
+      const dotSize = isMobile ? 2.2 : 1.6;
       for (let i = 0; i < this.theta; i += step) {
         const radian = (Math.PI / 180) * (this.angle + i);
         const polar = a + a * Math.cos(ratio * radian);
@@ -125,7 +145,7 @@ const sketch = (p: any) => {
   let labelSize = 10;
 
   const layoutRoses = () => {
-    // Fixed GRID x GRID matrix: column = n, row = d. Gutters on the top
+    // GRID x GRID matrix: column = n, row = d. Gutters on the top
     // and left hold the axis labels, so the cells start inset.
     const axis = Math.max(
       14,
@@ -137,6 +157,7 @@ const sketch = (p: any) => {
     // clear the text's height.
     const gridX = axis * 2.1;
     const gridY = axis;
+    const GRID = gridSize();
     const cellW = (p.width - gridX) / GRID;
     const cellH = (p.height - gridY) / GRID;
     const amp = Math.min(cellW, cellH) * AMP_RATIO;

@@ -1,0 +1,49 @@
+---
+title: Energy
+slug: energy
+layout: split
+year: 2024
+tags: [design]
+thumb: energy.png
+---
+
+{/* Legacy body (Figure / Row / VideoFile), matching murals and
+    drawings. Deliberately NOT v2 Piece markup: mixing the two in one
+    body orphans every slide that isn't a Piece. */}
+
+{/* `energy_sigils-og.mov` (2032x1900, 60fps, 80MB) re-encoded to
+    1280x1196 / 30fps h264, faststart, no audio track. Cropped 80px off
+    the bottom and padded 80px back at the top so the sigils sit with
+    equal black above and below (the source had 8px / 168px).
+
+    A page-white version exists alongside it at
+    `energy-sigils-web-light.mp4` (alpha from the per-pixel MAX
+    channel, then unpremultiplied, so hue and saturation survive and
+    the glow falls off into the page with no halo). The BLACK cut is
+    the one on the site. */}
+<VideoFile
+  src="/img/energy/energy-sigils-web.mp4"
+  poster="/img/energy/energy-sigils-web-poster.jpg"
+  caption="Energy Sigils"
+/>
+
+<Row>
+  <Figure src="/img/energy/iching-1.jpg" />
+  <Figure src="/img/energy/iching-2.jpg" />
+</Row>
+
+<Figure src="/img/energy/iching-lines.jpg" />
+
+<Row>
+  <Figure src="/img/energy/iching-circles.png" />
+  <Figure src="/img/energy/iching-rainbow.png" />
+</Row>
+
+{/* `Antahkarana.png` rebuilt as live geometry — see
+    components/sketches/AntahkaranaCanvas.tsx. Top-level `<Sketch>`
+    renders a `.piece-layout`, which the legacy slide discovery already
+    picks up, so it slots into this body without turning it into a v2
+    Piece document. */}
+<Sketch id="antahkarana" bg="#fff" />
+
+<Figure src="/img/energy/energy.png" />
